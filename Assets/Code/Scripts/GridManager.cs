@@ -48,10 +48,6 @@ public class GridManager : MonoBehaviour
                 newTile.name = $"{xCoordinate}, {zCoordinate}";
             }
         }
-
-        foreach (var tile in tileMap.Keys) {
-            Debug.Log(tile, tileMap[tile]);
-        }
     }
 
     Vector3Int TransformVector3PositionToInt(Vector3 position) {
@@ -59,7 +55,6 @@ public class GridManager : MonoBehaviour
     }
 
     public Tile GetTileAtPosition(Vector3 position) {
-        Debug.Log(position);
         return tileMap[TransformVector3PositionToInt(position)];
     }
 }
