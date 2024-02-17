@@ -44,17 +44,17 @@ public class GridManager : MonoBehaviour
                 Vector3 newPosition = new Vector3(xCoordinate, 0.0f, zCoordinate);
 
                 newTile.transform.position = newPosition;
-                tileMap[TransformVector3PositionToInt(newPosition)] = newTile;
+                tileMap[TransformVector3ToVector3Int(newPosition)] = newTile;
                 newTile.name = $"{xCoordinate}, {zCoordinate}";
             }
         }
     }
 
-    Vector3Int TransformVector3PositionToInt(Vector3 position) {
+    Vector3Int TransformVector3ToVector3Int(Vector3 position) {
         return new Vector3Int((int)(position.x * 2), (int)(position.y * 2), (int)(position.z * 2));
     }
 
     public Tile GetTileAtPosition(Vector3 position) {
-        return tileMap[TransformVector3PositionToInt(position)];
+        return tileMap[TransformVector3ToVector3Int(position)];
     }
 }
