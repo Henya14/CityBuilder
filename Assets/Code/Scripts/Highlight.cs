@@ -14,5 +14,5 @@ public class Highlight : MonoBehaviour
 
     public void ToggleHighlight(bool on) {
         gameObject.GetComponent<MeshRenderer>().material = on? highlightMaterial : originalMaterial;
-    }
+     }
 }

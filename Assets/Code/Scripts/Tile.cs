@@ -9,7 +9,7 @@ public class Tile : MonoBehaviour
     void OnMouseEnter() {
         var manager = FindObjectOfType<GridManager>();
         ClearLastHighlight();
-        lastHighlight.AddRange(GetCoordsOfRectangle(transform.position, 3,4));
+        lastHighlight.AddRange(GetCoordsOfRectangle(transform.position, 1,1));
         foreach(var coord in lastHighlight) {
             var tile = manager.GetTileAtPosition(coord);
             tile.GetComponent<Highlight>()?.ToggleHighlight(true);
