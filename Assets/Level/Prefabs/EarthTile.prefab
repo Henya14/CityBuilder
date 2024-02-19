@@ -103,6 +103,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc53c132a2b1243478794d19ecbafede, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  description: A Dirt Tile
 --- !u!65 &3297212600633482310
 BoxCollider:
   m_ObjectHideFlags: 0
