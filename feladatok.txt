@@ -1,0 +1,37 @@
+1. kör:
+   - (Patrik) Főmenü 
+   - (Patrik) Játék UI
+   - (Henrik) Építőrendszer (zónázás (lakó, munka, bolt)) / Rombolás
+   - Terület morál (nem akarnak beköltözni, vagy nem épül munkahely...)
+   - Pénzrendszer / adók
+   - Kameramozgás
+   - Mentés / Betöltés
+   Nice to have:
+     - Épület pár másodpercig épül lehelyezés után
+
+2.kör:
+  - Pályagenerálás
+  - Park, mindenfajta épület
+  - Szolgáltatás rendszer
+  - Bűnözés, rendőr, tűzoltó, kórház, iskola, templom (büdzsé rendszer)
+  - Áram, vízvezeték, szennyvíz
+  
+3.kör: 
+   - Nyersanyag generálás a föld alatt, utána szállítás
+   - Nyersanyagok eladása (tengeren)
+
+4.kör:
+   - Gyalogosok
+   - Forgalom / utak terheltsége
+   - Emberek (Kor / jellemzők)
+
+
+- turizmus (repülők?)
+- Éjjel/nappal ciklus?
+- folyó generálás (hídak)? tó vagy tenger?
+- Katasztrófák?
+- Tömegközlekedés?
+- Végtelen pálya?
+- szórakozóhelyek(?)
+
+
