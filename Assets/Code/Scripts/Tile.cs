@@ -9,8 +9,6 @@ public class Tile : MonoBehaviour
     void OnMouseEnter() {
         var manager = FindObjectOfType<GridManager>();
         manager.TileSelectedAtPosition(transform.position);
-        
-        
     }
 
     void OnMouseExit() {
