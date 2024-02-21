@@ -17,7 +17,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] float chanceToSwitchTile = 0.3f;
     [SerializeField] Tile previousTilePlaced = null;
     Vector2Int selectionSize = new Vector2Int(1,1); 
-    List<Vector3> lastSelectedTilePositions = new List<Vector3>();
+    List<Vector3Int> lastSelectedTilePositions = new List<Vector3Int>();
     GameUIManager gameUIManager;
 
 
@@ -52,27 +52,28 @@ public class GridManager : MonoBehaviour
                 Vector3 newPosition = new Vector3(xCoordinate, 0.0f, zCoordinate);
 
                 newTile.transform.position = newPosition;
-                tileMap[TransformVector3ToVector3Int(newPosition)] = newTile;
+                newTile.positionInt = new Vector3Int(x, 0, z);
+                tileMap[newTile.positionInt] = newTile;
                 newTile.name = $"{xCoordinate}, {zCoordinate}";
             }
         }
     }
 
-    public void TileSelectedAtPosition(Vector3 position) {
+    public void TileSelectedAtPosition(Vector3Int position) {
         ClearlastSelectedTilePositions();
         lastSelectedTilePositions.AddRange(GetPositionsOfTilesInSelection(position, selectionSize));
         SetSelectionOfTilesAtPositions(lastSelectedTilePositions, true);
     }
 
-    public void TileDeselectedAtPosition(Vector3 position) {
+    public void TileDeselectedAtPosition(Vector3Int position) {
         ClearlastSelectedTilePositions();
     }
 
-    List<Vector3> GetPositionsOfTilesInSelection(Vector3 startTilePosition, Vector2 selectionSize) {
-        List<Vector3> positions = new List<Vector3>();
+    List<Vector3Int> GetPositionsOfTilesInSelection(Vector3Int startTilePosition, Vector2 selectionSize) {
+        List<Vector3Int> positions = new List<Vector3Int>();
         for (int x = 0; x < selectionSize.x; x++ ) {
             for (int z = 0; z < selectionSize.y; z++) {
-                positions.Add(new Vector3(startTilePosition.x + x * tileSize, 0.0f, startTilePosition.z + z * tileSize));
+                positions.Add(new Vector3Int(startTilePosition.x + x, 0, startTilePosition.z + z));
             }
         }
         return positions;
@@ -83,7 +84,7 @@ public class GridManager : MonoBehaviour
         lastSelectedTilePositions.Clear();
     }
 
-    void SetSelectionOfTilesAtPositions(List<Vector3> tilePositions, bool selected) {
+    void SetSelectionOfTilesAtPositions(List<Vector3Int> tilePositions, bool selected) {
             foreach(var tilePosition in tilePositions) {
             var tile = GetTileAtPosition(tilePosition);
             if (tile != null) {
@@ -92,12 +93,8 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    Vector3Int TransformVector3ToVector3Int(Vector3 position) {
-        return new Vector3Int((int)(position.x * 2), (int)(position.y * 2), (int)(position.z * 2));
-    }
-
-    public Tile GetTileAtPosition(Vector3 position) {
-        return tileMap.GetValueOrDefault(TransformVector3ToVector3Int(position), null);
+    public Tile GetTileAtPosition(Vector3Int position) {
+        return tileMap.GetValueOrDefault(position, null);
     }
 
     void Update() {

@@ -5,14 +5,15 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
+    public Vector3Int positionInt {get; set;}
     [SerializeField] public string description;
     void OnMouseEnter() {
         var manager = FindObjectOfType<GridManager>();
-        manager.TileSelectedAtPosition(transform.position);
+        manager.TileSelectedAtPosition(positionInt);
     }
 
     void OnMouseExit() {
         var manager = FindObjectOfType<GridManager>();
-        manager.TileDeselectedAtPosition(transform.position);
+        manager.TileDeselectedAtPosition(positionInt);
     }
 }
