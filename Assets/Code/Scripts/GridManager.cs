@@ -16,7 +16,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] float tileSize = 0.5f;
     [SerializeField] float chanceToSwitchTile = 0.3f;
     [SerializeField] Tile previousTilePlaced = null;
-    Vector2Int selectionSize = new Vector2Int(1,1); 
+    public Vector2Int selectionSize {get; set;} = new Vector2Int(1,1); 
     List<Vector3Int> lastSelectedTilePositions = new List<Vector3Int>();
     GameUIManager gameUIManager;
 
