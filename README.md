@@ -1,7 +1,7 @@
 # City builder
 City building tycoon game university project
 ## Documentation
-[]()
+- [Architecture](docs/architecture.md)
 
 ## Folder structure 
 The project's folder structure follows the #1 folder structure mentioned [here](https://unity.com/how-to/organizing-your-project)
