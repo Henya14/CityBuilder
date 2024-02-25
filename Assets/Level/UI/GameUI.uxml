@@ -8,6 +8,6 @@
             <ui:Button text="Selection" parse-escape-sequences="true" display-tooltip-when-elided="true" name="selection-mode-button" class="gamemode-selector gamemode-selector-button" />
             <ui:Button text="Build" parse-escape-sequences="true" display-tooltip-when-elided="true" name="building-mode-button" class="gamemode-selector gamemode-selector-button" />
         </ui:VisualElement>
-        <ui:ListView focusable="true" name="building-list" style="position: absolute; right: 0; top: 0; bottom: 0; left: 75%; align-items: center; background-color: rgba(0, 0, 0, 0.43); display: none;" />
+        <ui:ListView focusable="true" name="building-list" style="position: absolute; right: 0; top: 0; bottom: 0; left: 75%; align-items: stretch; background-color: rgba(0, 0, 0, 0.43); display: none;" />
     </ui:VisualElement>
 </ui:UXML>

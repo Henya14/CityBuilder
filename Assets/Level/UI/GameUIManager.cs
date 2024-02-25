@@ -85,9 +85,9 @@ public class GameUIManager : MonoBehaviour
     void OnBuildingSelected(IEnumerable<object> selectedItems) {
         var selectedBuilding = buildingList.selectedItem as BuildingData;
         if (selectedBuilding == null) {
-            gridManager.selectionSize = new Vector2Int(1,1);
+            gridManager.ChangeSelection(new Vector2Int(1,1), null);
         } else {
-            gridManager.selectionSize = selectedBuilding.size;
+            gridManager.ChangeSelection(selectedBuilding.size, selectedBuilding.prefab);
         }
     }
 

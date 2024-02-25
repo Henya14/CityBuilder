@@ -17,6 +17,8 @@ public class GridManager : MonoBehaviour
     [SerializeField] float chanceToSwitchTile = 0.3f;
     [SerializeField] Tile previousTilePlaced = null;
     public Vector2Int selectionSize {get; set;} = new Vector2Int(1,1); 
+    public GameObject selectionPrefab {get; set;} 
+    GameObject selectionInstance;
     List<Vector3Int> lastSelectedTilePositions = new List<Vector3Int>();
     GameUIManager gameUIManager;
 
@@ -63,6 +65,15 @@ public class GridManager : MonoBehaviour
         ClearlastSelectedTilePositions();
         lastSelectedTilePositions.AddRange(GetPositionsOfTilesInSelection(position, selectionSize));
         SetSelectionOfTilesAtPositions(lastSelectedTilePositions, true);
+
+        if (selectionInstance == null && selectionPrefab != null) {
+            selectionInstance = Instantiate(selectionPrefab);
+            
+        } 
+
+        if (selectionInstance != null) {
+            selectionInstance.transform.position = new Vector3(position.x * tileSize - offsetX, tileSize,  (position.z + selectionSize.y/2) * tileSize - offsetZ);
+        }
     }
 
     public void TileDeselectedAtPosition(Vector3Int position) {
@@ -71,7 +82,7 @@ public class GridManager : MonoBehaviour
 
     List<Vector3Int> GetPositionsOfTilesInSelection(Vector3Int startTilePosition, Vector2 selectionSize) {
         List<Vector3Int> positions = new List<Vector3Int>();
-        for (int x = 0; x < selectionSize.x; x++ ) {
+        for (int x = 0; x < selectionSize.x; x++) {
             for (int z = 0; z < selectionSize.y; z++) {
                 positions.Add(new Vector3Int(startTilePosition.x + x, 0, startTilePosition.z + z));
             }
@@ -105,5 +116,14 @@ public class GridManager : MonoBehaviour
                 gameUIManager.TileSelected(null);
             }
         }
+    }
+
+    public void ChangeSelection(Vector2Int selectionSize, GameObject prefabToShowAtSelection) {
+        this.selectionSize = selectionSize;
+        if (selectionInstance != null) {
+            Destroy(selectionInstance);
+            selectionInstance = null;
+        }
+        selectionPrefab = prefabToShowAtSelection;
     }
 }
