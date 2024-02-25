@@ -1,12 +1,18 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.VisualScripting;
+using Unity.VisualScripting.Dependencies.Sqlite;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
 
-
+public enum SelectionMode {
+    Single,
+    Line,
+    Rectangle
+}
 public class GridManager : MonoBehaviour
 {
 
@@ -16,8 +22,11 @@ public class GridManager : MonoBehaviour
     [SerializeField] float tileSize = 0.5f;
     [SerializeField] float chanceToSwitchTile = 0.3f;
     [SerializeField] Tile previousTilePlaced = null;
+    bool isMouseButtonDown = false;
+    SelectionMode selectionMode = SelectionMode.Rectangle;
     public Vector2Int selectionSize {get; set;} = new Vector2Int(1,1); 
     public GameObject selectionPrefab {get; set;} 
+    Vector3Int lastTilePositionMouseHoveredOver;
     GameObject selectionInstance;
     List<Vector3Int> lastSelectedTilePositions = new List<Vector3Int>();
     GameUIManager gameUIManager;
@@ -62,13 +71,24 @@ public class GridManager : MonoBehaviour
     }
 
     public void TileSelectedAtPosition(Vector3Int position) {
-        ClearlastSelectedTilePositions();
-        lastSelectedTilePositions.AddRange(GetPositionsOfTilesInSelection(position, selectionSize));
+        lastTilePositionMouseHoveredOver = position;
+        if (selectionMode == SelectionMode.Single) {
+            ClearlastSelectedTilePositions();
+            lastSelectedTilePositions.AddRange(GetPositionsOfTilesInSelection(position, selectionSize));
+        } else if (selectionMode == SelectionMode.Rectangle) {
+            if(isMouseButtonDown) {
+                var firstItem = lastSelectedTilePositions[0];
+                ClearlastSelectedTilePositions();
+                lastSelectedTilePositions = GetPositionsOfTilesInRectangleBetweenTwoPositions(firstItem, position);
+            } else {
+                lastSelectedTilePositions.Clear();
+                lastSelectedTilePositions.Add(position);
+            }
+        }
         SetSelectionOfTilesAtPositions(lastSelectedTilePositions, true);
 
         if (selectionInstance == null && selectionPrefab != null) {
             selectionInstance = Instantiate(selectionPrefab);
-            
         } 
 
         if (selectionInstance != null) {
@@ -77,7 +97,9 @@ public class GridManager : MonoBehaviour
     }
 
     public void TileDeselectedAtPosition(Vector3Int position) {
-        ClearlastSelectedTilePositions();
+        if (!isMouseButtonDown) { 
+            ClearlastSelectedTilePositions();
+        }
     }
 
     List<Vector3Int> GetPositionsOfTilesInSelection(Vector3Int startTilePosition, Vector2 selectionSize) {
@@ -89,6 +111,26 @@ public class GridManager : MonoBehaviour
         }
         return positions;
     }
+
+     List<Vector3Int> GetPositionsOfTilesInRectangleBetweenTwoPositions(Vector3Int startPosition, Vector3Int endPosition) {
+        List<Vector3Int> positions = new List<Vector3Int>
+        {
+            startPosition
+        };
+
+        var newStartPos = new Vector3Int(Math.Min(startPosition.x, endPosition.x), 0, Math.Min(startPosition.z, endPosition.z));
+        var newEndPosition = new Vector3Int(Math.Max(startPosition.x, endPosition.x), 0, Math.Max(startPosition.z, endPosition.z));
+
+        for (int x = newStartPos.x; x <= newEndPosition.x; x++) {
+            for (int z = newStartPos.z; z <= newEndPosition.z; z++) {
+                var newPos = new Vector3Int(x, 0, z);
+                if (newPos != positions[0]) {
+                    positions.Add(new Vector3Int(x, 0, z));
+                }
+            }
+        }
+        return positions;
+     }
 
     void ClearlastSelectedTilePositions() {
         SetSelectionOfTilesAtPositions(lastSelectedTilePositions, false);
@@ -110,11 +152,17 @@ public class GridManager : MonoBehaviour
 
     void Update() {
         if (Input.GetMouseButtonDown(0)) {
+            isMouseButtonDown = true;
             if (lastSelectedTilePositions.Count > 0) {
                 gameUIManager.TileSelected(GetTileAtPosition(lastSelectedTilePositions[0]));
             } else {
                 gameUIManager.TileSelected(null);
             }
+        } else if (Input.GetMouseButtonUp(0)) {
+            isMouseButtonDown = false;
+            ClearlastSelectedTilePositions();
+            lastSelectedTilePositions.Add(lastTilePositionMouseHoveredOver);
+            SetSelectionOfTilesAtPositions(lastSelectedTilePositions, true);
         }
     }
 

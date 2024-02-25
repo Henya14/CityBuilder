@@ -18,8 +18,6 @@ public class BuildModeManager : MonoBehaviour
 
     public List<BuildingData> GetBuildingDatas() {
         List<BuildingData> buildingDatas = Resources.LoadAll<BuildingData>("Buildings").ToList(); 
-        Debug.Log(buildingDatas);
-        Debug.Log(buildingDatas.Count);
         buildingDatas = buildingDatas.Select(bd => {
             bd.isAvailable = UnityEngine.Random.Range(0, 2) == 1? true: false;
             return bd;
