@@ -3,7 +3,7 @@
    - (Patrik) Játék UI
    - (Henrik) Építőrendszer (zónázás (lakó, munka, bolt)) / Rombolás
    - Terület morál (nem akarnak beköltözni, vagy nem épül munkahely...)
-   - Pénzrendszer / adók
+   - (Patrik) Pénzrendszer / adók
    - (Henrik) Kameramozgás
    - Mentés / Betöltés
    Nice to have:
