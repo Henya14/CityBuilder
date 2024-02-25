@@ -1,8 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+
+
 
 public class GridManager : MonoBehaviour
 {
@@ -13,6 +16,10 @@ public class GridManager : MonoBehaviour
     [SerializeField] float tileSize = 0.5f;
     [SerializeField] float chanceToSwitchTile = 0.3f;
     [SerializeField] Tile previousTilePlaced = null;
+    public Vector2Int selectionSize {get; set;} = new Vector2Int(1,1); 
+    List<Vector3Int> lastSelectedTilePositions = new List<Vector3Int>();
+    GameUIManager gameUIManager;
+
 
     Dictionary<Vector3Int, Tile> tileMap = new Dictionary<Vector3Int, Tile>();
     int offsetX = 10;
@@ -21,6 +28,7 @@ public class GridManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        gameUIManager = FindObjectOfType<GameUIManager>();
         offsetX = gridHeight / 4;
         offsetZ = gridWidth / 4;
         GenerateGrid();
@@ -44,17 +52,58 @@ public class GridManager : MonoBehaviour
                 Vector3 newPosition = new Vector3(xCoordinate, 0.0f, zCoordinate);
 
                 newTile.transform.position = newPosition;
-                tileMap[TransformVector3ToVector3Int(newPosition)] = newTile;
+                newTile.positionInt = new Vector3Int(x, 0, z);
+                tileMap[newTile.positionInt] = newTile;
                 newTile.name = $"{xCoordinate}, {zCoordinate}";
             }
         }
     }
 
-    Vector3Int TransformVector3ToVector3Int(Vector3 position) {
-        return new Vector3Int((int)(position.x * 2), (int)(position.y * 2), (int)(position.z * 2));
+    public void TileSelectedAtPosition(Vector3Int position) {
+        ClearlastSelectedTilePositions();
+        lastSelectedTilePositions.AddRange(GetPositionsOfTilesInSelection(position, selectionSize));
+        SetSelectionOfTilesAtPositions(lastSelectedTilePositions, true);
     }
 
-    public Tile GetTileAtPosition(Vector3 position) {
-        return tileMap[TransformVector3ToVector3Int(position)];
+    public void TileDeselectedAtPosition(Vector3Int position) {
+        ClearlastSelectedTilePositions();
+    }
+
+    List<Vector3Int> GetPositionsOfTilesInSelection(Vector3Int startTilePosition, Vector2 selectionSize) {
+        List<Vector3Int> positions = new List<Vector3Int>();
+        for (int x = 0; x < selectionSize.x; x++ ) {
+            for (int z = 0; z < selectionSize.y; z++) {
+                positions.Add(new Vector3Int(startTilePosition.x + x, 0, startTilePosition.z + z));
+            }
+        }
+        return positions;
+    }
+
+    void ClearlastSelectedTilePositions() {
+        SetSelectionOfTilesAtPositions(lastSelectedTilePositions, false);
+        lastSelectedTilePositions.Clear();
+    }
+
+    void SetSelectionOfTilesAtPositions(List<Vector3Int> tilePositions, bool selected) {
+            foreach(var tilePosition in tilePositions) {
+            var tile = GetTileAtPosition(tilePosition);
+            if (tile != null) {
+                tile.GetComponent<Highlight>()?.ToggleHighlight(selected);
+            }
+        }
+    }
+
+    public Tile GetTileAtPosition(Vector3Int position) {
+        return tileMap.GetValueOrDefault(position, null);
+    }
+
+    void Update() {
+        if (Input.GetMouseButtonDown(0)) {
+            if (lastSelectedTilePositions.Count > 0) {
+                gameUIManager.TileSelected(GetTileAtPosition(lastSelectedTilePositions[0]));
+            } else {
+                gameUIManager.TileSelected(null);
+            }
+        }
     }
 }

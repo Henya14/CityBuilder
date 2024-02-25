@@ -1,0 +1,11 @@
+.list-entry {
+    color: rgb(0, 0, 0);
+    background-color: rgba(207, 232, 209, 0.61);
+    display: flex;
+    height: 45px;
+    align-items: center;
+    align-self: auto;
+    justify-content: center;
+    flex-grow: 0;
+    flex-direction: column;
+}

@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Level/UI/GameUIStyle.uss?fileID=7433441132597879392&amp;guid=c573eb51f56e9f5408e4ece8d0f99e9b&amp;type=3#GameUIStyle" />
+    <ui:VisualElement style="flex-grow: 1; justify-content: flex-end;">
+        <ui:VisualElement name="info-text-container" style="flex-grow: 1; align-self: flex-end; width: 40%; justify-content: center; align-items: center; position: absolute; top: 0; bottom: auto; height: 40%; background-color: rgba(49, 49, 49, 0.37); -unity-background-image-tint-color: rgb(255, 255, 255); border-top-width: 3px; border-right-width: 3px; border-bottom-width: 3px; border-left-width: 3px; border-left-color: rgb(64, 64, 64); border-right-color: rgb(64, 64, 64); border-top-color: rgb(64, 64, 64); border-bottom-color: rgb(64, 64, 64); border-top-left-radius: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; border-bottom-left-radius: 3px; margin-right: 30px; padding-right: 0; margin-top: 30px; right: 0; display: none;">
+            <ui:Label tabindex="-1" parse-escape-sequences="true" display-tooltip-when-elided="true" name="info-text-label" />
+        </ui:VisualElement>
+        <ui:VisualElement name="game-mode-selection-button-container" style="flex-grow: 0; align-items: center; justify-content: flex-start; align-self: flex-start; height: 25%; width: 25%;">
+            <ui:Button text="Selection" parse-escape-sequences="true" display-tooltip-when-elided="true" name="selection-mode-button" class="gamemode-selector gamemode-selector-button" />
+            <ui:Button text="Build" parse-escape-sequences="true" display-tooltip-when-elided="true" name="building-mode-button" class="gamemode-selector gamemode-selector-button" />
+        </ui:VisualElement>
+        <ui:ListView focusable="true" name="building-list" style="position: absolute; right: 0; top: 0; bottom: 0; left: 75%; align-items: center; background-color: rgba(0, 0, 0, 0.43); display: none;" />
+    </ui:VisualElement>
+</ui:UXML>
