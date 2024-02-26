@@ -176,11 +176,25 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    public void ChangeSelection(Vector2Int selectionSize, GameObject prefabToShowAtSelection) {
+    public void ChangeSelection(Vector2Int selectionSize, BuildingType? buildingType, GameObject prefabToShowAtSelection) {
         this.selectionSize = selectionSize;
         if (selectionInstance != null) {
             Destroy(selectionInstance);
             selectionInstance = null;
+        }
+        switch(buildingType) {
+            case BuildingType.Building: 
+                selectionMode = SelectionMode.Single;
+                break;
+            case BuildingType.Zone: 
+                selectionMode = SelectionMode.Rectangle;
+                break;
+            case BuildingType.Road:
+                selectionMode = SelectionMode.Line;
+                break;
+            default: 
+                selectionMode = SelectionMode.Single;
+                break;
         }
         selectionPrefab = prefabToShowAtSelection;
     }
