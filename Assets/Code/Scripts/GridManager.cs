@@ -87,7 +87,10 @@ public class GridManager : MonoBehaviour
                 lastSelectedTilePositions.Add(selectionPosition);
             }
         }
-        SetSelectionOfTilesAtPositions(lastSelectedTilePositions, true);
+        if (IsSelectionValid(lastSelectedTilePositions)) {
+            
+            SetSelectionOfTilesAtPositions(lastSelectedTilePositions, true);
+        }
 
         if (selectionInstance == null && selectionPrefab != null) {
             selectionInstance = Instantiate(selectionPrefab);
@@ -98,6 +101,20 @@ public class GridManager : MonoBehaviour
             gamePosition.y += tileSize;
             selectionInstance.transform.position = gamePosition;
         }
+    }
+
+    private bool IsSelectionValid(List<Vector3Int> selectedTilePositions)
+    {
+        bool isValid = true;
+        var buildingPositions = buildingsMap.Keys.Select(p => new Vector2(p.x, p.z));
+        var selectedTilePositionsVec2 = selectedTilePositions.Select(p => new Vector2(p.x, p.z));
+        foreach (var selectedTilePosition in selectedTilePositionsVec2) {
+            if (buildingPositions.Contains(selectedTilePosition)) {
+                isValid = false;
+            }
+        }
+
+        return isValid;
     }
 
     public void TileDeselectedAtPosition(Vector3Int position) {
@@ -159,9 +176,9 @@ public class GridManager : MonoBehaviour
             isMouseButtonDown = true;
             if (lastSelectedTilePositions.Count > 0) {
                 var selectedTile = GetTileAtPosition(lastSelectedTilePositions[0]);
-                gameUIManager.TileSelected(selectedTile, GetSelectionCenter(lastSelectedTilePositions));
+                gameUIManager.TileSelected(selectedTile, lastSelectedTilePositions, GetSelectionCenter(lastSelectedTilePositions));
             } else {
-                gameUIManager.TileSelected(null, new Vector3(0,0,0));
+                gameUIManager.TileSelected(null, new List<Vector3Int>(), new Vector3(0,0,0));
             }
         } else if (Input.GetMouseButtonUp(0)) {
             isMouseButtonDown = false;
@@ -200,7 +217,9 @@ public class GridManager : MonoBehaviour
     }
 
     public void AddBuildingToGrid(AbstractBuildingType building) {
-        buildingsMap.Add(building.gridPosition, building);
+        foreach (var gridPosition in building.gridPositions) {
+            buildingsMap.Add(gridPosition, building);
+        }
     }
 
     public Vector3 GetGamePositionForGridPosition(Vector3Int gridPosition) {

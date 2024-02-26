@@ -102,13 +102,13 @@ public class GameUIManager : MonoBehaviour
         }
     }
 
-    public void TileSelected(Tile tile, Vector3 selectionCenter) {
+    public void TileSelected(Tile tile, List<Vector3Int>  selectedTilesGridPositions, Vector3 selectionCenter) {
         switch (selectedGameMode) {
             case GameMode.SelectionMode: 
                 TileSelectedInSelectionMode(tile);
                 break;
             case GameMode.BuildMode:
-                TileSelectedInBuildMode(tile, selectionCenter);
+                TileSelectedInBuildMode(tile, selectedTilesGridPositions, selectionCenter);
                 break;
             default:
                 break;
@@ -126,9 +126,9 @@ public class GameUIManager : MonoBehaviour
         }
     }
 
-    void TileSelectedInBuildMode(Tile tile, Vector3 selectionCenter) {
+    void TileSelectedInBuildMode(Tile tile, List<Vector3Int> selectedTilesGridPositions, Vector3 selectionCenter) {
          if (tile != null) {
-            buildModeManager.TileSelected(tile, selectionCenter);
+            buildModeManager.TileSelected(tile, selectedTilesGridPositions, selectionCenter);
         }
     }
 }
