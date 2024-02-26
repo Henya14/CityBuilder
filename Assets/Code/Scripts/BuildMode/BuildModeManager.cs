@@ -11,9 +11,16 @@ using UnityEngine;
 public class BuildModeManager : MonoBehaviour
 {
     private AbstractBuildingType selectedBuilding;
-
-    public void TileSelected(Tile tile) {
-        selectedBuilding.PlaceAtPosition(tile.positionInt);
+    private GridManager gridManager;
+    void Start() {
+        gridManager = FindObjectOfType<GridManager>();
+    }
+    public void TileSelected(Tile tile, Vector3 selectionCenter) {
+        var gridPosition = new Vector3Int(tile.gridPosition.x, tile.gridPosition.y + 1, tile.gridPosition.z);
+        var gamePositionY = gridManager.GetGamePositionForGridPosition(gridPosition).y;
+        var placePosition = new Vector3(selectionCenter.x, gamePositionY, selectionCenter.z);
+        selectedBuilding.PlaceAtPosition(gridPosition, placePosition);
+        gridManager.AddBuildingToGrid(selectedBuilding);
     }
 
     public List<BuildingData> GetBuildingDatas() {
@@ -24,25 +31,26 @@ public class BuildModeManager : MonoBehaviour
         }).ToList();
         return buildingDatas;
     }
-    public List<AbstractBuildingType> GetBuildings() {
-        List<BuildingData> buildingDatas = Resources.LoadAll<BuildingData>("Buildings").ToList(); 
-        var buildings = buildingDatas.Select(bd => {
-            var newBuilding = CreateBuildingFromBuildingData(bd);
-            newBuilding.isAvailable =  UnityEngine.Random.Range(0, 2) == 1? true: false;
-            return newBuilding;
-        }).ToList();
-        return buildings;
+
+    public void BuildingDataSelected(BuildingData buildingData) {
+        selectedBuilding = CreateBuildingFromBuildingData(buildingData);
     }
 
     private AbstractBuildingType CreateBuildingFromBuildingData(BuildingData data) {
         
         switch (data.buildingType) {
             case BuildingType.Road:
-                return new Road(data.name, data.size); 
+                var createdRoad = gameObject.AddComponent<Road>();
+                createdRoad.Init(data);
+                return createdRoad; 
             case BuildingType.Building:
-                return new Building(data.name, data.size); 
+                var createdBuilding = gameObject.AddComponent<Building>();
+                createdBuilding.Init(data);
+                return createdBuilding; 
             case BuildingType.Zone:
-                return new Zone(data.name, data.size); 
+                var createdZone = gameObject.AddComponent<Zone>();
+                createdZone.Init(data);
+                return createdZone; 
             default: 
                 throw new Exception("Unknown Building Type");
         }

@@ -23,7 +23,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] float chanceToSwitchTile = 0.3f;
     [SerializeField] Tile previousTilePlaced = null;
     bool isMouseButtonDown = false;
-    SelectionMode selectionMode = SelectionMode.Rectangle;
+    SelectionMode selectionMode = SelectionMode.Single;
     public Vector2Int selectionSize {get; set;} = new Vector2Int(1,1); 
     public GameObject selectionPrefab {get; set;} 
     Vector3Int lastTilePositionMouseHoveredOver;
@@ -33,6 +33,7 @@ public class GridManager : MonoBehaviour
 
 
     Dictionary<Vector3Int, Tile> tileMap = new Dictionary<Vector3Int, Tile>();
+    Dictionary<Vector3Int, AbstractBuildingType> buildingsMap = new Dictionary<Vector3Int, AbstractBuildingType>();
     int offsetX = 10;
     int offsetZ = 10;
     
@@ -58,31 +59,32 @@ public class GridManager : MonoBehaviour
                 }
                 previousTilePlaced = tileToPlace;
                 Tile newTile = Instantiate(tileToPlace, transform);
-                float xCoordinate = x * tileSize - offsetX;
-                float zCoordinate = z * tileSize - offsetZ;
-                Vector3 newPosition = new Vector3(xCoordinate, 0.0f, zCoordinate);
+                Vector3Int gridPosition =  new Vector3Int(x, 0, z);
+                newTile.gridPosition = gridPosition;
+
+                Vector3 newPosition =  GetGamePositionForGridPosition(gridPosition);
 
                 newTile.transform.position = newPosition;
-                newTile.positionInt = new Vector3Int(x, 0, z);
-                tileMap[newTile.positionInt] = newTile;
-                newTile.name = $"{xCoordinate}, {zCoordinate}";
+                
+                tileMap[newTile.gridPosition] = newTile;
+                newTile.name = $"{newPosition.x}, {newPosition.z}";
             }
         }
     }
 
-    public void TileSelectedAtPosition(Vector3Int position) {
-        lastTilePositionMouseHoveredOver = position;
+    public void TileSelectedAtPosition(Vector3Int selectionPosition) {
+        lastTilePositionMouseHoveredOver = selectionPosition;
         if (selectionMode == SelectionMode.Single) {
             ClearlastSelectedTilePositions();
-            lastSelectedTilePositions.AddRange(GetPositionsOfTilesInSelection(position, selectionSize));
+            lastSelectedTilePositions.AddRange(GetPositionsOfTilesInSelection(selectionPosition, selectionSize));
         } else if (selectionMode == SelectionMode.Rectangle) {
             if(isMouseButtonDown) {
                 var firstItem = lastSelectedTilePositions[0];
                 ClearlastSelectedTilePositions();
-                lastSelectedTilePositions = GetPositionsOfTilesInRectangleBetweenTwoPositions(firstItem, position);
+                lastSelectedTilePositions = GetPositionsOfTilesInRectangleBetweenTwoPositions(firstItem, selectionPosition);
             } else {
                 lastSelectedTilePositions.Clear();
-                lastSelectedTilePositions.Add(position);
+                lastSelectedTilePositions.Add(selectionPosition);
             }
         }
         SetSelectionOfTilesAtPositions(lastSelectedTilePositions, true);
@@ -92,7 +94,9 @@ public class GridManager : MonoBehaviour
         } 
 
         if (selectionInstance != null) {
-            selectionInstance.transform.position = new Vector3(position.x * tileSize - offsetX, tileSize,  (position.z + selectionSize.y/2) * tileSize - offsetZ);
+            var gamePosition = GetSelectionCenter(lastSelectedTilePositions);
+            gamePosition.y += tileSize;
+            selectionInstance.transform.position = gamePosition;
         }
     }
 
@@ -154,15 +158,21 @@ public class GridManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0)) {
             isMouseButtonDown = true;
             if (lastSelectedTilePositions.Count > 0) {
-                gameUIManager.TileSelected(GetTileAtPosition(lastSelectedTilePositions[0]));
+                var selectedTile = GetTileAtPosition(lastSelectedTilePositions[0]);
+                gameUIManager.TileSelected(selectedTile, GetSelectionCenter(lastSelectedTilePositions));
             } else {
-                gameUIManager.TileSelected(null);
+                gameUIManager.TileSelected(null, new Vector3(0,0,0));
             }
         } else if (Input.GetMouseButtonUp(0)) {
             isMouseButtonDown = false;
-            ClearlastSelectedTilePositions();
-            lastSelectedTilePositions.Add(lastTilePositionMouseHoveredOver);
-            SetSelectionOfTilesAtPositions(lastSelectedTilePositions, true);
+            if (selectionInstance != null) {
+                Destroy(selectionInstance);
+            }
+            if (selectionMode == SelectionMode.Rectangle) {
+                ClearlastSelectedTilePositions();
+                lastSelectedTilePositions.Add(lastTilePositionMouseHoveredOver);
+                SetSelectionOfTilesAtPositions(lastSelectedTilePositions, true);
+            }
         }
     }
 
@@ -173,5 +183,32 @@ public class GridManager : MonoBehaviour
             selectionInstance = null;
         }
         selectionPrefab = prefabToShowAtSelection;
+    }
+
+    public void AddBuildingToGrid(AbstractBuildingType building) {
+        buildingsMap.Add(building.gridPosition, building);
+    }
+
+    public Vector3 GetGamePositionForGridPosition(Vector3Int gridPosition) {
+        float x = gridPosition.x * tileSize - offsetX;
+        float y = gridPosition.y * tileSize;
+        float z = gridPosition.z * tileSize - offsetZ;
+        Vector3 gamePosition = new Vector3(x, y, z);
+        return gamePosition;
+    }
+
+    private Vector3 GetSelectionCenter(List<Vector3Int> selectedTiles) {
+        var xMin = selectedTiles.Select(v => v.x).Min();
+        var zMin = selectedTiles.Select(v => v.z).Min();
+
+        var xMax = selectedTiles.Select(v => v.x).Max();
+        var zMax = selectedTiles.Select(v => v.z).Max();
+
+        var selectionStart = GetGamePositionForGridPosition(new Vector3Int(xMin - 1, 0, zMin));
+        var selectionEnd = GetGamePositionForGridPosition(new Vector3Int(xMax, 0, zMax + 1));
+
+        Vector3 selectionVector = (selectionEnd - selectionStart) / 2;
+        Vector3 selectionCenter = selectionVector + selectionStart;
+        return selectionCenter;
     }
 }

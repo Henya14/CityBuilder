@@ -87,6 +87,7 @@ public class GameUIManager : MonoBehaviour
         if (selectedBuilding == null) {
             gridManager.ChangeSelection(new Vector2Int(1,1), null);
         } else {
+            buildModeManager.BuildingDataSelected(selectedBuilding);
             gridManager.ChangeSelection(selectedBuilding.size, selectedBuilding.prefab);
         }
     }
@@ -101,13 +102,13 @@ public class GameUIManager : MonoBehaviour
         }
     }
 
-    public void TileSelected(Tile tile) {
+    public void TileSelected(Tile tile, Vector3 selectionCenter) {
         switch (selectedGameMode) {
             case GameMode.SelectionMode: 
                 TileSelectedInSelectionMode(tile);
                 break;
             case GameMode.BuildMode:
-                TileSelectedInBuildMode(tile);
+                TileSelectedInBuildMode(tile, selectionCenter);
                 break;
             default:
                 break;
@@ -125,9 +126,9 @@ public class GameUIManager : MonoBehaviour
         }
     }
 
-    void TileSelectedInBuildMode(Tile tile) {
+    void TileSelectedInBuildMode(Tile tile, Vector3 selectionCenter) {
          if (tile != null) {
-            buildModeManager.TileSelected(tile);
+            buildModeManager.TileSelected(tile, selectionCenter);
         }
     }
 }
