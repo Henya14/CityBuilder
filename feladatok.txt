@@ -2,7 +2,7 @@
    - (Patrik) Főmenü 
    - (Patrik) Játék UI
    - (Henrik) Építőrendszer (zónázás (lakó, munka, bolt)) / Rombolás
-   - Terület morál (nem akarnak beköltözni, vagy nem épül munkahely...)
+   - (Patrik)Terület morál (nem akarnak beköltözni, vagy nem épül munkahely...)
    - (Patrik) Pénzrendszer / adók
    - (Henrik) Kameramozgás
    - Mentés / Betöltés
