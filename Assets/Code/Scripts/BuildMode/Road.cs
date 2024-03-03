@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Road : AbstractBuildingType
 {
-    public Road(string name, Vector2Int size): base(name, size) {}
     // Start is called before the first frame update
     void Start()
     {

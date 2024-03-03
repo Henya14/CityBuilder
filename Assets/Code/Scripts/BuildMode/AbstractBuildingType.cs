@@ -1,25 +1,32 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.PlayerLoop;
 
 public abstract class AbstractBuildingType : MonoBehaviour
 {
     public string buildingName {get; private set;}
+    private BuildingData buildingData;
     public Vector2Int size {get; set;}
-    public Vector3Int? placedAtPosition;
+    public List<Vector3Int> gridPositions {get; set;} = new List<Vector3Int>();
     public bool isAvailable {get; set;}
+    public GameObject building {get; set;}
 
-
-    protected AbstractBuildingType(string name, Vector2Int size) {
-        buildingName = name;
-        this.size = size;
+    public virtual void Init(BuildingData buildingData) {
+        this.buildingData = buildingData;
+       
     }
 
-    public virtual void PlaceAtPosition(Vector3Int position) {
-        placedAtPosition = position;
+    public virtual void PlaceAtPosition(List<Vector3Int> gridPositions, Vector3 gamePosition) {
+        this.gridPositions.Clear();
+        this.gridPositions.AddRange(gridPositions);
+        var building = Instantiate(buildingData.prefab);
+        building.transform.position = gamePosition;
     }
 
     public virtual void Remove() {
-        placedAtPosition = null;
+        gridPositions.Clear();
     }
+    
+    
 }

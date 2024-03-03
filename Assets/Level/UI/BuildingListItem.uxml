@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/Level/UI/BuildingListItem.uss?fileID=7433441132597879392&amp;guid=a7895ce9fba5d9a43aac28bedcd1c705&amp;type=3#BuildingListItem" />
-    <ui:VisualElement name="list-entry" class="list-entry" style="flex-grow: 1;">
-        <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="building-name" />
+    <ui:VisualElement name="list-entry" class="list-entry" style="flex-grow: 1; align-items: auto; justify-content: center; align-self: stretch;">
+        <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="building-name" style="align-items: auto; justify-content: flex-start; align-self: center;" />
     </ui:VisualElement>
 </ui:UXML>

@@ -16,4 +16,5 @@ public class BuildingData : ScriptableObject
    public Vector2Int size;
    public bool isAvailable;
    public Sprite image;
+   public GameObject prefab;
 }

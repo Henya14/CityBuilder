@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Zone : AbstractBuildingType
 {
-    public Zone(string name, Vector2Int size): base(name, size) {}
     // Start is called before the first frame update
     void Start()
     {
