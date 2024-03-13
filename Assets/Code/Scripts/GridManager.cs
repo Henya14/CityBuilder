@@ -30,6 +30,7 @@ public class GridManager : MonoBehaviour
     GameObject selectionInstance;
     List<Vector3Int> lastSelectedTilePositions = new List<Vector3Int>();
     GameUIManager gameUIManager;
+    bool isSelectionValid = false;
 
 
     Dictionary<Vector3Int, Tile> tileMap = new Dictionary<Vector3Int, Tile>();
@@ -88,19 +89,7 @@ public class GridManager : MonoBehaviour
         {
             if (isMouseButtonDown)
             {
-                var firstSelectionPosition = lastSelectedTilePositions[0];
-                ClearlastSelectedTilePositions();
-                var secondSelectionPosition = selectionPosition;
-                if (selectionMode == SelectionMode.Line) {
-                    var deltaX = secondSelectionPosition.x - firstSelectionPosition.x;
-                    var deltaZ = secondSelectionPosition.z - firstSelectionPosition.z;
-                    if (Math.Sign(deltaX) == Math.Sign(deltaZ) || deltaX == 0) {
-                         secondSelectionPosition.x = firstSelectionPosition.x;
-                    } else {
-                         secondSelectionPosition.z = firstSelectionPosition.z;
-                    }
-                }
-                lastSelectedTilePositions = GetPositionsOfTilesInRectangleBetweenTwoPositions(firstSelectionPosition, secondSelectionPosition);
+                HandleSelectionWhenMouseIsDown(selectionPosition);
             }
             else
             {
@@ -108,11 +97,12 @@ public class GridManager : MonoBehaviour
                 lastSelectedTilePositions.Add(selectionPosition);
             }
         }
-        if (IsSelectionValid(lastSelectedTilePositions))
+        isSelectionValid = IsSelectionValid(lastSelectedTilePositions);
+        if (isSelectionValid)
         {
 
             SetSelectionOfTilesAtPositions(lastSelectedTilePositions, true);
-            if (selectionInstance == null && selectionPrefab != null)
+            if (selectionInstance == null && selectionPrefab != null && selectionMode == SelectionMode.Single)
             {
                 selectionInstance = Instantiate(selectionPrefab);
             }
@@ -128,8 +118,27 @@ public class GridManager : MonoBehaviour
         {
             Destroy(selectionInstance);
         }
+    }
 
-
+    private void HandleSelectionWhenMouseIsDown(Vector3Int selectionPosition)
+    {
+        var firstSelectionPosition = lastSelectedTilePositions[0];
+        ClearlastSelectedTilePositions();
+        var secondSelectionPosition = selectionPosition;
+        if (selectionMode == SelectionMode.Line)
+        {
+            var deltaX = secondSelectionPosition.x - firstSelectionPosition.x;
+            var deltaZ = secondSelectionPosition.z - firstSelectionPosition.z;
+            if (Math.Sign(deltaX) == Math.Sign(deltaZ) || deltaX == 0)
+            {
+                secondSelectionPosition.x = firstSelectionPosition.x;
+            }
+            else
+            {
+                secondSelectionPosition.z = firstSelectionPosition.z;
+            }
+        }
+        lastSelectedTilePositions = GetPositionsOfTilesInRectangleBetweenTwoPositions(firstSelectionPosition, secondSelectionPosition);
     }
 
     private bool IsSelectionValid(List<Vector3Int> selectedTilePositions)
@@ -221,14 +230,10 @@ public class GridManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             isMouseButtonDown = true;
-            if (lastSelectedTilePositions.Count > 0)
+            if (lastSelectedTilePositions.Count > 0 && selectionMode == SelectionMode.Single && isSelectionValid)
             {
                 var selectedTile = GetTileAtPosition(lastSelectedTilePositions[0]);
-                gameUIManager.TileSelected(selectedTile, lastSelectedTilePositions, GetSelectionCenter(lastSelectedTilePositions));
-            }
-            else
-            {
-                gameUIManager.TileSelected(null, new List<Vector3Int>(), new Vector3(0, 0, 0));
+                gameUIManager.TileSelected(selectedTile, lastSelectedTilePositions, new List<Vector3> {GetSelectionCenter(lastSelectedTilePositions)});
             }
         }
         else if (Input.GetMouseButtonUp(0))
@@ -238,8 +243,11 @@ public class GridManager : MonoBehaviour
             {
                 Destroy(selectionInstance);
             }
-            if (selectionMode == SelectionMode.Rectangle || selectionMode == SelectionMode.Line)
-            {
+            if ((selectionMode == SelectionMode.Rectangle || selectionMode == SelectionMode.Line) && lastSelectedTilePositions.Count > 0 && isSelectionValid)
+            {   
+                var selectedTile = GetTileAtPosition(lastSelectedTilePositions[0]);
+                var prefabPlacePositions = lastSelectedTilePositions.Select( lstp => GetSelectionCenter(new List<Vector3Int>{lstp})).ToList();
+                gameUIManager.TileSelected(selectedTile, lastSelectedTilePositions, prefabPlacePositions);
                 ClearlastSelectedTilePositions();
             }
         }

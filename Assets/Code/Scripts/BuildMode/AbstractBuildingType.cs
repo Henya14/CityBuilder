@@ -17,7 +17,7 @@ public abstract class AbstractBuildingType : MonoBehaviour
     public Vector2Int size {get; set;}
     public List<Vector3Int> gridPositions {get; set;} = new List<Vector3Int>();
     public bool isAvailable {get; set;}
-    public GameObject building {get; set;}
+    public List<GameObject> buildings {get; set;} = new List<GameObject>();
 
     private Dictionary<Direction, AbstractBuildingType> neighborDictionary = new Dictionary<Direction, AbstractBuildingType> {
         {Direction.North, null},
@@ -28,19 +28,21 @@ public abstract class AbstractBuildingType : MonoBehaviour
 
     public virtual void Init(BuildingData buildingData) {
         this.buildingData = buildingData;
-       
     }
 
-    public virtual void PlaceAtPosition(List<Vector3Int> gridPositions, Vector3 gamePosition) {
+    public virtual void PlaceAtPosition(List<Vector3Int> gridPositions, List<Vector3> gamePositions) {
         this.gridPositions.Clear();
         this.gridPositions.AddRange(gridPositions);
-        var building = Instantiate(buildingData.prefab);
-        building.transform.position = gamePosition;
+        foreach (var gamePosition in gamePositions) {
+            var building = Instantiate(buildingData.prefab);
+            building.transform.position = gamePosition;
+            buildings.Add(building);
+        }
     }
 
     public virtual void Remove() {
         gridPositions.Clear();
-        if (building != null) {
+        foreach (var building in buildings) {
             Destroy(building);
         }
     }
