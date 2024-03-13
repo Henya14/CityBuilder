@@ -137,5 +137,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb3873e3f530c7449ad39ab52b4db767, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highlightMaterial: {fileID: 2100000, guid: 26a3561a6f98b124aae5bc7526821b9c, type: 2}
-  originalMaterial: {fileID: 0}
+  renderers:
+  - {fileID: 5781746764977783304}
+  highlightColor: {r: 0.8980366, g: 1, b: 0, a: 0.5882353}
+--- !u!23 &5781746764977783304 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: f5fec3ab5e1c8e84a9e3efb1bf8c891c, type: 3}
+  m_PrefabInstance: {fileID: 5187427335411949196}
+  m_PrefabAsset: {fileID: 0}

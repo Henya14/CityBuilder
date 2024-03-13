@@ -4,15 +4,27 @@ using UnityEngine;
 
 public class Highlight : MonoBehaviour
 {
-
-    [SerializeField] Material highlightMaterial;
-    [SerializeField] Material originalMaterial;
+    [SerializeField] private List<Renderer> renderers;
+    private List<Material> materials;
+    [SerializeField] private Color highlightColor = Color.white;
     
     private void Awake() {
-        originalMaterial = gameObject.GetComponent<MeshRenderer>()?.material;
+        materials = new List<Material>();
+        foreach(var renderer in renderers) {
+            materials.AddRange(new List<Material>(renderer.materials));
+        }
     }
 
     public void ToggleHighlight(bool on) {
-        gameObject.GetComponent<MeshRenderer>().material = on? highlightMaterial : originalMaterial;
+        if (on) {
+            foreach (var material in materials) {
+                material.EnableKeyword("_EMISSION");
+                material.SetColor("_EmissionColor", highlightColor);
+            }
+        } else {
+            foreach (var material in materials) {
+                material.DisableKeyword("_EMISSION");
+            }
+        }
     }
 }

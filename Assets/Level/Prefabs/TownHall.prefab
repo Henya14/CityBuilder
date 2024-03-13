@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 217325606943925421}
   - component: {fileID: 3276341652435197361}
   - component: {fileID: 7445429520272745144}
+  - component: {fileID: 1402098261901567514}
   m_Layer: 0
   m_Name: TownHall
   m_TagString: Untagged
@@ -86,3 +87,19 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &1402098261901567514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6543906958701471318}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb3873e3f530c7449ad39ab52b4db767, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  renderers:
+  - {fileID: 7445429520272745144}
+  highlightMaterial: {fileID: 0}
+  originalMaterial: {fileID: 0}
