@@ -8,7 +8,8 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 
-public enum SelectionMode {
+public enum SelectionMode
+{
     Single,
     Line,
     Rectangle
@@ -24,19 +25,19 @@ public class GridManager : MonoBehaviour
     [SerializeField] Tile previousTilePlaced = null;
     bool isMouseButtonDown = false;
     SelectionMode selectionMode = SelectionMode.Single;
-    public Vector2Int selectionSize {get; set;} = new Vector2Int(1,1); 
-    public GameObject selectionPrefab {get; set;} 
-    Vector3Int lastTilePositionMouseHoveredOver;
+    public Vector2Int selectionSize { get; set; } = new Vector2Int(1, 1);
+    public GameObject selectionPrefab { get; set; }
     GameObject selectionInstance;
     List<Vector3Int> lastSelectedTilePositions = new List<Vector3Int>();
     GameUIManager gameUIManager;
+    bool isSelectionValid = false;
 
 
     Dictionary<Vector3Int, Tile> tileMap = new Dictionary<Vector3Int, Tile>();
     Dictionary<Vector3Int, AbstractBuildingType> buildingsMap = new Dictionary<Vector3Int, AbstractBuildingType>();
     int offsetX = 10;
     int offsetZ = 10;
-    
+
     // Start is called before the first frame update
     void Start()
     {
@@ -47,60 +48,97 @@ public class GridManager : MonoBehaviour
     }
 
     private void GenerateGrid()
-    {   
-        
-        for (int x  = 0; x < gridHeight; x++) {
-            for (int z = 0; z < gridWidth; z++) {
+    {
+
+        for (int x = 0; x < gridHeight; x++)
+        {
+            for (int z = 0; z < gridWidth; z++)
+            {
                 Tile tileToPlace;
-                if (previousTilePlaced) {
-                    tileToPlace = UnityEngine.Random.Range(0.0f, 1.0f) <= chanceToSwitchTile ? tiles[UnityEngine.Random.Range(0, tiles.Length)]: previousTilePlaced;
-                }  else {
+                if (previousTilePlaced)
+                {
+                    tileToPlace = UnityEngine.Random.Range(0.0f, 1.0f) <= chanceToSwitchTile ? tiles[UnityEngine.Random.Range(0, tiles.Length)] : previousTilePlaced;
+                }
+                else
+                {
                     tileToPlace = tiles[UnityEngine.Random.Range(0, tiles.Length)];
                 }
                 previousTilePlaced = tileToPlace;
                 Tile newTile = Instantiate(tileToPlace, transform);
-                Vector3Int gridPosition =  new Vector3Int(x, 0, z);
+                Vector3Int gridPosition = new Vector3Int(x, 0, z);
                 newTile.gridPosition = gridPosition;
 
-                Vector3 newPosition =  GetGamePositionForGridPosition(gridPosition);
+                Vector3 newPosition = GetGamePositionForGridPosition(gridPosition);
 
                 newTile.transform.position = newPosition;
-                
+
                 tileMap[newTile.gridPosition] = newTile;
                 newTile.name = $"{newPosition.x}, {newPosition.z}";
             }
         }
     }
 
-    public void TileSelectedAtPosition(Vector3Int selectionPosition) {
-        lastTilePositionMouseHoveredOver = selectionPosition;
-        if (selectionMode == SelectionMode.Single) {
+    public void TileSelectedAtPosition(Vector3Int selectionPosition)
+    {
+        if (selectionMode == SelectionMode.Single)
+        {
             ClearlastSelectedTilePositions();
             lastSelectedTilePositions.AddRange(GetPositionsOfTilesInSelection(selectionPosition, selectionSize));
-        } else if (selectionMode == SelectionMode.Rectangle) {
-            if(isMouseButtonDown) {
-                var firstItem = lastSelectedTilePositions[0];
-                ClearlastSelectedTilePositions();
-                lastSelectedTilePositions = GetPositionsOfTilesInRectangleBetweenTwoPositions(firstItem, selectionPosition);
-            } else {
+        }
+        else if (selectionMode == SelectionMode.Rectangle || selectionMode == SelectionMode.Line)
+        {
+            if (isMouseButtonDown)
+            {
+                HandleSelectionWhenMouseIsDown(selectionPosition);
+            }
+            else
+            {
                 lastSelectedTilePositions.Clear();
                 lastSelectedTilePositions.Add(selectionPosition);
             }
         }
-        if (IsSelectionValid(lastSelectedTilePositions)) {
-            
+        isSelectionValid = IsSelectionValid(lastSelectedTilePositions);
+        if (isSelectionValid)
+        {
+
             SetSelectionOfTilesAtPositions(lastSelectedTilePositions, true);
-        }
+            if (selectionInstance == null && selectionPrefab != null && selectionMode == SelectionMode.Single)
+            {
+                selectionInstance = Instantiate(selectionPrefab);
+            }
 
-        if (selectionInstance == null && selectionPrefab != null) {
-            selectionInstance = Instantiate(selectionPrefab);
-        } 
-
-        if (selectionInstance != null) {
-            var gamePosition = GetSelectionCenter(lastSelectedTilePositions);
-            gamePosition.y += tileSize;
-            selectionInstance.transform.position = gamePosition;
+            if (selectionInstance != null)
+            {
+                var gamePosition = GetSelectionCenter(lastSelectedTilePositions);
+                gamePosition.y += tileSize;
+                selectionInstance.transform.position = gamePosition;
+            }
         }
+        else 
+        {
+            Destroy(selectionInstance);
+        }
+    }
+
+    private void HandleSelectionWhenMouseIsDown(Vector3Int selectionPosition)
+    {
+        var firstSelectionPosition = lastSelectedTilePositions[0];
+        ClearlastSelectedTilePositions();
+        var secondSelectionPosition = selectionPosition;
+        if (selectionMode == SelectionMode.Line)
+        {
+            var deltaX = secondSelectionPosition.x - firstSelectionPosition.x;
+            var deltaZ = secondSelectionPosition.z - firstSelectionPosition.z;
+            if (Math.Sign(deltaX) == Math.Sign(deltaZ) || deltaX == 0)
+            {
+                secondSelectionPosition.x = firstSelectionPosition.x;
+            }
+            else
+            {
+                secondSelectionPosition.z = firstSelectionPosition.z;
+            }
+        }
+        lastSelectedTilePositions = GetPositionsOfTilesInRectangleBetweenTwoPositions(firstSelectionPosition, secondSelectionPosition);
     }
 
     private bool IsSelectionValid(List<Vector3Int> selectedTilePositions)
@@ -108,8 +146,10 @@ public class GridManager : MonoBehaviour
         bool isValid = true;
         var buildingPositions = buildingsMap.Keys.Select(p => new Vector2(p.x, p.z));
         var selectedTilePositionsVec2 = selectedTilePositions.Select(p => new Vector2(p.x, p.z));
-        foreach (var selectedTilePosition in selectedTilePositionsVec2) {
-            if (buildingPositions.Contains(selectedTilePosition)) {
+        foreach (var selectedTilePosition in selectedTilePositionsVec2)
+        {
+            if (buildingPositions.Contains(selectedTilePosition))
+            {
                 isValid = false;
             }
         }
@@ -117,23 +157,29 @@ public class GridManager : MonoBehaviour
         return isValid;
     }
 
-    public void TileDeselectedAtPosition(Vector3Int position) {
-        if (!isMouseButtonDown) { 
+    public void TileDeselectedAtPosition(Vector3Int position)
+    {
+        if (!isMouseButtonDown)
+        {
             ClearlastSelectedTilePositions();
         }
     }
 
-    List<Vector3Int> GetPositionsOfTilesInSelection(Vector3Int startTilePosition, Vector2 selectionSize) {
+    List<Vector3Int> GetPositionsOfTilesInSelection(Vector3Int startTilePosition, Vector2 selectionSize)
+    {
         List<Vector3Int> positions = new List<Vector3Int>();
-        for (int x = 0; x < selectionSize.x; x++) {
-            for (int z = 0; z < selectionSize.y; z++) {
+        for (int x = 0; x < selectionSize.x; x++)
+        {
+            for (int z = 0; z < selectionSize.y; z++)
+            {
                 positions.Add(new Vector3Int(startTilePosition.x + x, 0, startTilePosition.z + z));
             }
         }
         return positions;
     }
 
-     List<Vector3Int> GetPositionsOfTilesInRectangleBetweenTwoPositions(Vector3Int startPosition, Vector3Int endPosition) {
+    List<Vector3Int> GetPositionsOfTilesInRectangleBetweenTwoPositions(Vector3Int startPosition, Vector3Int endPosition)
+    {
         List<Vector3Int> positions = new List<Vector3Int>
         {
             startPosition
@@ -142,87 +188,107 @@ public class GridManager : MonoBehaviour
         var newStartPos = new Vector3Int(Math.Min(startPosition.x, endPosition.x), 0, Math.Min(startPosition.z, endPosition.z));
         var newEndPosition = new Vector3Int(Math.Max(startPosition.x, endPosition.x), 0, Math.Max(startPosition.z, endPosition.z));
 
-        for (int x = newStartPos.x; x <= newEndPosition.x; x++) {
-            for (int z = newStartPos.z; z <= newEndPosition.z; z++) {
+        for (int x = newStartPos.x; x <= newEndPosition.x; x++)
+        {
+            for (int z = newStartPos.z; z <= newEndPosition.z; z++)
+            {
                 var newPos = new Vector3Int(x, 0, z);
-                if (newPos != positions[0]) {
+                if (newPos != positions[0])
+                {
                     positions.Add(new Vector3Int(x, 0, z));
                 }
             }
         }
         return positions;
-     }
+    }
 
-    void ClearlastSelectedTilePositions() {
+    void ClearlastSelectedTilePositions()
+    {
         SetSelectionOfTilesAtPositions(lastSelectedTilePositions, false);
         lastSelectedTilePositions.Clear();
     }
 
-    void SetSelectionOfTilesAtPositions(List<Vector3Int> tilePositions, bool selected) {
-            foreach(var tilePosition in tilePositions) {
+    void SetSelectionOfTilesAtPositions(List<Vector3Int> tilePositions, bool selected)
+    {
+        foreach (var tilePosition in tilePositions)
+        {
             var tile = GetTileAtPosition(tilePosition);
-            if (tile != null) {
+            if (tile != null)
+            {
                 tile.GetComponent<Highlight>()?.ToggleHighlight(selected);
             }
         }
     }
 
-    public Tile GetTileAtPosition(Vector3Int position) {
+    public Tile GetTileAtPosition(Vector3Int position)
+    {
         return tileMap.GetValueOrDefault(position, null);
     }
 
-    void Update() {
-        if (Input.GetMouseButtonDown(0)) {
+    void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
             isMouseButtonDown = true;
-            if (lastSelectedTilePositions.Count > 0) {
+            if (lastSelectedTilePositions.Count > 0 && selectionMode == SelectionMode.Single && isSelectionValid)
+            {
                 var selectedTile = GetTileAtPosition(lastSelectedTilePositions[0]);
-                gameUIManager.TileSelected(selectedTile, lastSelectedTilePositions, GetSelectionCenter(lastSelectedTilePositions));
-            } else {
-                gameUIManager.TileSelected(null, new List<Vector3Int>(), new Vector3(0,0,0));
+                gameUIManager.TileSelected(selectedTile, lastSelectedTilePositions, new List<Vector3> {GetSelectionCenter(lastSelectedTilePositions)});
             }
-        } else if (Input.GetMouseButtonUp(0)) {
+        }
+        else if (Input.GetMouseButtonUp(0))
+        {
             isMouseButtonDown = false;
-            if (selectionInstance != null) {
+            if (selectionInstance != null)
+            {
                 Destroy(selectionInstance);
             }
-            if (selectionMode == SelectionMode.Rectangle) {
+            if ((selectionMode == SelectionMode.Rectangle || selectionMode == SelectionMode.Line) && lastSelectedTilePositions.Count > 0 && isSelectionValid)
+            {   
+                var selectedTile = GetTileAtPosition(lastSelectedTilePositions[0]);
+                var prefabPlacePositions = lastSelectedTilePositions.Select( lstp => GetSelectionCenter(new List<Vector3Int>{lstp})).ToList();
+                gameUIManager.TileSelected(selectedTile, lastSelectedTilePositions, prefabPlacePositions);
                 ClearlastSelectedTilePositions();
-                lastSelectedTilePositions.Add(lastTilePositionMouseHoveredOver);
-                SetSelectionOfTilesAtPositions(lastSelectedTilePositions, true);
             }
         }
     }
 
-    public void ChangeSelection(Vector2Int selectionSize, BuildingType? buildingType, GameObject prefabToShowAtSelection) {
+    public void ChangeSelection(Vector2Int selectionSize, BuildingType? buildingType, GameObject prefabToShowAtSelection)
+    {
         this.selectionSize = selectionSize;
-        if (selectionInstance != null) {
+        if (selectionInstance != null)
+        {
             Destroy(selectionInstance);
             selectionInstance = null;
         }
-        switch(buildingType) {
-            case BuildingType.Building: 
+        switch (buildingType)
+        {
+            case BuildingType.Building:
                 selectionMode = SelectionMode.Single;
                 break;
-            case BuildingType.Zone: 
+            case BuildingType.Zone:
                 selectionMode = SelectionMode.Rectangle;
                 break;
             case BuildingType.Road:
                 selectionMode = SelectionMode.Line;
                 break;
-            default: 
+            default:
                 selectionMode = SelectionMode.Single;
                 break;
         }
         selectionPrefab = prefabToShowAtSelection;
     }
 
-    public void AddBuildingToGrid(AbstractBuildingType building) {
-        foreach (var gridPosition in building.gridPositions) {
+    public void AddBuildingToGrid(AbstractBuildingType building)
+    {
+        foreach (var gridPosition in building.gridPositions)
+        {
             buildingsMap.Add(gridPosition, building);
         }
     }
 
-    public Vector3 GetGamePositionForGridPosition(Vector3Int gridPosition) {
+    public Vector3 GetGamePositionForGridPosition(Vector3Int gridPosition)
+    {
         float x = gridPosition.x * tileSize - offsetX;
         float y = gridPosition.y * tileSize;
         float z = gridPosition.z * tileSize - offsetZ;
@@ -230,7 +296,8 @@ public class GridManager : MonoBehaviour
         return gamePosition;
     }
 
-    private Vector3 GetSelectionCenter(List<Vector3Int> selectedTiles) {
+    private Vector3 GetSelectionCenter(List<Vector3Int> selectedTiles)
+    {
         var xMin = selectedTiles.Select(v => v.x).Min();
         var zMin = selectedTiles.Select(v => v.z).Min();
 
@@ -244,4 +311,10 @@ public class GridManager : MonoBehaviour
         Vector3 selectionCenter = selectionVector + selectionStart;
         return selectionCenter;
     }
+
+    public void ResetSelection() {
+        ClearlastSelectedTilePositions();
+        ChangeSelection(new Vector2Int(1,1), null, null);
+    }
+    
 }

@@ -112,8 +112,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb3873e3f530c7449ad39ab52b4db767, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  highlightMaterial: {fileID: 2100000, guid: 5509b01a9ff47304397fa68e71ef7fea, type: 2}
-  originalMaterial: {fileID: 0}
+  renderers:
+  - {fileID: 8409780154088701011}
+  highlightColor: {r: 0.8980392, g: 1, b: 0, a: 0.5882353}
 --- !u!65 &8598124770770211216
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -135,3 +136,8 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 100, y: 100, z: 100}
   m_Center: {x: -50, y: 50, z: 50}
+--- !u!23 &8409780154088701011 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: a7aba86f2fd256841b70aa80740179e9, type: 3}
+  m_PrefabInstance: {fileID: 7166387952127615191}
+  m_PrefabAsset: {fileID: 0}

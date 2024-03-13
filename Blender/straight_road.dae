@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <asset>
+    <contributor>
+      <author>Blender User</author>
+      <authoring_tool>Blender 4.0.2 commit date:2023-12-05, commit time:07:41, hash:9be62e85b727</authoring_tool>
+    </contributor>
+    <created>2024-03-13T14:44:57</created>
+    <modified>2024-03-13T14:44:57</modified>
+    <unit name="meter" meter="1"/>
+    <up_axis>Z_UP</up_axis>
+  </asset>
+  <library_effects>
+    <effect id="Asphalt_018-effect">
+      <profile_COMMON>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <color sid="diffuse">0.2170127 0.1908284 0.1935072 1</color>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.45</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+    <effect id="Pavement_018-effect">
+      <profile_COMMON>
+        <technique sid="common">
+          <lambert>
+            <emission>
+              <color sid="emission">0 0 0 1</color>
+            </emission>
+            <diffuse>
+              <color sid="diffuse">0.8536493 0.7883031 0.8114645 1</color>
+            </diffuse>
+            <index_of_refraction>
+              <float sid="ior">1.45</float>
+            </index_of_refraction>
+          </lambert>
+        </technique>
+      </profile_COMMON>
+    </effect>
+  </library_effects>
+  <library_images/>
+  <library_materials>
+    <material id="Asphalt_018-material" name="Asphalt.018">
+      <instance_effect url="#Asphalt_018-effect"/>
+    </material>
+    <material id="Pavement_018-material" name="Pavement.018">
+      <instance_effect url="#Pavement_018-effect"/>
+    </material>
+  </library_materials>
+  <library_geometries>
+    <geometry id="Plane_040-mesh" name="Plane.040">
+      <mesh>
+        <source id="Plane_040-mesh-positions">
+          <float_array id="Plane_040-mesh-positions-array" count="96">-0.2970914 -0.4510076 -0.005080461 0.2977448 -0.4510076 -0.005080461 -0.9996733 0.2508095 -0.005080461 1.000327 0.2508095 -0.005080461 -0.9996733 0.2508095 3.65626e-4 -0.2970914 -0.4510076 3.65626e-4 0.2977448 -0.4510076 3.65626e-4 1.000327 0.2508095 3.65626e-4 -0.9996733 0.2508095 3.65626e-4 -0.2970914 -0.4510076 3.65626e-4 0.2977448 -0.4510076 3.65626e-4 1.000327 0.2508095 3.65626e-4 0.3218852 -0.4368159 -0.004970312 0.9960528 0.2366178 -0.004970312 0.3218852 -0.4368159 2.55497e-4 0.9960528 0.2366178 2.55497e-4 -0.9483031 0.1769047 -0.004594683 -0.371052 -0.3997178 -0.004594683 -0.9483031 0.1769047 -1.20131e-4 -0.371052 -0.3997178 -1.20131e-4 0.7590752 0.01080948 -0.001060068 0.7590752 0.2508095 -0.001060068 1.000327 0.2508095 -0.001060068 0.7590752 0.2508095 0.007403552 0.7590752 0.01080948 0.007403552 1.000327 0.2508095 0.007403552 -0.9996733 0.2508095 -0.001374304 -0.7596733 0.2508095 -0.001374304 -0.7596733 0.009558022 -0.001374304 -0.7596733 0.2508095 0.007116258 -0.9996733 0.2508095 0.007116258 -0.7596733 0.009558022 0.007116258</float_array>
+          <technique_common>
+            <accessor source="#Plane_040-mesh-positions-array" count="32" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="Plane_040-mesh-normals">
+          <float_array id="Plane_040-mesh-normals-array" count="81">0 0 -1 0 0 1 0.9575232 -0.2883564 0 -0.02146947 -0.02149289 0.9995385 0 1 0 0 -1 0 0.7067216 -0.7074918 0 0.01108533 -0.01109737 0.999877 0.01108533 -0.01109737 -0.999877 0.5067929 -0.8620679 0 -0.7067216 -0.7074918 0 -0.02146947 -0.02149283 -0.9995386 -0.8211222 -0.5707524 0 -0.5698576 -0.8217435 0 0.7052657 -0.7089431 0 -1 0 0 1 0 0 -0.7089433 -0.7052655 0 0.9575212 -0.2883632 0 -0.02146947 -0.02149283 0.9995386 0.01108539 -0.01109743 0.999877 0.01108521 -0.01109737 -0.999877 -0.02146947 -0.02149289 -0.9995385 -0.8211228 -0.5707517 0 -0.5698577 -0.8217435 0 0.7052659 -0.7089429 0 -0.708943 -0.7052658 0</float_array>
+          <technique_common>
+            <accessor source="#Plane_040-mesh-normals-array" count="27" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="Plane_040-mesh-map">
+          <float_array id="Plane_040-mesh-map-array" count="312">0 0 1 1 1 0 0 1 1 1 1 1 1 1 1 1 1 1 0 1 0 0 0 0 0 1 1 1 1 1 1 0 0 0 0 0 0 0 1 1 0 1 1 0 0 0 0 0 1 1 1 0 1 0 0 0 0 1 0 1 1 1 1 0 1 0 1 1 1 0 1 1 1 1 1 0 1 0 1 0 1 0 1 0 0 0 0 1 0 1 0 1 0 0 0 1 0 1 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 0 1 0 1 1 1 1 1 1 1 1 1 0 1 0 1 0 0 0 1 0 1 1 1 1 0 1 0 0 0 0 0 1 0 1 1 1 0 1 0 0 0 1 1 1 1 1 0 0 0 0 0 0 1 1 1 1 1 1 0 1 1 1 0 1 0 1 1 1 1 1 0 1 0 1 0 1 0 0 0 0 0 0 1 0 1 0 0 0 0 0 1 0 1 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0</float_array>
+          <technique_common>
+            <accessor source="#Plane_040-mesh-map-array" count="156" stride="2">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="Plane_040-mesh-vertices">
+          <input semantic="POSITION" source="#Plane_040-mesh-positions"/>
+        </vertices>
+        <triangles material="Asphalt_018-material" count="36">
+          <input semantic="VERTEX" source="#Plane_040-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#Plane_040-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#Plane_040-mesh-map" offset="2" set="0"/>
+          <p>0 0 0 3 0 1 1 0 2 4 1 3 11 1 4 7 1 5 7 2 6 13 2 7 3 2 8 4 3 9 19 3 10 5 3 11 2 4 12 7 4 13 3 4 14 1 5 15 5 5 16 0 5 17 9 1 18 11 1 19 8 1 20 6 1 21 9 1 22 5 1 23 7 1 24 10 1 25 6 1 26 5 1 27 8 1 28 4 1 29 13 6 30 14 6 31 12 6 32 7 7 33 14 7 34 15 7 35 3 8 36 12 8 37 1 8 38 1 9 39 14 9 40 6 9 41 17 10 42 18 10 43 16 10 44 2 11 45 17 11 46 16 11 47 2 12 48 18 12 49 4 12 50 5 13 51 17 13 52 0 13 53 0 0 84 2 0 85 3 0 86 4 1 87 8 1 88 11 1 89 7 18 90 15 18 91 13 18 92 4 19 93 18 19 94 19 19 95 2 4 96 4 4 97 7 4 98 1 5 99 6 5 100 5 5 101 9 1 102 10 1 103 11 1 104 6 1 105 10 1 106 9 1 107 7 1 108 11 1 109 10 1 110 5 1 111 9 1 112 8 1 113 13 6 114 15 6 115 14 6 116 7 20 117 6 20 118 14 20 119 3 21 120 13 21 121 12 21 122 1 9 123 12 9 124 14 9 125 17 10 126 19 10 127 18 10 128 2 22 129 0 22 130 17 22 131 2 23 132 16 23 133 18 23 134 5 24 135 19 24 136 17 24 137</p>
+        </triangles>
+        <triangles material="Pavement_018-material" count="16">
+          <input semantic="VERTEX" source="#Plane_040-mesh-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#Plane_040-mesh-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#Plane_040-mesh-map" offset="2" set="0"/>
+          <p>20 0 54 21 0 55 22 0 56 24 1 57 25 1 58 23 1 59 23 4 60 22 4 61 21 4 62 25 14 63 20 14 64 22 14 65 24 15 66 21 15 67 20 15 68 26 0 69 27 0 70 28 0 71 30 1 72 31 1 73 29 1 74 29 16 75 28 16 76 27 16 77 31 17 78 26 17 79 28 17 80 30 4 81 27 4 82 26 4 83 23 4 138 25 4 139 22 4 140 25 25 141 24 25 142 20 25 143 24 15 144 23 15 145 21 15 146 29 16 147 31 16 148 28 16 149 31 26 150 30 26 151 26 26 152 30 4 153 29 4 154 27 4 155</p>
+        </triangles>
+      </mesh>
+    </geometry>
+  </library_geometries>
+  <library_visual_scenes>
+    <visual_scene id="Scene" name="Scene">
+      <node id="Base_003" name="Base.003" type="NODE">
+        <matrix sid="transform">0.5 0 0 0 0 0.5 0 0 0 0 1 0 0 0 0 1</matrix>
+        <instance_geometry url="#Plane_040-mesh" name="Base.003">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="Asphalt_018-material" target="#Asphalt_018-material"/>
+              <instance_material symbol="Pavement_018-material" target="#Pavement_018-material"/>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <scene>
+    <instance_visual_scene url="#Scene"/>
+  </scene>
+</COLLADA>

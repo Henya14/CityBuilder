@@ -16,4 +16,6 @@ MonoBehaviour:
   buildingType: 2
   price: 0
   size: {x: 1, y: 1}
+  isAvailable: 0
   image: {fileID: 0}
+  prefab: {fileID: 6515529762217398849, guid: df6a32d1296f0414ab77fd29fabef8a0, type: 3}

@@ -50,6 +50,7 @@ public class GameUIManager : MonoBehaviour
         SetSelectedForGameModeSelectorButtons(false);
         selectedGameMode = GameMode.SelectionMode;
         selectionModeButton.AddToClassList(SELECTED_BUTTON_CLASS_NAME);
+        gridManager.ResetSelection();
         buildingList.style.display = DisplayStyle.None;
     }
 
@@ -59,7 +60,6 @@ public class GameUIManager : MonoBehaviour
         buildModeButton.AddToClassList(SELECTED_BUTTON_CLASS_NAME);
         buildingList.style.display = DisplayStyle.Flex;
         InitializeBuildingsList();
-        
     }
     void InitializeBuildingsList() {
         var buildings = buildModeManager.GetBuildingDatas();
@@ -79,7 +79,8 @@ public class GameUIManager : MonoBehaviour
         buildingList.fixedItemHeight = 45;
         buildingList.itemsSource = buildings;
 
-        buildingList.selectionChanged += OnBuildingSelected;    
+        buildingList.selectionChanged += OnBuildingSelected; 
+        buildingList.SetSelection(-1);
     }
 
     void OnBuildingSelected(IEnumerable<object> selectedItems) {
@@ -102,13 +103,13 @@ public class GameUIManager : MonoBehaviour
         }
     }
 
-    public void TileSelected(Tile tile, List<Vector3Int>  selectedTilesGridPositions, Vector3 selectionCenter) {
+    public void TileSelected(Tile tile, List<Vector3Int>  selectedTilesGridPositions, List<Vector3> prafabPlacePositions) {
         switch (selectedGameMode) {
             case GameMode.SelectionMode: 
                 TileSelectedInSelectionMode(tile);
                 break;
             case GameMode.BuildMode:
-                TileSelectedInBuildMode(tile, selectedTilesGridPositions, selectionCenter);
+                TileSelectedInBuildMode(tile, selectedTilesGridPositions, prafabPlacePositions);
                 break;
             default:
                 break;
@@ -126,9 +127,9 @@ public class GameUIManager : MonoBehaviour
         }
     }
 
-    void TileSelectedInBuildMode(Tile tile, List<Vector3Int> selectedTilesGridPositions, Vector3 selectionCenter) {
+    void TileSelectedInBuildMode(Tile tile, List<Vector3Int> selectedTilesGridPositions, List<Vector3> prefabPlacePositions) {
          if (tile != null) {
-            buildModeManager.TileSelected(tile, selectedTilesGridPositions, selectionCenter);
+            buildModeManager.TileSelected(tile, selectedTilesGridPositions, prefabPlacePositions);
         }
     }
 }
