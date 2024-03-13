@@ -50,6 +50,7 @@ public class GameUIManager : MonoBehaviour
         SetSelectedForGameModeSelectorButtons(false);
         selectedGameMode = GameMode.SelectionMode;
         selectionModeButton.AddToClassList(SELECTED_BUTTON_CLASS_NAME);
+        gridManager.ResetSelection();
         buildingList.style.display = DisplayStyle.None;
     }
 
@@ -59,7 +60,6 @@ public class GameUIManager : MonoBehaviour
         buildModeButton.AddToClassList(SELECTED_BUTTON_CLASS_NAME);
         buildingList.style.display = DisplayStyle.Flex;
         InitializeBuildingsList();
-        
     }
     void InitializeBuildingsList() {
         var buildings = buildModeManager.GetBuildingDatas();
@@ -79,7 +79,8 @@ public class GameUIManager : MonoBehaviour
         buildingList.fixedItemHeight = 45;
         buildingList.itemsSource = buildings;
 
-        buildingList.selectionChanged += OnBuildingSelected;    
+        buildingList.selectionChanged += OnBuildingSelected; 
+        buildingList.SetSelection(-1);
     }
 
     void OnBuildingSelected(IEnumerable<object> selectedItems) {

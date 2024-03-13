@@ -27,7 +27,6 @@ public class GridManager : MonoBehaviour
     SelectionMode selectionMode = SelectionMode.Single;
     public Vector2Int selectionSize { get; set; } = new Vector2Int(1, 1);
     public GameObject selectionPrefab { get; set; }
-    Vector3Int lastTilePositionMouseHoveredOver;
     GameObject selectionInstance;
     List<Vector3Int> lastSelectedTilePositions = new List<Vector3Int>();
     GameUIManager gameUIManager;
@@ -80,19 +79,28 @@ public class GridManager : MonoBehaviour
 
     public void TileSelectedAtPosition(Vector3Int selectionPosition)
     {
-        lastTilePositionMouseHoveredOver = selectionPosition;
         if (selectionMode == SelectionMode.Single)
         {
             ClearlastSelectedTilePositions();
             lastSelectedTilePositions.AddRange(GetPositionsOfTilesInSelection(selectionPosition, selectionSize));
         }
-        else if (selectionMode == SelectionMode.Rectangle)
+        else if (selectionMode == SelectionMode.Rectangle || selectionMode == SelectionMode.Line)
         {
             if (isMouseButtonDown)
             {
-                var firstItem = lastSelectedTilePositions[0];
+                var firstSelectionPosition = lastSelectedTilePositions[0];
                 ClearlastSelectedTilePositions();
-                lastSelectedTilePositions = GetPositionsOfTilesInRectangleBetweenTwoPositions(firstItem, selectionPosition);
+                var secondSelectionPosition = selectionPosition;
+                if (selectionMode == SelectionMode.Line) {
+                    var deltaX = secondSelectionPosition.x - firstSelectionPosition.x;
+                    var deltaZ = secondSelectionPosition.z - firstSelectionPosition.z;
+                    if (Math.Sign(deltaX) == Math.Sign(deltaZ) || deltaX == 0) {
+                         secondSelectionPosition.x = firstSelectionPosition.x;
+                    } else {
+                         secondSelectionPosition.z = firstSelectionPosition.z;
+                    }
+                }
+                lastSelectedTilePositions = GetPositionsOfTilesInRectangleBetweenTwoPositions(firstSelectionPosition, secondSelectionPosition);
             }
             else
             {
@@ -230,11 +238,9 @@ public class GridManager : MonoBehaviour
             {
                 Destroy(selectionInstance);
             }
-            if (selectionMode == SelectionMode.Rectangle)
+            if (selectionMode == SelectionMode.Rectangle || selectionMode == SelectionMode.Line)
             {
                 ClearlastSelectedTilePositions();
-                lastSelectedTilePositions.Add(lastTilePositionMouseHoveredOver);
-                SetSelectionOfTilesAtPositions(lastSelectedTilePositions, true);
             }
         }
     }
@@ -297,4 +303,10 @@ public class GridManager : MonoBehaviour
         Vector3 selectionCenter = selectionVector + selectionStart;
         return selectionCenter;
     }
+
+    public void ResetSelection() {
+        ClearlastSelectedTilePositions();
+        ChangeSelection(new Vector2Int(1,1), null, null);
+    }
+    
 }
