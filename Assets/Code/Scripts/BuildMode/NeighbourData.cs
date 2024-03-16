@@ -10,7 +10,7 @@ public enum Direction
 
 public class NeighbourData
 {
-    private Dictionary<Direction, AbstractBuildingType> neighborDictionary = new Dictionary<Direction, AbstractBuildingType> {
+    public Dictionary<Direction, AbstractBuildingType> neighborDictionary {get;} = new Dictionary<Direction, AbstractBuildingType> {
         {Direction.North, null},
         {Direction.South, null},
         {Direction.East, null},

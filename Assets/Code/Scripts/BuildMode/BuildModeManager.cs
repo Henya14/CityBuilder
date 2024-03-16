@@ -10,7 +10,7 @@ using UnityEngine;
 
 public class BuildModeManager : MonoBehaviour
 {
-    private AbstractBuildingType selectedBuilding;
+    private BuildingData selectedBuildingData;
     private GridManager gridManager;
     void Start() {
         gridManager = FindObjectOfType<GridManager>();
@@ -18,6 +18,7 @@ public class BuildModeManager : MonoBehaviour
     public void TileSelected(Tile tile, List<Vector3Int> selectedTilesGridPositions, List<Vector3> prefabPlacePositions) {
 
         var gridPositions = selectedTilesGridPositions.Select( p => new Vector3Int(p.x, p.y + 1, p.z)).ToList();
+        var selectedBuilding = CreateBuildingFromBuildingData(selectedBuildingData);
         List<Vector3> placePositions = new List<Vector3>();
         foreach (var prefabPlacePosition in prefabPlacePositions) {
             var gamePositionY = gridManager.GetGamePositionForGridPosition(gridPositions[0]).y;
@@ -45,7 +46,7 @@ public class BuildModeManager : MonoBehaviour
     }
 
     public void BuildingDataSelected(BuildingData buildingData) {
-        selectedBuilding = CreateBuildingFromBuildingData(buildingData);
+        selectedBuildingData = buildingData;
     }
 
     private AbstractBuildingType CreateBuildingFromBuildingData(BuildingData data) {

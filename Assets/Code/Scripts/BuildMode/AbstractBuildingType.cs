@@ -3,13 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
 
-public enum Direction
-{
-    North,
-    South,
-    East,
-    West
-}
+
 
 public abstract class AbstractBuildingType : MonoBehaviour
 {
@@ -20,7 +14,7 @@ public abstract class AbstractBuildingType : MonoBehaviour
     public bool isAvailable { get; set; }
     public List<GameObject> buildings { get; set; } = new List<GameObject>();
 
-    private Dictionary<Vector3Int, NeighbourData> neighborDictionary = new Dictionary<Vector3Int, NeighbourData>();
+    public Dictionary<Vector3Int, NeighbourData> neighborDictionary {get; private set;} = new Dictionary<Vector3Int, NeighbourData>();
 
     public virtual void Init(BuildingData buildingData)
     {
@@ -37,6 +31,7 @@ public abstract class AbstractBuildingType : MonoBehaviour
             building.transform.position = gamePosition;
             buildings.Add(building);
         }
+        neighborDictionary = neigbours;
     }
 
     public virtual void Remove()
@@ -46,6 +41,8 @@ public abstract class AbstractBuildingType : MonoBehaviour
         {
             Destroy(building);
         }
+
+        buildings.Clear();
     }
 
     public void SetNeighbor(Vector3Int position, NeighbourData neighbor)

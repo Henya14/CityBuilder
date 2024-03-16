@@ -7,22 +7,43 @@ public class Highlight : MonoBehaviour
     [SerializeField] private List<Renderer> renderers;
     private List<Material> materials;
     [SerializeField] private Color highlightColor = Color.white;
-    
-    private void Awake() {
+    [SerializeField] private bool isHighlighted = false;
+
+    private void Awake()
+    {
         materials = new List<Material>();
-        foreach(var renderer in renderers) {
+        foreach (var renderer in renderers)
+        {
             materials.AddRange(new List<Material>(renderer.materials));
         }
     }
 
-    public void ToggleHighlight(bool on) {
-        if (on) {
-            foreach (var material in materials) {
+    public void SetHighlightColor(Color color)
+    {
+        highlightColor = color;
+        RefreshHighlight();
+    }
+
+    public void ToggleHighlight(bool on)
+    {
+        isHighlighted = on;
+        RefreshHighlight();
+    }
+
+    private void RefreshHighlight()
+    {
+        if (isHighlighted)
+        {
+            foreach (var material in materials)
+            {
                 material.EnableKeyword("_EMISSION");
                 material.SetColor("_EmissionColor", highlightColor);
             }
-        } else {
-            foreach (var material in materials) {
+        }
+        else
+        {
+            foreach (var material in materials)
+            {
                 material.DisableKeyword("_EMISSION");
             }
         }

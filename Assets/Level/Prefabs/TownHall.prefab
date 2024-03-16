@@ -101,5 +101,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   renderers:
   - {fileID: 7445429520272745144}
-  isHighlighted: 0
   highlightColor: {r: 1, g: 1, b: 1, a: 1}
+  isHighlighted: 0
