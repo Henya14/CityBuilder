@@ -122,6 +122,9 @@ public class GridManager : MonoBehaviour
 
     private void HandleSelectionWhenMouseIsDown(Vector3Int selectionPosition)
     {
+        if (lastSelectedTilePositions.Count == 0) {
+            return;
+        }
         var firstSelectionPosition = lastSelectedTilePositions[0];
         ClearlastSelectedTilePositions();
         var secondSelectionPosition = selectionPosition;
@@ -145,7 +148,15 @@ public class GridManager : MonoBehaviour
     {
         bool isValid = true;
         var buildingPositions = buildingsMap.Keys.Select(p => new Vector2(p.x, p.z));
+        var selectionMaxX = selectedTilePositions.Select(p => p.x).Max();
+        var tileMapMaxX = tileMap.Keys.Select(p => p.x).Max();
+        var tileMapMaxZ = tileMap.Keys.Select(p => p.z).Max();
+        var selectionMaxZ = selectedTilePositions.Select(p => p.z).Max();
+        if (selectionMaxX > tileMapMaxX || selectionMaxZ > tileMapMaxZ) {
+            return false;
+        }
         var selectedTilePositionsVec2 = selectedTilePositions.Select(p => new Vector2(p.x, p.z));
+        
         foreach (var selectedTilePosition in selectedTilePositionsVec2)
         {
             if (buildingPositions.Contains(selectedTilePosition))
@@ -153,6 +164,8 @@ public class GridManager : MonoBehaviour
                 isValid = false;
             }
         }
+
+        
 
         return isValid;
     }
