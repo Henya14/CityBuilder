@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using Unity.VisualScripting;
 using Unity.VisualScripting.Dependencies.Sqlite;
@@ -114,7 +115,7 @@ public class GridManager : MonoBehaviour
                 selectionInstance.transform.position = gamePosition;
             }
         }
-        else 
+        else
         {
             Destroy(selectionInstance);
         }
@@ -122,7 +123,8 @@ public class GridManager : MonoBehaviour
 
     private void HandleSelectionWhenMouseIsDown(Vector3Int selectionPosition)
     {
-        if (lastSelectedTilePositions.Count == 0) {
+        if (lastSelectedTilePositions.Count == 0)
+        {
             return;
         }
         var firstSelectionPosition = lastSelectedTilePositions[0];
@@ -147,16 +149,17 @@ public class GridManager : MonoBehaviour
     private bool IsSelectionValid(List<Vector3Int> selectedTilePositions)
     {
         bool isValid = true;
-        var buildingPositions = buildingsMap.Keys.Select(p => new Vector2(p.x, p.z));
         var selectionMaxX = selectedTilePositions.Select(p => p.x).Max();
         var tileMapMaxX = tileMap.Keys.Select(p => p.x).Max();
         var tileMapMaxZ = tileMap.Keys.Select(p => p.z).Max();
         var selectionMaxZ = selectedTilePositions.Select(p => p.z).Max();
-        if (selectionMaxX > tileMapMaxX || selectionMaxZ > tileMapMaxZ) {
+        if (selectionMaxX > tileMapMaxX || selectionMaxZ > tileMapMaxZ)
+        {
             return false;
         }
+        var buildingPositions = buildingsMap.Keys.Select(p => new Vector2(p.x, p.z));
         var selectedTilePositionsVec2 = selectedTilePositions.Select(p => new Vector2(p.x, p.z));
-        
+
         foreach (var selectedTilePosition in selectedTilePositionsVec2)
         {
             if (buildingPositions.Contains(selectedTilePosition))
@@ -165,7 +168,7 @@ public class GridManager : MonoBehaviour
             }
         }
 
-        
+
 
         return isValid;
     }
@@ -246,7 +249,7 @@ public class GridManager : MonoBehaviour
             if (lastSelectedTilePositions.Count > 0 && selectionMode == SelectionMode.Single && isSelectionValid)
             {
                 var selectedTile = GetTileAtPosition(lastSelectedTilePositions[0]);
-                gameUIManager.TileSelected(selectedTile, lastSelectedTilePositions, new List<Vector3> {GetSelectionCenter(lastSelectedTilePositions)});
+                gameUIManager.TileSelected(selectedTile, lastSelectedTilePositions, new List<Vector3> { GetSelectionCenter(lastSelectedTilePositions) });
             }
         }
         else if (Input.GetMouseButtonUp(0))
@@ -257,9 +260,9 @@ public class GridManager : MonoBehaviour
                 Destroy(selectionInstance);
             }
             if ((selectionMode == SelectionMode.Rectangle || selectionMode == SelectionMode.Line) && lastSelectedTilePositions.Count > 0 && isSelectionValid)
-            {   
+            {
                 var selectedTile = GetTileAtPosition(lastSelectedTilePositions[0]);
-                var prefabPlacePositions = lastSelectedTilePositions.Select( lstp => GetSelectionCenter(new List<Vector3Int>{lstp})).ToList();
+                var prefabPlacePositions = lastSelectedTilePositions.Select(lstp => GetSelectionCenter(new List<Vector3Int> { lstp })).ToList();
                 gameUIManager.TileSelected(selectedTile, lastSelectedTilePositions, prefabPlacePositions);
                 ClearlastSelectedTilePositions();
             }
@@ -325,9 +328,22 @@ public class GridManager : MonoBehaviour
         return selectionCenter;
     }
 
-    public void ResetSelection() {
+    public void ResetSelection()
+    {
         ClearlastSelectedTilePositions();
-        ChangeSelection(new Vector2Int(1,1), null, null);
+        ChangeSelection(new Vector2Int(1, 1), null, null);
     }
-    
+
+    public Dictionary<Direction, AbstractBuildingType> GetNeigbouringBuildingsOfTile(Vector3Int tilePosition)
+    {
+        Dictionary<Direction, AbstractBuildingType> neighborDictionary = new Dictionary<Direction, AbstractBuildingType> {
+            {Direction.North, null},
+            {Direction.South, null},
+            {Direction.East, null},
+            {Direction.West, null},
+        };
+
+        return neighborDictionary;
+
+    }
 }
