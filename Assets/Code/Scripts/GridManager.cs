@@ -295,7 +295,7 @@ public class GridManager : MonoBehaviour
 
         foreach(var positionAndBuilding in buildingsMap) {
             var cent = GetSelectionCenter(new List<Vector3Int>{positionAndBuilding.Key, positionAndBuilding.Key});
-            foreach(var dir in positionAndBuilding.Value.neighborDictionary[positionAndBuilding.Key].neighborDictionary) {
+            foreach(var dir in positionAndBuilding.Value.neighbourDatasForPositions[positionAndBuilding.Key].neighboursForGridPositions) {
                     if(dir.Value == null) {
                         continue;
                     }
@@ -304,26 +304,36 @@ public class GridManager : MonoBehaviour
                     
                     var rotation = 0.0f;
                     var highlight = arr.GetComponent<Highlight>();
-                    switch(dir.Key) {
+                    var directionVector = dir.Key - positionAndBuilding.Key;
+
+                    var direction = Direction.North;
+
+                    if (directionVector.z > 0) {
+                        direction = Direction.North;
+                    } else if (directionVector.z < 0) {
+                        direction = Direction.South;
+                    } else if (directionVector.x > 0) {
+                         direction = Direction.East;
+                    } else {
+                        direction = Direction.West;
+                    }
+
+                    switch(direction) {
                         case Direction.North:
                             rotation = 90.0f;
                             highlight.SetHighlightColor(Color.blue);
-                            cent.x += 0.03f;
                             break;
                         case Direction.South:
                             rotation = -90.0f;
                             highlight.SetHighlightColor(Color.red);
-                            cent.x -= 0.03f;
                             break;
                         case Direction.East:
                             rotation = 0.0f;
                             highlight.SetHighlightColor(Color.green);
-                            cent.z += 0.03f;
                             break;
                         case Direction.West:
                             rotation = 180.0f;
                             highlight.SetHighlightColor(Color.yellow);
-                            cent.z -= 0.03f;
                             break;
                     }
                     highlight.ToggleHighlight(true);
@@ -404,14 +414,18 @@ public class GridManager : MonoBehaviour
         ChangeSelection(new Vector2Int(1, 1), null, null);
     }
 
-    public Dictionary<Direction, AbstractBuildingType> GetNeigbouringBuildingsOfTile(Vector3Int tilePosition)
+    public Dictionary<Vector3Int, AbstractBuildingType> GetNeigbouringBuildingsOfTile(Vector3Int tilePosition)
     {
-        Dictionary<Direction, AbstractBuildingType> neighborDictionary = new Dictionary<Direction, AbstractBuildingType>();
+        Dictionary<Vector3Int, AbstractBuildingType> neighborDictionary = new Dictionary<Vector3Int, AbstractBuildingType>();
 
-        neighborDictionary[Direction.North] = GetBuildingAtPosition(new Vector3Int(tilePosition.x, tilePosition.y, tilePosition.z + 1));
-        neighborDictionary[Direction.South] = GetBuildingAtPosition(new Vector3Int(tilePosition.x, tilePosition.y, tilePosition.z - 1));
-        neighborDictionary[Direction.East] = GetBuildingAtPosition(new Vector3Int(tilePosition.x + 1, tilePosition.y, tilePosition.z));
-        neighborDictionary[Direction.West] = GetBuildingAtPosition(new Vector3Int(tilePosition.x - 1, tilePosition.y, tilePosition.z));
+        var northNeighbourPosition = new Vector3Int(tilePosition.x, tilePosition.y, tilePosition.z + 1);
+        neighborDictionary[northNeighbourPosition] = GetBuildingAtPosition(northNeighbourPosition);
+        var southNeighbourPosition = new Vector3Int(tilePosition.x, tilePosition.y, tilePosition.z - 1);
+        neighborDictionary[southNeighbourPosition] = GetBuildingAtPosition(southNeighbourPosition);
+        var eastNeighbourPosition = new Vector3Int(tilePosition.x + 1, tilePosition.y, tilePosition.z);
+        neighborDictionary[eastNeighbourPosition] = GetBuildingAtPosition(eastNeighbourPosition);
+        var westNeighbourPosition = new Vector3Int(tilePosition.x - 1, tilePosition.y, tilePosition.z);
+        neighborDictionary[westNeighbourPosition] = GetBuildingAtPosition(westNeighbourPosition);
 
         return neighborDictionary;
     }

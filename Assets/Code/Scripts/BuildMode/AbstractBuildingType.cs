@@ -14,7 +14,7 @@ public abstract class AbstractBuildingType : MonoBehaviour
     public bool isAvailable { get; set; }
     public List<GameObject> buildings { get; set; } = new List<GameObject>();
 
-    public Dictionary<Vector3Int, NeighbourData> neighborDictionary {get; private set;} = new Dictionary<Vector3Int, NeighbourData>();
+    public Dictionary<Vector3Int, NeighbourData> neighbourDatasForPositions {get; private set;} = new Dictionary<Vector3Int, NeighbourData>();
 
     public virtual void Init(BuildingData buildingData)
     {
@@ -31,7 +31,17 @@ public abstract class AbstractBuildingType : MonoBehaviour
             building.transform.position = gamePosition;
             buildings.Add(building);
         }
-        neighborDictionary = neigbours;
+        neighbourDatasForPositions = neigbours;
+        foreach(var neighbourDatasForPosition in neighbourDatasForPositions) {
+            foreach(var neighbourForGridPosition in neighbourDatasForPosition.Value.neighboursForGridPositions) {
+                var currentTilePosition = neighbourDatasForPosition.Key;
+                var neigbourPosition = neighbourForGridPosition.Key;
+                var neighbour = neighbourForGridPosition.Value;
+                if (neighbour != null) {
+                    neighbour.SetNeighbourForPosition(neigbourPosition, currentTilePosition, this);
+                }
+            }
+        }
     }
 
     public virtual void Remove()
@@ -45,8 +55,9 @@ public abstract class AbstractBuildingType : MonoBehaviour
         buildings.Clear();
     }
 
-    public void SetNeighbor(Vector3Int position, NeighbourData neighbor)
-    {
-        neighborDictionary[position] = neighbor;
+    public void SetNeighbourForPosition(Vector3Int position, Vector3Int neighbourPosition, AbstractBuildingType neighbour)
+    {   
+        var neighbourDataForPosition =  neighbourDatasForPositions[position];
+        neighbourDataForPosition.SetNeighbour(neighbourPosition, neighbour);
     }
 }

@@ -1,4 +1,7 @@
 using System.Collections.Generic;
+using UnityEngine;
+
+
 
 public enum Direction
 {
@@ -10,25 +13,21 @@ public enum Direction
 
 public class NeighbourData
 {
-    public Dictionary<Direction, AbstractBuildingType> neighborDictionary {get;} = new Dictionary<Direction, AbstractBuildingType> {
-        {Direction.North, null},
-        {Direction.South, null},
-        {Direction.East, null},
-        {Direction.West, null},
-    };
 
-    public NeighbourData(Dictionary<Direction, AbstractBuildingType> neighborDictionary)
+    public Dictionary<Vector3Int, AbstractBuildingType> neighboursForGridPositions {get;} = new Dictionary<Vector3Int, AbstractBuildingType>();
+
+    public NeighbourData(Dictionary<Vector3Int, AbstractBuildingType> neighboursForGridPositions)
     {
-        this.neighborDictionary = neighborDictionary;
+        this.neighboursForGridPositions = neighboursForGridPositions;
     }
 
-    public void SetNeighbour(Direction direction, AbstractBuildingType neighbour)
+    public void SetNeighbour(Vector3Int gridPosition, AbstractBuildingType neighbour)
     {
-        neighborDictionary[direction] = neighbour;
+        neighboursForGridPositions[gridPosition] = neighbour;
     }
 
-    public AbstractBuildingType GetNeighbour(Direction direction)
+    public AbstractBuildingType GetNeighbourForGridPosition(Vector3Int direction)
     {
-        return neighborDictionary.GetValueOrDefault(direction, null);
+        return neighboursForGridPositions.GetValueOrDefault(direction, null);
     }
 }
