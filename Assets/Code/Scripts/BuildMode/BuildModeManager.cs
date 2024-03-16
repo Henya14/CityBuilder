@@ -24,8 +24,15 @@ public class BuildModeManager : MonoBehaviour
             var placePosition = new Vector3(prefabPlacePosition.x, gamePositionY, prefabPlacePosition.z);
             placePositions.Add(placePosition);
         }
-        selectedBuilding.PlaceAtPosition(gridPositions, placePositions);
-        gridManager.AddBuildingToGrid(selectedBuilding);
+
+        gridManager.AddBuildingToGrid(selectedBuilding, gridPositions);
+        var neigbours = new Dictionary<Vector3Int, NeighbourData>();
+        foreach(var gridPosition in gridPositions) {
+            var neighbourDictionary = gridManager.GetNeigbouringBuildingsOfTile(gridPosition);
+            var neighbourData = new NeighbourData(neighbourDictionary);
+            neigbours[gridPosition] = neighbourData;
+        }
+        selectedBuilding.PlaceAtPosition(gridPositions, placePositions, neigbours);
     }
 
     public List<BuildingData> GetBuildingDatas() {

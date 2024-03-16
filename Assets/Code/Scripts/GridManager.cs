@@ -34,6 +34,7 @@ public class GridManager : MonoBehaviour
     bool isSelectionValid = false;
 
 
+
     Dictionary<Vector3Int, Tile> tileMap = new Dictionary<Vector3Int, Tile>();
     Dictionary<Vector3Int, AbstractBuildingType> buildingsMap = new Dictionary<Vector3Int, AbstractBuildingType>();
     int offsetX = 10;
@@ -241,6 +242,11 @@ public class GridManager : MonoBehaviour
         return tileMap.GetValueOrDefault(position, null);
     }
 
+    public AbstractBuildingType GetBuildingAtPosition(Vector3Int position)
+    {
+        return buildingsMap.GetValueOrDefault(position, null);
+    }
+
     void Update()
     {
         if (Input.GetMouseButtonDown(0))
@@ -295,9 +301,9 @@ public class GridManager : MonoBehaviour
         selectionPrefab = prefabToShowAtSelection;
     }
 
-    public void AddBuildingToGrid(AbstractBuildingType building)
+    public void AddBuildingToGrid(AbstractBuildingType building, List<Vector3Int> gridPositions)
     {
-        foreach (var gridPosition in building.gridPositions)
+        foreach (var gridPosition in gridPositions)
         {
             buildingsMap.Add(gridPosition, building);
         }
@@ -336,12 +342,12 @@ public class GridManager : MonoBehaviour
 
     public Dictionary<Direction, AbstractBuildingType> GetNeigbouringBuildingsOfTile(Vector3Int tilePosition)
     {
-        Dictionary<Direction, AbstractBuildingType> neighborDictionary = new Dictionary<Direction, AbstractBuildingType> {
-            {Direction.North, null},
-            {Direction.South, null},
-            {Direction.East, null},
-            {Direction.West, null},
-        };
+        Dictionary<Direction, AbstractBuildingType> neighborDictionary = new Dictionary<Direction, AbstractBuildingType>();
+
+        neighborDictionary[Direction.North] = GetBuildingAtPosition(new Vector3Int(tilePosition.x, tilePosition.y, tilePosition.z + 1));
+        neighborDictionary[Direction.South] = GetBuildingAtPosition(new Vector3Int(tilePosition.x, tilePosition.y, tilePosition.z - 1));
+        neighborDictionary[Direction.East] = GetBuildingAtPosition(new Vector3Int(tilePosition.x + 1, tilePosition.y, tilePosition.z));
+        neighborDictionary[Direction.West] = GetBuildingAtPosition(new Vector3Int(tilePosition.x - 1, tilePosition.y, tilePosition.z));
 
         return neighborDictionary;
 
