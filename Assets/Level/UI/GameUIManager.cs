@@ -131,7 +131,7 @@ public class GameUIManager : MonoBehaviour
     void TileSelectedInSelectionMode(Tile tile) {
          if (tile != null) {
             infoContainer.style.display = DisplayStyle.Flex;
-            infoContainerText.text = tile.description;
+            infoContainerText.text = tile.description + " morality:  " + tile.tileMorality.moralityLevel;
         } else {
             infoContainer.style.display = DisplayStyle.None;
             infoContainerText.text = "";

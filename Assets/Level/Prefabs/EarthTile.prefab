@@ -104,6 +104,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   description: A Dirt Tile
+  destMaterial: {fileID: 2100000, guid: 767d2f4402b72d54b8cffac96e06c7dd, type: 2}
 --- !u!65 &3297212600633482310
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -138,4 +139,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   highlightMaterial: {fileID: 2100000, guid: 26a3561a6f98b124aae5bc7526821b9c, type: 2}
-  originalMaterial: {fileID: 0}
+  originalMaterial: {fileID: 2100000, guid: 07f6ed36566f8144683794969df5ab6f, type: 2}
