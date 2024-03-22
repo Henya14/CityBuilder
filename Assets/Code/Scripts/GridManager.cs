@@ -34,6 +34,8 @@ public class GridManager : MonoBehaviour
 
     float cooldown;
 
+    bool notOnMap = true;
+
 
     Dictionary<Vector3Int, Tile> tileMap = new Dictionary<Vector3Int, Tile>();
     Dictionary<Vector3Int, AbstractBuildingType> buildingsMap = new Dictionary<Vector3Int, AbstractBuildingType>();
@@ -63,7 +65,6 @@ public class GridManager : MonoBehaviour
                 previousTilePlaced = tileToPlace;
                 Tile newTile = Instantiate(tileToPlace, transform);
                 Morality newMorality = new Morality();
-                //newMorality.moralityLevel = UnityEngine.Random.Range(0.0f, 1.0f);
                 newMorality.moralityLevel = 0;
                 newTile.tileMorality = newMorality;
                 Vector3Int gridPosition =  new Vector3Int(x, 0, z);
@@ -168,7 +169,7 @@ public class GridManager : MonoBehaviour
     void SetSelectionOfTilesAtPositions(List<Vector3Int> tilePositions, bool selected) {
             foreach(var tilePosition in tilePositions) {
             var tile = GetTileAtPosition(tilePosition);
-            if (tile != null) {
+            if (tile != null && notOnMap) {
                 tile.GetComponent<Highlight>()?.ToggleHighlight(selected);
             }
         }
@@ -213,40 +214,6 @@ public class GridManager : MonoBehaviour
             else
             {
                 gameUIManager.TileSelected(null, new List<Vector3Int>(), new Vector3(0, 0, 0));
-            }
-
-            cooldown = 2f;
-        }
-
-        if (Input.GetKey(KeyCode.C) && cooldown < 0)
-        {
-            Debug.Log("cseer");
-            isMouseButtonDown = true;
-
-            for (int i = 0; i < gridHeight; i++)
-            {
-                for (int j = 0; j < gridWidth; j++)
-                {
-                    Vector3Int element = new Vector3Int(i, 0, j);
-                    tileMap[element].changeMaterial();
-                }
-            }
-
-            cooldown = 2f;
-        }
-
-        if (Input.GetKey(KeyCode.V) && cooldown < 0)
-        {
-            Debug.Log("cseer");
-            isMouseButtonDown = true;
-
-            for (int i = 0; i < gridHeight; i++)
-            {
-                for (int j = 0; j < gridWidth; j++)
-                {
-                    Vector3Int element = new Vector3Int(i, 0, j);
-                    tileMap[element].resetMaterial();
-                }
             }
 
             cooldown = 2f;
@@ -336,6 +303,37 @@ public class GridManager : MonoBehaviour
                         break;
                     default:break;
                 }
+            }
+        }
+        if(!notOnMap)
+        {
+            ChangeMaterialsToMorality();
+        }
+        
+    }
+
+    public void ChangeMaterialsToMorality()
+    {
+        notOnMap = false;
+        for (int i = 0; i < gridHeight; i++)
+        {
+            for (int j = 0; j < gridWidth; j++)
+            {
+                Vector3Int element = new Vector3Int(i, 0, j);
+                tileMap[element].changeMaterial();
+            }
+        }
+    }
+
+    public void ResetMaterialsOnFields()
+    {
+        notOnMap = true;
+        for (int i = 0; i < gridHeight; i++)
+        {
+            for (int j = 0; j < gridWidth; j++)
+            {
+                Vector3Int element = new Vector3Int(i, 0, j);
+                tileMap[element].resetMaterial();
             }
         }
     }

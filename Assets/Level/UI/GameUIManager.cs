@@ -21,6 +21,8 @@ public class GameUIManager : MonoBehaviour
     Button timeForwardButton;
     Label timeTextField;
 
+    Toggle moralityViewToggle;
+
 
     List<Button> gameModeSelectorButtons = new List<Button>();
     public GameMode selectedGameMode {get; set;} = GameMode.SelectionMode;
@@ -41,6 +43,10 @@ public class GameUIManager : MonoBehaviour
         timeStartStopButton = root.Q<Button>("time-start-stop-button");
         timeForwardButton = root.Q<Button>("time-forward-button");
         timeTextField = root.Q<Label>("time-text-field");
+
+        moralityViewToggle = root.Q<Toggle>("morality-toggle");
+
+        
     }
     void Start() {
         selectionModeButton.clicked += OnSelectionModeButtonClicked;
@@ -56,6 +62,18 @@ public class GameUIManager : MonoBehaviour
         timeStartStopButton.clicked += OnTimeStartStopButtonClicked;
         timeForwardButton.clicked += OnTimeForwardButtonClicked;
         TimeManager.OnMinuteChanged += UpdateTimer;
+
+        moralityViewToggle.RegisterValueChangedCallback(evt =>
+        {
+            if (evt.newValue)
+            {
+                gridManager.ChangeMaterialsToMorality();
+            }
+            else
+            {
+                gridManager.ResetMaterialsOnFields();
+            }
+        });
     }
 
     void OnSelectionModeButtonClicked() {
