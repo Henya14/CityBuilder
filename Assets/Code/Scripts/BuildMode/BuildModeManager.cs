@@ -10,22 +10,40 @@ using UnityEngine;
 
 public class BuildModeManager : MonoBehaviour
 {
-    private AbstractBuildingType selectedBuilding;
+    private BuildingData selectedBuildingData;
     private GridManager gridManager;
     void Start() {
         gridManager = FindObjectOfType<GridManager>();
     }
-    public void TileSelected(Tile tile, List<Vector3Int> selectedTilesGridPositions, List<Vector3> prefabPlacePositions) {
+    public void TileSelected(Tile tile, List<Vector3Int> selectedTilesGridPositions, List<Vector3> prefabPlacePositions)
+    {
 
-        var gridPositions = selectedTilesGridPositions.Select( p => new Vector3Int(p.x, p.y + 1, p.z)).ToList();
+        var gridPositions = selectedTilesGridPositions.Select(p => new Vector3Int(p.x, p.y + 1, p.z)).ToList();
+        var selectedBuilding = CreateBuildingFromBuildingData(selectedBuildingData);
         List<Vector3> placePositions = new List<Vector3>();
-        foreach (var prefabPlacePosition in prefabPlacePositions) {
+        foreach (var prefabPlacePosition in prefabPlacePositions)
+        {
             var gamePositionY = gridManager.GetGamePositionForGridPosition(gridPositions[0]).y;
             var placePosition = new Vector3(prefabPlacePosition.x, gamePositionY, prefabPlacePosition.z);
             placePositions.Add(placePosition);
         }
-        selectedBuilding.PlaceAtPosition(gridPositions, placePositions);
-        gridManager.AddBuildingToGrid(selectedBuilding);
+
+        gridManager.AddBuildingToGrid(selectedBuilding, gridPositions);
+        Dictionary<Vector3Int, NeighbourData> neigbours = GetNeighboursForGridPositions(gridPositions);
+        selectedBuilding.PlaceAtPosition(gridPositions, placePositions, neigbours);
+    }
+
+    private Dictionary<Vector3Int, NeighbourData> GetNeighboursForGridPositions(List<Vector3Int> gridPositions)
+    {
+        var neigbours = new Dictionary<Vector3Int, NeighbourData>();
+        foreach (var gridPosition in gridPositions)
+        {
+            var neighbourDictionary = gridManager.GetNeigbouringBuildingsOfTile(gridPosition);
+            var neighbourData = new NeighbourData(neighbourDictionary);
+            neigbours[gridPosition] = neighbourData;
+        }
+
+        return neigbours;
     }
 
     public List<BuildingData> GetBuildingDatas() {
@@ -38,7 +56,7 @@ public class BuildModeManager : MonoBehaviour
     }
 
     public void BuildingDataSelected(BuildingData buildingData) {
-        selectedBuilding = CreateBuildingFromBuildingData(buildingData);
+        selectedBuildingData = buildingData;
     }
 
     private AbstractBuildingType CreateBuildingFromBuildingData(BuildingData data) {

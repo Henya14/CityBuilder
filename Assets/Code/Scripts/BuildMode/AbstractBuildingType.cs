@@ -3,51 +3,61 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
 
-public enum Direction {
-    North,
-    South, 
-    East,
-    West
-}
+
 
 public abstract class AbstractBuildingType : MonoBehaviour
 {
-    public string buildingName {get; private set;}
+    public string buildingName { get; private set; }
     private BuildingData buildingData;
-    public Vector2Int size {get; set;}
-    public List<Vector3Int> gridPositions {get; set;} = new List<Vector3Int>();
-    public bool isAvailable {get; set;}
-    public List<GameObject> buildings {get; set;} = new List<GameObject>();
+    public Vector2Int size { get; set; }
+    public List<Vector3Int> gridPositions { get; set; } = new List<Vector3Int>();
+    public bool isAvailable { get; set; }
+    public List<GameObject> buildings { get; set; } = new List<GameObject>();
 
-    private Dictionary<Direction, AbstractBuildingType> neighborDictionary = new Dictionary<Direction, AbstractBuildingType> {
-        {Direction.North, null},
-        {Direction.South, null},
-        {Direction.East, null},
-        {Direction.West, null},
-    };
+    public Dictionary<Vector3Int, NeighbourData> neighbourDatasForPositions {get; private set;} = new Dictionary<Vector3Int, NeighbourData>();
 
-    public virtual void Init(BuildingData buildingData) {
+    public virtual void Init(BuildingData buildingData)
+    {
         this.buildingData = buildingData;
     }
 
-    public virtual void PlaceAtPosition(List<Vector3Int> gridPositions, List<Vector3> gamePositions) {
-        this.gridPositions.Clear();
+    public virtual void PlaceAtPosition(List<Vector3Int> gridPositions, List<Vector3> gamePositions, Dictionary<Vector3Int, NeighbourData> neigbours)
+    {
+        Remove();
         this.gridPositions.AddRange(gridPositions);
-        foreach (var gamePosition in gamePositions) {
+        foreach (var gamePosition in gamePositions)
+        {
             var building = Instantiate(buildingData.prefab);
             building.transform.position = gamePosition;
             buildings.Add(building);
         }
-    }
-
-    public virtual void Remove() {
-        gridPositions.Clear();
-        foreach (var building in buildings) {
-            Destroy(building);
+        neighbourDatasForPositions = neigbours;
+        foreach(var neighbourDatasForPosition in neighbourDatasForPositions) {
+            foreach(var neighbourForGridPosition in neighbourDatasForPosition.Value.neighboursForGridPositions) {
+                var currentTilePosition = neighbourDatasForPosition.Key;
+                var neigbourPosition = neighbourForGridPosition.Key;
+                var neighbour = neighbourForGridPosition.Value;
+                if (neighbour != null) {
+                    neighbour.SetNeighbourForPosition(neigbourPosition, currentTilePosition, this);
+                }
+            }
         }
     }
-    
-    public void SetNeighbor (Direction direction, AbstractBuildingType neighbor) {
-        neighborDictionary[direction] = neighbor;
+
+    public virtual void Remove()
+    {
+        gridPositions.Clear();
+        foreach (var building in buildings)
+        {
+            Destroy(building);
+        }
+
+        buildings.Clear();
+    }
+
+    public void SetNeighbourForPosition(Vector3Int position, Vector3Int neighbourPosition, AbstractBuildingType neighbour)
+    {   
+        var neighbourDataForPosition =  neighbourDatasForPositions[position];
+        neighbourDataForPosition.SetNeighbour(neighbourPosition, neighbour);
     }
 }
