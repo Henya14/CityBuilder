@@ -160,6 +160,8 @@ MonoBehaviour:
   tileSize: 0.5
   chanceToSwitchTile: 0.1
   previousTilePlaced: {fileID: 2005425898260501881, guid: 8260dadb88cda8843a22cfd7080baec9, type: 3}
+  debugCube: {fileID: 8530455344680319768, guid: 8814f62e8ce3a0c49afb78ad1eac2e1c, type: 3}
+  debugArrow: {fileID: 7116504243019251136, guid: 5879af0d3714acc4fb64382be09183f4, type: 3}
 --- !u!4 &158693461
 Transform:
   m_ObjectHideFlags: 0
