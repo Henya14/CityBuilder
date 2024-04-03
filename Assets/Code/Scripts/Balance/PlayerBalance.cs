@@ -15,8 +15,7 @@ public class PlayerBalance : MonoBehaviour
     List<float> factoryPopulation;
 
 
-    void Start()
-    {
+    void Start() {
         residentsTaxes = new List<float>();
         shopTaxes = new List<float>();
         factoryTaxes = new List<float>();
@@ -24,8 +23,7 @@ public class PlayerBalance : MonoBehaviour
         TimeManager.OnHourChanged += calcTaxes;
     }
 
-    private void calcTaxes()
-    {
+    private void calcTaxes() {
         updatePopulation();
 
         float currTaxIncome = 0;
@@ -42,8 +40,7 @@ public class PlayerBalance : MonoBehaviour
         balance += (int)currTaxIncome;
     }
 
-    private void updatePopulation()
-    {
+    private void updatePopulation() {
         //Get the population numbers from a manager here, now its a dummy data
         for (int i = 0; residentsPopulation.Count > 0; i++)
             residentsPopulation[i] += 1;
@@ -56,8 +53,7 @@ public class PlayerBalance : MonoBehaviour
     }
 
     //Only for load the game back from a savegame
-    public void LoadTaxes(List<float> loadedRTaxes, List<float> loadedSTaxes, List<float> loadedFTaxes)
-    {
+    public void LoadTaxes(List<float> loadedRTaxes, List<float> loadedSTaxes, List<float> loadedFTaxes) {
         residentsTaxes = loadedRTaxes;
         shopTaxes = loadedSTaxes;
         factoryTaxes = loadedFTaxes;

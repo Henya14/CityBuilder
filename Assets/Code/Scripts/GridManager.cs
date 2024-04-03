@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Data;
 using System.Linq;
 using Unity.VisualScripting;
@@ -33,6 +34,9 @@ public class GridManager : MonoBehaviour
     GameUIManager gameUIManager;
     bool isSelectionValid = false;
 
+    float cooldown;
+
+    bool notOnMap = true;
     [SerializeField] GameObject debugCube;
     [SerializeField] GameObject debugArrow;
 
@@ -52,6 +56,7 @@ public class GridManager : MonoBehaviour
         offsetX = gridHeight / 4;
         offsetZ = gridWidth / 4;
         GenerateGrid();
+        
     }
 
     private void GenerateGrid()
@@ -72,6 +77,9 @@ public class GridManager : MonoBehaviour
                 }
                 previousTilePlaced = tileToPlace;
                 Tile newTile = Instantiate(tileToPlace, transform);
+                Morality newMorality = new Morality();
+                newMorality.moralityLevel = 0;
+                newTile.tileMorality = newMorality;
                 Vector3Int gridPosition = new Vector3Int(x, 0, z);
                 newTile.gridPosition = gridPosition;
 
@@ -235,7 +243,7 @@ public class GridManager : MonoBehaviour
         foreach (var tilePosition in tilePositions)
         {
             var tile = GetTileAtPosition(tilePosition);
-            if (tile != null)
+            if (tile != null && notOnMap)
             {
                 tile.GetComponent<Highlight>()?.ToggleHighlight(selected);
             }
@@ -344,7 +352,27 @@ public class GridManager : MonoBehaviour
             }
             
         }
+        
+        if (Input.GetKey(KeyCode.K) && cooldown < 0)
+        {
+            isMouseButtonDown = true;
+            if (lastSelectedTilePositions.Count > 0)
+            {
+                var selectedTile = GetTileAtPosition(lastSelectedTilePositions[0]);
+                gameUIManager.TileSelected(selectedTile, lastSelectedTilePositions, new List<Vector3>{GetSelectionCenter(lastSelectedTilePositions)});
+                Debug.Log("click at:" + selectedTile.gridPosition);
 
+                RecalcMorality(selectedTile);
+            }
+            else
+            {
+                gameUIManager.TileSelected(null, new List<Vector3Int>(), new List<Vector3>{new Vector3(0, 0, 0)});
+            }
+
+            cooldown = 2f;
+        }
+
+        cooldown -= Time.deltaTime;
         Debug.Log(arrows.Count);
     }
 
@@ -406,6 +434,70 @@ public class GridManager : MonoBehaviour
         Vector3 selectionVector = (selectionEnd - selectionStart) / 2;
         Vector3 selectionCenter = selectionVector + selectionStart;
         return selectionCenter;
+    }
+
+    private void RecalcMorality(Tile selectedTile) {
+        for (int i = 0; i < gridHeight; i++)
+        {
+            for (int j = 0; j < gridWidth; j++)
+            {
+                Vector3Int element = new Vector3Int(i, 0, j);
+                int distance = (int) Vector3Int.Distance(tileMap[element].gridPosition, selectedTile.gridPosition);
+                switch (distance)
+                {
+                    case 5:
+                        tileMap[element].tileMorality.moralityLevel += 0.1f;
+                        break;
+                    case 4:
+                        tileMap[element].tileMorality.moralityLevel += 0.2f;
+                        break;
+                    case 3:
+                        tileMap[element].tileMorality.moralityLevel += 0.3f;
+                        break;
+                    case 2:
+                        tileMap[element].tileMorality.moralityLevel += 0.4f;
+                        break;
+                    case 1:
+                        tileMap[element].tileMorality.moralityLevel += 0.5f;
+                        break;
+                    case 0:
+                        tileMap[element].tileMorality.moralityLevel += 0.75f;
+                        break;
+                    default:break;
+                }
+            }
+        }
+        if(!notOnMap)
+        {
+            ChangeMaterialsToMorality();
+        }
+        
+    }
+
+    public void ChangeMaterialsToMorality()
+    {
+        notOnMap = false;
+        for (int i = 0; i < gridHeight; i++)
+        {
+            for (int j = 0; j < gridWidth; j++)
+            {
+                Vector3Int element = new Vector3Int(i, 0, j);
+                tileMap[element].changeMaterial();
+            }
+        }
+    }
+
+    public void ResetMaterialsOnFields()
+    {
+        notOnMap = true;
+        for (int i = 0; i < gridHeight; i++)
+        {
+            for (int j = 0; j < gridWidth; j++)
+            {
+                Vector3Int element = new Vector3Int(i, 0, j);
+                tileMap[element].resetMaterial();
+            }
+        }
     }
 
     public void ResetSelection()

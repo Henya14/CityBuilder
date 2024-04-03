@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -15,6 +16,12 @@ public class GameUIManager : MonoBehaviour
     VisualElement infoContainer;
     Label infoContainerText;
     ListView buildingList;
+
+    Button timeStartStopButton;
+    Button timeForwardButton;
+    Label timeTextField;
+
+    Toggle moralityViewToggle;
 
 
     List<Button> gameModeSelectorButtons = new List<Button>();
@@ -32,9 +39,16 @@ public class GameUIManager : MonoBehaviour
         infoContainer = root.Q<VisualElement>("info-text-container");
         infoContainerText = root.Q<Label>("info-text-label");
         buildingList = root.Q<ListView>("building-list");
+
+        timeStartStopButton = root.Q<Button>("time-start-stop-button");
+        timeForwardButton = root.Q<Button>("time-forward-button");
+        timeTextField = root.Q<Label>("time-text-field");
+
+        moralityViewToggle = root.Q<Toggle>("morality-toggle");
+
+        
     }
-    void Start()
-    {
+    void Start() {
         selectionModeButton.clicked += OnSelectionModeButtonClicked;
         selectionModeButton.AddToClassList(SELECTED_BUTTON_CLASS_NAME);
         buildModeButton.clicked += OnBuildModeButtonClicked;
@@ -44,6 +58,22 @@ public class GameUIManager : MonoBehaviour
 
         buildModeManager = FindObjectOfType<BuildModeManager>();
         gridManager = FindObjectOfType<GridManager>();
+
+        timeStartStopButton.clicked += OnTimeStartStopButtonClicked;
+        timeForwardButton.clicked += OnTimeForwardButtonClicked;
+        TimeManager.OnMinuteChanged += UpdateTimer;
+
+        moralityViewToggle.RegisterValueChangedCallback(evt =>
+        {
+            if (evt.newValue)
+            {
+                gridManager.ChangeMaterialsToMorality();
+            }
+            else
+            {
+                gridManager.ResetMaterialsOnFields();
+            }
+        });
     }
 
     void OnSelectionModeButtonClicked() {
@@ -120,7 +150,7 @@ public class GameUIManager : MonoBehaviour
     void TileSelectedInSelectionMode(Tile tile) {
          if (tile != null) {
             infoContainer.style.display = DisplayStyle.Flex;
-            infoContainerText.text = tile.description;
+            infoContainerText.text = tile.description + " morality:  " + tile.tileMorality.moralityLevel;
         } else {
             infoContainer.style.display = DisplayStyle.None;
             infoContainerText.text = "";
@@ -131,5 +161,17 @@ public class GameUIManager : MonoBehaviour
          if (tile != null) {
             buildModeManager.TileSelected(tile, selectedTilesGridPositions, prefabPlacePositions);
         }
+    }
+
+    void OnTimeStartStopButtonClicked() {
+        TimeManager.instance.StartStopTimer();
+    }
+
+    void OnTimeForwardButtonClicked() {
+        TimeManager.instance.ChangeTimerSpeed();
+    }
+
+    void UpdateTimer() {
+        timeTextField.text = $"{TimeManager.Hour:00}:{TimeManager.Minute:00}";
     }
 }
