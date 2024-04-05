@@ -5,6 +5,7 @@
    - (Patrik)Terület morál (nem akarnak beköltözni, vagy nem épül munkahely...)
    - (Patrik) Pénzrendszer / adók
    - (Olivér) Kameramozgás
+   - (Olivér) Zóna épületek generálás
    - Mentés / Betöltés
    Nice to have:
      - Épület pár másodpercig épül lehelyezés után
