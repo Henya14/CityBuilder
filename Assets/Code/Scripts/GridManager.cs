@@ -47,6 +47,7 @@ public class GridManager : MonoBehaviour
 
     Dictionary<Vector3Int, Tile> tileMap = new Dictionary<Vector3Int, Tile>();
     Dictionary<Vector3Int, AbstractBuildingType> buildingsMap = new Dictionary<Vector3Int, AbstractBuildingType>();
+    Dictionary<Vector3Int, AbstarctProperty> propertyMap = new Dictionary<Vector3Int, AbstarctProperty>();
     int offsetX = 10;
     int offsetZ = 10;
 
@@ -57,7 +58,7 @@ public class GridManager : MonoBehaviour
         offsetX = gridHeight / 4;
         offsetZ = gridWidth / 4;
         GenerateGrid();
-        
+
     }
 
     private void GenerateGrid()
@@ -374,7 +375,13 @@ public class GridManager : MonoBehaviour
         }
 
         cooldown -= Time.deltaTime;
-        Debug.Log(arrows.Count);
+        Debug.Log("Arrow count:"+arrows.Count);
+        //Todo erase from here:
+        foreach(var prop in propertyMap)
+        {
+            Debug.Log($"Property at ({(float)prop.Key.x/2 - 5}, {(float)prop.Key.z / 2 - 5}): {prop.Value.HeadCount}/{prop.Value.Capacity}");
+        }
+        //Until This!!!!!!!!!!!
     }
 
     public void ChangeSelection(Vector2Int selectionSize, BuildingType? buildingType, GameObject prefabToShowAtSelection)
@@ -521,5 +528,26 @@ public class GridManager : MonoBehaviour
         neighborDictionary[westNeighbourPosition] = GetBuildingAtPosition(westNeighbourPosition);
 
         return neighborDictionary;
+    }
+    public Dictionary<Vector3Int,AbstractBuildingType> GetBuildingsMap()
+    {
+        return buildingsMap;
+    }
+
+    public AbstarctProperty GetPropertyAt(Vector3Int position)
+    {
+        return propertyMap.GetValueOrDefault(position, null);
+    }
+    public void AddProperty(Vector3Int position, AbstarctProperty property)
+    {
+        if(propertyMap.GetValueOrDefault(position,null )!=null)
+        {
+            throw new Exception("There is already a building at" + position);
+        }
+        else
+        {
+            propertyMap.Add(position, property);
+            //gameUIManager.AddEstate(position, property.PropertyType);
+        }
     }
 }

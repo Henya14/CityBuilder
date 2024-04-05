@@ -79,4 +79,27 @@ public class BuildModeManager : MonoBehaviour
         }
 
     }
+    /*Not used currently
+    public void ConstructEstate(Vector3Int position,PropertyType pType)
+    {
+        var dc = selectPropertyObject(pType);
+        //TODO: GameObject placement
+        Vector3Int key = position;
+        var manager= FindObjectOfType<GridManager>();
+        dc.name = $"TEST Construction {(float)key.x / 2 - 5}, {(float)key.z / 2 - 5}";
+        dc.transform.parent = manager.transform;
+        dc.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+
+        dc.transform.localPosition = new Vector3((float)key.x / 2 - 5 - 0.25f, 0.75f, (float)key.z / 2 - 5 + 0.25f);
+        
+    }
+
+    private GameObject selectPropertyObject(PropertyType pType)
+    {
+        //Random object select according to it's function
+        //Dummy:
+        return GameObject.CreatePrimitive(PrimitiveType.Cube);
+       
+    }
+    */
 }

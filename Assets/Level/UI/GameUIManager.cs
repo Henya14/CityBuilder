@@ -29,6 +29,7 @@ public class GameUIManager : MonoBehaviour
 
     private BuildModeManager buildModeManager;
     private GridManager gridManager;
+    private ResidentManager residentManager;
     [SerializeField] VisualTreeAsset buildingListElementTemplate;
 
     const string SELECTED_BUTTON_CLASS_NAME = "selected";
@@ -58,6 +59,7 @@ public class GameUIManager : MonoBehaviour
 
         buildModeManager = FindObjectOfType<BuildModeManager>();
         gridManager = FindObjectOfType<GridManager>();
+        residentManager = FindObjectOfType<ResidentManager>();
 
         timeStartStopButton.clicked += OnTimeStartStopButtonClicked;
         timeForwardButton.clicked += OnTimeForwardButtonClicked;
