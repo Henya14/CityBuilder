@@ -329,19 +329,19 @@ public class GridManager : MonoBehaviour
                     switch(direction) {
                         case Direction.North:
                             rotation = 90.0f;
-                            highlight.SetHighlightColor(Color.blue);
+                            highlight.SetHighlightColor(UnityEngine.Color.blue);
                             break;
                         case Direction.South:
                             rotation = -90.0f;
-                            highlight.SetHighlightColor(Color.red);
+                            highlight.SetHighlightColor(UnityEngine.Color.red);
                             break;
                         case Direction.East:
                             rotation = 0.0f;
-                            highlight.SetHighlightColor(Color.green);
+                            highlight.SetHighlightColor(UnityEngine.Color.green);
                             break;
                         case Direction.West:
                             rotation = 180.0f;
-                            highlight.SetHighlightColor(Color.yellow);
+                            highlight.SetHighlightColor(UnityEngine.Color.yellow);
                             break;
                     }
                     highlight.ToggleHighlight(true);
@@ -373,7 +373,7 @@ public class GridManager : MonoBehaviour
         }
 
         cooldown -= Time.deltaTime;
-        Debug.Log(arrows.Count);
+        //Debug.Log(arrows.Count);
     }
 
     public void ChangeSelection(Vector2Int selectionSize, BuildingType? buildingType, GameObject prefabToShowAtSelection)

@@ -51,7 +51,7 @@ public class BuildModeManager : MonoBehaviour
         buildingDatas = buildingDatas.Select(bd => {
             bd.isAvailable = UnityEngine.Random.Range(0, 2) == 1? true: false;
             return bd;
-        }).ToList();
+        }).Where(bd => !bd.BuyableBuilding).ToList();
         return buildingDatas;
     }
 
