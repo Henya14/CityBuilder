@@ -9,7 +9,6 @@ using Unity.VisualScripting.Dependencies.Sqlite;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-
 public enum SelectionMode
 {
     Single,
@@ -39,6 +38,7 @@ public class GridManager : MonoBehaviour
     bool notOnMap = true;
     [SerializeField] GameObject debugCube;
     [SerializeField] GameObject debugArrow;
+    [SerializeField] GameObject carPrefab;
 
     List<GameObject> cubes = new List<GameObject>();
     List<GameObject> arrows = new List<GameObject>();
@@ -265,11 +265,13 @@ public class GridManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             isMouseButtonDown = true;
+
             if (lastSelectedTilePositions.Count > 0 && selectionMode == SelectionMode.Single && isSelectionValid)
             {
                 var selectedTile = GetTileAtPosition(lastSelectedTilePositions[0]);
                 gameUIManager.TileSelected(selectedTile, lastSelectedTilePositions, new List<Vector3> { GetSelectionCenter(lastSelectedTilePositions) });
                 VisualizeNeighbours();
+                PlaceCarAtTile(selectedTile);
             }
         }
         else if (Input.GetMouseButtonUp(0))
@@ -290,67 +292,91 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    private void VisualizeNeighbours() {
-        foreach (var arrow in arrows) {
+    private void PlaceCarAtTile(Tile selectedTile)
+    {
+        var car = Instantiate(carPrefab);
+        var carGridPosition = new Vector3Int(selectedTile.gridPosition.x, 1, selectedTile.gridPosition.z);
+        var carGamePosition = GetSelectionCenter(new List<Vector3Int>{carGridPosition});
+        carGamePosition.y = GetGamePositionForGridPosition(carGridPosition).y;
+        carGamePosition.z += tileSize / 4;
+        car.transform.position = carGamePosition;
+    }
+
+    private void VisualizeNeighbours()
+    {
+        foreach (var arrow in arrows)
+        {
             Destroy(arrow);
         }
 
         arrows.Clear();
 
-        foreach (var cube in cubes) {
+        foreach (var cube in cubes)
+        {
             Destroy(cube);
         }
 
-        foreach(var positionAndBuilding in buildingsMap) {
-            var cent = GetSelectionCenter(new List<Vector3Int>{positionAndBuilding.Key, positionAndBuilding.Key});
-            foreach(var dir in positionAndBuilding.Value.neighbourDatasForPositions[positionAndBuilding.Key].neighboursForGridPositions) {
-                    if(dir.Value == null) {
-                        continue;
-                    }
-                    var arr = Instantiate(debugArrow);
-                    cent.y = tileSize;
-                    
-                    var rotation = 0.0f;
-                    var highlight = arr.GetComponent<Highlight>();
-                    var directionVector = dir.Key - positionAndBuilding.Key;
+        foreach (var positionAndBuilding in buildingsMap)
+        {
+            var cent = GetSelectionCenter(new List<Vector3Int> { positionAndBuilding.Key, positionAndBuilding.Key });
+            foreach (var dir in positionAndBuilding.Value.neighbourDatasForPositions[positionAndBuilding.Key].neighboursForGridPositions)
+            {
+                if (dir.Value == null)
+                {
+                    continue;
+                }
+                var arr = Instantiate(debugArrow);
+                cent.y = tileSize;
 
-                    var direction = Direction.North;
+                var rotation = 0.0f;
+                var highlight = arr.GetComponent<Highlight>();
+                var directionVector = dir.Key - positionAndBuilding.Key;
 
-                    if (directionVector.z > 0) {
-                        direction = Direction.North;
-                    } else if (directionVector.z < 0) {
-                        direction = Direction.South;
-                    } else if (directionVector.x > 0) {
-                         direction = Direction.East;
-                    } else {
-                        direction = Direction.West;
-                    }
+                var direction = Direction.North;
 
-                    switch(direction) {
-                        case Direction.North:
-                            rotation = 90.0f;
-                            highlight.SetHighlightColor(Color.blue);
-                            break;
-                        case Direction.South:
-                            rotation = -90.0f;
-                            highlight.SetHighlightColor(Color.red);
-                            break;
-                        case Direction.East:
-                            rotation = 0.0f;
-                            highlight.SetHighlightColor(Color.green);
-                            break;
-                        case Direction.West:
-                            rotation = 180.0f;
-                            highlight.SetHighlightColor(Color.yellow);
-                            break;
-                    }
-                    highlight.ToggleHighlight(true);
-                    arr.transform.position = cent;
-                    arr.transform.Rotate(Vector3.forward, rotation);
-                    arrows.Add(arr);
-                
+                if (directionVector.z > 0)
+                {
+                    direction = Direction.North;
+                }
+                else if (directionVector.z < 0)
+                {
+                    direction = Direction.South;
+                }
+                else if (directionVector.x > 0)
+                {
+                    direction = Direction.East;
+                }
+                else
+                {
+                    direction = Direction.West;
+                }
+
+                switch (direction)
+                {
+                    case Direction.North:
+                        rotation = 90.0f;
+                        highlight.SetHighlightColor(Color.blue);
+                        break;
+                    case Direction.South:
+                        rotation = -90.0f;
+                        highlight.SetHighlightColor(Color.red);
+                        break;
+                    case Direction.East:
+                        rotation = 0.0f;
+                        highlight.SetHighlightColor(Color.green);
+                        break;
+                    case Direction.West:
+                        rotation = 180.0f;
+                        highlight.SetHighlightColor(Color.yellow);
+                        break;
+                }
+                highlight.ToggleHighlight(true);
+                arr.transform.position = cent;
+                arr.transform.Rotate(Vector3.forward, rotation);
+                arrows.Add(arr);
+
             }
-            
+
         }
         
         if (Input.GetKey(KeyCode.K) && cooldown < 0)

@@ -162,6 +162,7 @@ MonoBehaviour:
   previousTilePlaced: {fileID: 2005425898260501881, guid: 8260dadb88cda8843a22cfd7080baec9, type: 3}
   debugCube: {fileID: 8530455344680319768, guid: 8814f62e8ce3a0c49afb78ad1eac2e1c, type: 3}
   debugArrow: {fileID: 7116504243019251136, guid: 5879af0d3714acc4fb64382be09183f4, type: 3}
+  carPrefab: {fileID: 9168529152632990214, guid: e0c91f8d3194c9e4c87e1e6378a77c50, type: 3}
 --- !u!4 &158693461
 Transform:
   m_ObjectHideFlags: 0
@@ -753,7 +754,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!82 &1987765549
 AudioSource:
   m_ObjectHideFlags: 0
