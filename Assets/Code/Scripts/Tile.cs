@@ -35,7 +35,6 @@ public class Tile : MonoBehaviour
     public void changeMaterial()
     {
         Color customColor = new Color(0.1f, 0.9f * tileMorality.moralityLevel, 0.7f, 1.0f);
-        Debug.Log(customColor);
         test.SetColor("_Color", customColor);
         GetComponent<MeshRenderer>().material = test;
     }
