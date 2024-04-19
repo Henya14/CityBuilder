@@ -290,6 +290,26 @@ public class GridManager : MonoBehaviour
                 VisualizeNeighbours();
             }
         }
+        if (Input.GetKey(KeyCode.K) && cooldown < 0)
+        {
+            isMouseButtonDown = true;
+            if (lastSelectedTilePositions.Count > 0)
+            {
+                var selectedTile = GetTileAtPosition(lastSelectedTilePositions[0]);
+                gameUIManager.TileSelected(selectedTile, lastSelectedTilePositions, new List<Vector3> { GetSelectionCenter(lastSelectedTilePositions) });
+                Debug.Log("click at:" + selectedTile.gridPosition);
+
+                RecalcMorality(selectedTile);
+            }
+            else
+            {
+                gameUIManager.TileSelected(null, new List<Vector3Int>(), new List<Vector3> { new Vector3(0, 0, 0) });
+            }
+
+            cooldown = 2f;
+        }
+
+        cooldown -= Time.deltaTime;
     }
 
     private void VisualizeNeighbours() {
@@ -355,26 +375,8 @@ public class GridManager : MonoBehaviour
             
         }
         
-        if (Input.GetKey(KeyCode.K) && cooldown < 0)
-        {
-            isMouseButtonDown = true;
-            if (lastSelectedTilePositions.Count > 0)
-            {
-                var selectedTile = GetTileAtPosition(lastSelectedTilePositions[0]);
-                gameUIManager.TileSelected(selectedTile, lastSelectedTilePositions, new List<Vector3>{GetSelectionCenter(lastSelectedTilePositions)});
-                Debug.Log("click at:" + selectedTile.gridPosition);
+        
 
-                RecalcMorality(selectedTile);
-            }
-            else
-            {
-                gameUIManager.TileSelected(null, new List<Vector3Int>(), new List<Vector3>{new Vector3(0, 0, 0)});
-            }
-
-            cooldown = 2f;
-        }
-
-        cooldown -= Time.deltaTime;
         Debug.Log("Arrow count:"+arrows.Count);
         //Todo erase from here:
         foreach(var prop in propertyMap)

@@ -7,6 +7,7 @@ public abstract class AbstarctProperty : MonoBehaviour
      public int Capacity { get; private set; } = 4;
      public int HeadCount { get; private set; } = 0;
     [SerializeField] public PropertyType PropertyType { get; protected set; }
+    public int MaxCapacity { get; protected set; } = 100;
 
 
     // Start is called before the first frame update
@@ -31,7 +32,7 @@ public abstract class AbstarctProperty : MonoBehaviour
     public void IncreaseCapacity(int add)
     {
         //Can be replaced with maxCapacity
-        if(Capacity+add<100)
+        if(Capacity+add<MaxCapacity)
             Capacity += add;
     } 
 

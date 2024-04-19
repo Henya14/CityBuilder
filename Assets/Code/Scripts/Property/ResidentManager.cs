@@ -4,12 +4,23 @@ using System.Net;
 using Unity.VisualScripting;
 using UnityEngine;
 
+public enum HouseLevel
+{
+    None,
+    lvl1, lvl2, lvl3
+}
+
 public class ResidentManager : MonoBehaviour
 {
     Dictionary<Vector3Int, AbstractBuildingType> buildings;
     [SerializeField] GridManager gridManager;
     //Used for logging: private int buildingsCnt = 0;
     [SerializeField] BuildModeManager buildModeManager;
+
+    [SerializeField] List<GameObject> level1Houses;
+    [SerializeField] List<GameObject> level2Houses;
+    [SerializeField] List<GameObject> level3Houses;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -32,21 +43,27 @@ public class ResidentManager : MonoBehaviour
             if (name.Contains("Housing Zone"))
             {
                 var position = building.Key + Vector3Int.zero;
+
+                //Check if next to road
                 bool nextToRoad=false;
                 Dictionary<Vector3Int, AbstractBuildingType> nhbs = gridManager.GetNeigbouringBuildingsOfTile(position);
-                //Debug.Log($"{building.Key} Nhbs: {nhbs.Count}");
+                Vector3Int nhbDir = Vector3Int.zero;
                 foreach (var nhb in nhbs)
                 {
                     if (nhb.Value == null) { continue; }
                     if (nhb.Value.buildingName.Contains("Road"))
                     {
                         nextToRoad = true;
+                        nhbDir += nhb.Key - position;
+                        Debug.Log($"nhb dir: {nhbDir.x}, {nhbDir.z}");
                         break;
                     }
                 }
+
                 //MoveIn only next to road zone tiles
                 if (nextToRoad)
                 {
+
                     position.y = 2; //Property 
                     var property = gridManager.GetPropertyAt(position);
 
@@ -55,18 +72,28 @@ public class ResidentManager : MonoBehaviour
                     {
                         if (property.Capacity > property.HeadCount)
                         {
-                            if (ShouldBeIncreased(position)) property.AddPerson();
+                            switch (ShouldBeIncreased(position))
+                            {
+                                case HouseLevel.None: break;
+                                default: property.AddPerson(); break;
+                            }
+                               
                         }
                         else continue;
                     }
                     //If there is NO property
                     else
                     {
-                        if (ShouldBeIncreased(position))
+                        HouseLevel hlvl = ShouldBeIncreased(position);
+                        switch (hlvl)
                         {
-                            property = Construct(position).AddComponent<ResidentialProperty>();
-                            property.AddPerson();
-                            gridManager.AddProperty(position, property);
+                            case HouseLevel.None:
+                                break;
+                            default:
+                                property = Construct(position,hlvl, nhbDir).AddComponent<ResidentialProperty>();
+                                property.AddPerson();
+                                gridManager.AddProperty(position, property);
+                                break;
                         }
                     }
                 }
@@ -74,10 +101,24 @@ public class ResidentManager : MonoBehaviour
         }
     }
 
-    public bool ShouldBeIncreased(Vector3Int position)
+    public HouseLevel ShouldBeIncreased(Vector3Int position)
     {
         //TODO: use moral
-        return true;
+        Vector3Int tilePos = position+Vector3Int.zero;
+        tilePos.y = 0;
+        Tile tile=gridManager.GetTileAtPosition(tilePos);
+        float moral=tile.tileMorality.moralityLevel;
+        HouseLevel houselevel=HouseLevel.None;
+
+        //moral increase with random
+
+        if (moral < 2) houselevel = HouseLevel.lvl1;
+
+        else if(2 <= moral && moral < 3) houselevel= HouseLevel.lvl2;
+
+        else if(3 <= moral) houselevel = HouseLevel.lvl3;
+
+        return houselevel;
     }
 
     // Update is called once per frame
@@ -86,9 +127,59 @@ public class ResidentManager : MonoBehaviour
     }
 
     //Construct fun
-    GameObject Construct(Vector3Int key)
+    GameObject Construct(Vector3Int key,HouseLevel houselvl, Vector3Int roadDir)
     {
-       return PlaceDummy(key);
+        GameObject house=null;
+        int random;
+        switch (houselvl)
+        {
+            case HouseLevel.lvl1:
+                random = Random.Range(0, level1Houses.Count);
+                house = level1Houses[random];
+                break;
+            case HouseLevel.lvl2:
+                random = Random.Range(0, level2Houses.Count);
+                house = level2Houses[random];
+                break;
+            case HouseLevel.lvl3:
+                random = Random.Range(0, level3Houses.Count);
+                house = level3Houses[random];
+                break;
+        }
+
+
+
+
+        return PlaceBuilding(key, house,roadDir);
+       //return PlaceDummy(key);
+    }
+    GameObject PlaceBuilding(Vector3Int key,GameObject prefab, Vector3Int roadDir)
+    {
+        var dc = GameObject.Instantiate(prefab);
+
+        dc.name = $"TEST Construction {(float)key.x / 2 - 5}, {(float)key.z / 2 - 5}";
+        dc.transform.parent = this.transform;
+        dc.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+
+        dc.transform.localPosition = new Vector3((float)key.x / 2 - 5 - 0.25f, 0.5f, (float)key.z / 2 - 5 + 0.25f);
+        // 1,0,0 rotate right 90
+        if (roadDir.x == 1)
+        {
+            dc.transform.Rotate(new Vector3(0, 1, 0), 90);
+        }
+        // -1,0,0 rotate left 90
+        else if (roadDir.x == -1)
+        {
+            dc.transform.Rotate(new Vector3(0, 1, 0), -90);
+        }
+        //rotate 180 if 0,0,-1
+        else if(roadDir.z == -1)
+        {
+            dc.transform.Rotate(new Vector3(0, 1, 0), 180);
+        }
+
+        //if 0,0,1 NO rotate
+        return dc;
     }
     GameObject PlaceDummy(Vector3Int key)
     {
@@ -121,8 +212,8 @@ public class ResidentManager : MonoBehaviour
             {
                 var key=building.Key+Vector3Int.zero;
                 key.y = 0;
-                var tile=gridManager.GetTileAtPosition(key);
-                //Debug.Log($"{i}. building tile moral:{tile.tileMorality.moralityLevel}");
+                var tilePos=gridManager.GetTileAtPosition(key);
+                //Debug.Log($"{i}. building tilePos moral:{tilePos.tileMorality.moralityLevel}");
                 /*
                 if (tiles.ContainsKey(key)) Debug.Log("Van");
                 else Debug.Log("nincs");
@@ -144,8 +235,8 @@ public class ResidentManager : MonoBehaviour
             {
                 var Tilepos = building.Key + Vector3Int.zero;
                 Tilepos.y = 0;
-                var tile = gridManager.GetTileAtPosition(Tilepos);
-                //if (!tile.constructed)
+                var tilePos = gridManager.GetTileAtPosition(Tilepos);
+                //if (!tilePos.constructed)
                 {
                     bool nextToRoad=false;
                     var key = building.Key + Vector3Int.zero;
@@ -164,8 +255,8 @@ public class ResidentManager : MonoBehaviour
                     }
                     if (nextToRoad)
                     {
-                        //tile.constructed=true;
-                        tile.description +=" Constructed";
+                        //tilePos.constructed=true;
+                        tilePos.description +=" Constructed";
                         Debug.Log($"Building constucted on: {key}Tile");
                         Construct(key);
                     }

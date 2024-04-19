@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Morality : MonoBehaviour
+public class Morality 
 {
     public float moralityLevel { get; set; }
 
