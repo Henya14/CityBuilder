@@ -42,5 +42,5 @@ public enum PropertyType
 {
     Residental,
     Industrial,
-    TODO
+    Shopping
 }

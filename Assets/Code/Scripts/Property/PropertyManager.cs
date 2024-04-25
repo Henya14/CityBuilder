@@ -10,16 +10,20 @@ public enum HouseLevel
     lvl1, lvl2, lvl3
 }
 
-public class ResidentManager : MonoBehaviour
+public class PropertyManager : MonoBehaviour
 {
     Dictionary<Vector3Int, AbstractBuildingType> buildings;
     [SerializeField] GridManager gridManager;
     //Used for logging: private int buildingsCnt = 0;
     [SerializeField] BuildModeManager buildModeManager;
 
-    [SerializeField] List<GameObject> level1Houses;
-    [SerializeField] List<GameObject> level2Houses;
-    [SerializeField] List<GameObject> level3Houses;
+    [SerializeField] List<GameObject> level1Propeties;
+    [SerializeField] List<GameObject> level2Propeties;
+    [SerializeField] List<GameObject> level3Propeties;
+
+    [SerializeField] PropertyType propertyType;
+
+    public string zoneNameSeacrhWord;
 
     // Start is called before the first frame update
     void Start()
@@ -40,7 +44,8 @@ public class ResidentManager : MonoBehaviour
         {
             var name = building.Value.buildingName;
             //only housing zones
-            if (name.Contains("Housing Zone"))
+            //serach word in zone building name
+            if (name.Contains(zoneNameSeacrhWord))
             {
                 var position = building.Key + Vector3Int.zero;
 
@@ -90,7 +95,21 @@ public class ResidentManager : MonoBehaviour
                             case HouseLevel.None:
                                 break;
                             default:
-                                property = Construct(position,hlvl, nhbDir).AddComponent<ResidentialProperty>();
+                                var propertyObject = Construct(position, hlvl, nhbDir);
+                                //Add script based on given property type 
+                                switch (propertyType)
+                                {
+                                    case PropertyType.Residental:
+                                        property = propertyObject.AddComponent<ResidentialProperty>();
+                                        break;
+                                    case PropertyType.Industrial:
+                                        property = propertyObject.AddComponent<IndustrialProperty>();
+                                        break;
+                                    //Make ShoppingProperty class from AbstarctProperty class 
+                                    case PropertyType.Shopping: 
+                                        property= propertyObject.AddComponent<ShoppingProperty>();
+                                        break;
+                                }
                                 property.AddPerson();
                                 gridManager.AddProperty(position, property);
                                 break;
@@ -134,16 +153,16 @@ public class ResidentManager : MonoBehaviour
         switch (houselvl)
         {
             case HouseLevel.lvl1:
-                random = Random.Range(0, level1Houses.Count);
-                house = level1Houses[random];
+                random = Random.Range(0, level1Propeties.Count);
+                house = level1Propeties[random];
                 break;
             case HouseLevel.lvl2:
-                random = Random.Range(0, level2Houses.Count);
-                house = level2Houses[random];
+                random = Random.Range(0, level2Propeties.Count);
+                house = level2Propeties[random];
                 break;
             case HouseLevel.lvl3:
-                random = Random.Range(0, level3Houses.Count);
-                house = level3Houses[random];
+                random = Random.Range(0, level3Propeties.Count);
+                house = level3Propeties[random];
                 break;
         }
 
@@ -157,7 +176,7 @@ public class ResidentManager : MonoBehaviour
     {
         var dc = GameObject.Instantiate(prefab);
 
-        dc.name = $"TEST Construction {(float)key.x / 2 - 5}, {(float)key.z / 2 - 5}";
+        dc.name = $"{propertyType.ToString()} Property  {(float)key.x / 2 - 5}, {(float)key.z / 2 - 5}";
         dc.transform.parent = this.transform;
         dc.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
 
