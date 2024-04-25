@@ -133,13 +133,13 @@ public class GameUIManager : MonoBehaviour
         }
     }
 
-    public void TileSelected(Tile tile, List<Vector3Int>  selectedTilesGridPositions, List<Vector3> prafabPlacePositions) {
+    public void  ObjectSelected(SelectableObject selectedObject, List<Vector3Int>  selectedTilesGridPositions, List<Vector3> prafabPlacePositions) {
         switch (selectedGameMode) {
             case GameMode.SelectionMode: 
-                TileSelectedInSelectionMode(tile);
+                ObjectSelectedInSelectionMode(selectedObject);
                 break;
             case GameMode.BuildMode:
-                TileSelectedInBuildMode(tile, selectedTilesGridPositions, prafabPlacePositions);
+                ObjectSelectedInBuildMode(selectedObject, selectedTilesGridPositions, prafabPlacePositions);
                 break;
             default:
                 break;
@@ -147,8 +147,9 @@ public class GameUIManager : MonoBehaviour
        
     }
 
-    void TileSelectedInSelectionMode(Tile tile) {
-         if (tile != null) {
+    void ObjectSelectedInSelectionMode(SelectableObject selectedObject) {
+        var tile = selectedObject.GetGameObject().GetComponent<Tile>();
+        if (tile != null) {
             infoContainer.style.display = DisplayStyle.Flex;
             infoContainerText.text = tile.description + " morality:  " + tile.tileMorality.moralityLevel;
         } else {
@@ -157,9 +158,9 @@ public class GameUIManager : MonoBehaviour
         }
     }
 
-    void TileSelectedInBuildMode(Tile tile, List<Vector3Int> selectedTilesGridPositions, List<Vector3> prefabPlacePositions) {
+    void ObjectSelectedInBuildMode(SelectableObject tile, List<Vector3Int> selectedObjectsGridPositions, List<Vector3> prefabPlacePositions) {
          if (tile != null) {
-            buildModeManager.TileSelected(tile, selectedTilesGridPositions, prefabPlacePositions);
+            buildModeManager.ObjectSelected(selectedObjectsGridPositions, prefabPlacePositions);
         }
     }
 

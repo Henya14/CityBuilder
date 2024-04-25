@@ -61,8 +61,7 @@ public class BuildingAdjacencyMatrix
 }
 public class NavigationManager : MonoBehaviour
 {
-    List<List<int>> adjacencyMatrix = new List<List<int>>();
-    List<AbstractBuildingType> adjacencyMatrixBuildings = new List<AbstractBuildingType>();
+    BuildingAdjacencyMatrix adjacencyMatrix = new BuildingAdjacencyMatrix();
 
     // Start is called before the first frame update
     void Start()

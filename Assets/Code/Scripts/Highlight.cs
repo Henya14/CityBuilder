@@ -16,6 +16,7 @@ public class Highlight : MonoBehaviour
         {
             materials.AddRange(new List<Material>(renderer.materials));
         }
+        ToggleHighlight(isHighlighted);
     }
 
     public void SetHighlightColor(Color color)

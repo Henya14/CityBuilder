@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3276341652435197361}
   - component: {fileID: 7445429520272745144}
   - component: {fileID: 1402098261901567514}
+  - component: {fileID: 175153734283557857}
   m_Layer: 0
   m_Name: TownHall
   m_TagString: Untagged
@@ -102,4 +103,20 @@ MonoBehaviour:
   renderers:
   - {fileID: 7445429520272745144}
   highlightColor: {r: 1, g: 1, b: 1, a: 1}
+  isHighlighted: 0
+--- !u!114 &175153734283557857
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6543906958701471318}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb3873e3f530c7449ad39ab52b4db767, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  renderers:
+  - {fileID: 7445429520272745144}
+  highlightColor: {r: 1, g: 0.8740924, b: 0.02021557, a: 1}
   isHighlighted: 0

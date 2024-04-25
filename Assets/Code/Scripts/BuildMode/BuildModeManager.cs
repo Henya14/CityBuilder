@@ -15,10 +15,10 @@ public class BuildModeManager : MonoBehaviour
     void Start() {
         gridManager = FindObjectOfType<GridManager>();
     }
-    public void TileSelected(Tile tile, List<Vector3Int> selectedTilesGridPositions, List<Vector3> prefabPlacePositions)
+    public void ObjectSelected(List<Vector3Int> selectedObjectsGridPositions, List<Vector3> prefabPlacePositions)
     {
 
-        var gridPositions = selectedTilesGridPositions.Select(p => new Vector3Int(p.x, p.y + 1, p.z)).ToList();
+        var gridPositions = selectedObjectsGridPositions.Select(p => new Vector3Int(p.x, p.y + 1, p.z)).ToList();
         var selectedBuilding = CreateBuildingFromBuildingData(selectedBuildingData);
         List<Vector3> placePositions = new List<Vector3>();
         foreach (var prefabPlacePosition in prefabPlacePositions)

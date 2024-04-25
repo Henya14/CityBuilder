@@ -5,7 +5,7 @@ using UnityEngine;
 public class CarNavigation : MonoBehaviour
 {
     [SerializeField] float speed = 1.0f;
-    Vector3Int currentGridPosition;
+    public Vector3Int CurrentGridPosition {get; set;}
 
     Direction facingDirection = Direction.West;
     Queue<Direction> directions = new Queue<Direction>();
@@ -65,6 +65,5 @@ public class CarNavigation : MonoBehaviour
             }
         }
         this.transform.position += movementVector * speed * Time.deltaTime;
-
     }
 }
