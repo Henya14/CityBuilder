@@ -4,11 +4,10 @@ using UnityEngine;
 
 public class ShoppingProperty : AbstarctProperty
 {
-    PropertyType propertyType = PropertyType.Shopping;
     // Start is called before the first frame update
     void Start()
     {
-        
+        this.PropertyType = PropertyType.Shopping;
     }
 
     // Update is called once per frame

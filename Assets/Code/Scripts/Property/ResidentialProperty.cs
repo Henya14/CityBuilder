@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class ResidentialProperty : AbstarctProperty
 {
-    PropertyType propertyType=PropertyType.Residental;
     // Start is called before the first frame update
     void Start()
     {

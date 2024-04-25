@@ -105,7 +105,6 @@ public class PropertyManager : MonoBehaviour
                                     case PropertyType.Industrial:
                                         property = propertyObject.AddComponent<IndustrialProperty>();
                                         break;
-                                    //Make ShoppingProperty class from AbstarctProperty class 
                                     case PropertyType.Shopping: 
                                         property= propertyObject.AddComponent<ShoppingProperty>();
                                         break;
