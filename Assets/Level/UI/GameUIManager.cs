@@ -133,13 +133,13 @@ public class GameUIManager : MonoBehaviour
         }
     }
 
-    public void  ObjectSelected(SelectableObject selectedObject, List<Vector3Int>  selectedTilesGridPositions, List<Vector3> prafabPlacePositions) {
+    public void  ObjectSelected(SelectableObject selectedObject, Dictionary<Vector3, List<Vector3Int>> placingPositionsWithGridPositions) {
         switch (selectedGameMode) {
             case GameMode.SelectionMode: 
                 ObjectSelectedInSelectionMode(selectedObject);
                 break;
             case GameMode.BuildMode:
-                ObjectSelectedInBuildMode(selectedObject, selectedTilesGridPositions, prafabPlacePositions);
+                ObjectSelectedInBuildMode(selectedObject, placingPositionsWithGridPositions);
                 break;
             default:
                 break;
@@ -158,9 +158,9 @@ public class GameUIManager : MonoBehaviour
         }
     }
 
-    void ObjectSelectedInBuildMode(SelectableObject tile, List<Vector3Int> selectedObjectsGridPositions, List<Vector3> prefabPlacePositions) {
-         if (tile != null) {
-            buildModeManager.ObjectSelected(selectedObjectsGridPositions, prefabPlacePositions);
+    void ObjectSelectedInBuildMode(SelectableObject selectedObject, Dictionary<Vector3, List<Vector3Int>> placingPositionsWithGridPositions) {
+         if (selectedObject != null) {
+            buildModeManager.ObjectSelected(placingPositionsWithGridPositions);
         }
     }
 

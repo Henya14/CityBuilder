@@ -24,18 +24,20 @@ public abstract class AbstractBuildingType : MonoBehaviour
         this.buildingData = buildingData;
     }
 
-    public virtual void PlaceAtPosition(List<Vector3Int> gridPositions, List<Vector3> prefabPlacePositions, Dictionary<Vector3Int, NeighbourData> neigbours)
+    public virtual void PlaceAtPosition(Dictionary<Vector3, List<Vector3Int>> prefabPlacePositionsAndCorrespondingGridPositions, Dictionary<Vector3Int, NeighbourData> neigbours)
     {
         Remove();
-        this.gridPositions.AddRange(gridPositions);
-        foreach (var gamePosition in prefabPlacePositions)
+        prefabPlacePositionsAndCorrespondingGridPositions.Values.ToList().ForEach(l => this.gridPositions.AddRange(l));
+        foreach (var (gamePosition, gridPositions) in prefabPlacePositionsAndCorrespondingGridPositions)
         {
             var building = Instantiate(buildingData.prefab);
             building.transform.position = gamePosition;
-            building.AddComponent<SelectionManager>();
-            buildings.Add(gridPositions[0], building);
+            var selectionManager = building.AddComponent<SelectionManager>();
+            foreach (var gridPosition in gridPositions) {
+                buildings.Add(gridPosition, building);
+                selectionManager.SetGridPosition(gridPosition);
+            }
         }
-
 
         neighbourDatasForPositions = neigbours;
         foreach (var neighbourDatasForPosition in neighbourDatasForPositions)
@@ -70,7 +72,8 @@ public abstract class AbstractBuildingType : MonoBehaviour
         neighbourDataForPosition.SetNeighbour(neighbourPosition, neighbour);
     }
 
-    public void GetBuildingPrefabForPosition(Vector3Int position) {
-        //return buildings.Values.ToList()[0].gameObject;
+    public GameObject GetBuildingPrefabForPosition(Vector3Int position)
+    {
+        return buildings.GetValueOrDefault(position, null)?.gameObject;
     }
 }

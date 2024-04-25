@@ -5,22 +5,31 @@ using UnityEngine;
 public interface SelectableObject {
    
     Vector3Int GetGridPosition();
+    void SetGridPosition(Vector3Int gridPosition);
     void ToggleHighlight(bool on);
     GameObject GetGameObject();
 }
 
 public class SelectionManager : MonoBehaviour, SelectableObject
 {
+    Vector3Int? gridPosition = null;
     public Vector3Int GetGridPosition()
     {
+        if (this.gridPosition != null) {
+            return this.gridPosition ?? new Vector3Int();
+        }
         var manager = FindObjectOfType<GridManager>(); 
         var gridPosition = manager.GetGridPositionForGamePosition(transform.position);
         return gridPosition;
     }
 
+    public void SetGridPosition(Vector3Int gridPosition) {
+        this.gridPosition = gridPosition;
+    }
+ 
     private Highlight GetHighlight()
     {
-        return gameObject.GetComponent<Highlight>();
+       return gameObject.GetComponent<Highlight>();
     }
 
     public void ToggleHighlight(bool on)
