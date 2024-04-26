@@ -289,7 +289,28 @@ public class GridManager : MonoBehaviour
                 ClearlastSelectedTilePositions();
                 VisualizeNeighbours();
             }
+        } else if (Input.GetKey(KeyCode.K) && cooldown < 0)
+        {
+            isMouseButtonDown = true;
+            if (lastSelectedObjectPositions.Count > 0)
+            {
+                var selectedObject = GetSelectedObjectAtPosition(lastSelectedObjectPositions[0]);
+                ManageObjectSelectionInSingleMode(selectedObject);
+                Debug.Log("click at:" + selectedObject.GetGridPosition());
+                var tile = selectedObject.GetGameObject().GetComponent<Tile>();
+                if (tile != null) {
+                    RecalcMorality(tile);
+                }
+            }
+            else
+            {
+                gameUIManager.ObjectSelected(null, new Dictionary<Vector3, List<Vector3Int>>());
+            }
+
+            cooldown = 2f;
         }
+
+        cooldown -= Time.deltaTime;
     }
 
     private void ManageObjectSelectionInSingleMode(SelectionManager selectedObject)
@@ -400,28 +421,6 @@ public class GridManager : MonoBehaviour
 
         }
         
-        if (Input.GetKey(KeyCode.K) && cooldown < 0)
-        {
-            isMouseButtonDown = true;
-            if (lastSelectedObjectPositions.Count > 0)
-            {
-                var selectedObject = GetSelectedObjectAtPosition(lastSelectedObjectPositions[0]);
-                ManageObjectSelectionInSingleMode(selectedObject);
-                Debug.Log("click at:" + selectedObject.GetGridPosition());
-                var tile = selectedObject.GetGameObject().GetComponent<Tile>();
-                if (tile != null) {
-                    RecalcMorality(tile);
-                }
-            }
-            else
-            {
-                gameUIManager.ObjectSelected(null, new Dictionary<Vector3, List<Vector3Int>>());
-            }
-
-            cooldown = 2f;
-        }
-
-        cooldown -= Time.deltaTime;
     }
 
     public void ChangeSelection(Vector2Int selectionSize, BuildingType? buildingType, GameObject prefabToShowAtSelection)
