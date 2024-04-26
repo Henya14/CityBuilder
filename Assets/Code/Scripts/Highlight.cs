@@ -25,6 +25,11 @@ public class Highlight : MonoBehaviour
         RefreshHighlight();
     }
 
+    public Color GetHighlightColor()
+    {
+       return highlightColor;
+    }
+
     public void ToggleHighlight(bool on)
     {
         isHighlighted = on;

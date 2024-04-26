@@ -15,24 +15,25 @@ public class Tile : MonoBehaviour
     public Morality tileMorality { get; set;}
 
     [SerializeField] Material destMaterial;
-    Material test;
-    public Material baseMaterial { get; set; }
-
+    private Color baseHighlightColor;
+    private Highlight highlight;
     private void Start()
     {
-        baseMaterial = GetComponent<MeshRenderer>().material;
+        highlight = GetComponent<Highlight>();
+        baseHighlightColor = highlight.GetHighlightColor();
     }
 
     public void changeMaterial()
     {
         Color customColor = new Color(0.1f, 0.9f * tileMorality.moralityLevel, 0.7f, 1.0f);
         Debug.Log(customColor);
-        test.SetColor("_Color", customColor);
-        GetComponent<MeshRenderer>().material = test;
+        highlight.SetHighlightColor(customColor);
+        highlight.ToggleHighlight(true);
     }
 
     public void resetMaterial()
     {
-        GetComponent<MeshRenderer>().material = baseMaterial;
+        highlight.ToggleHighlight(false);
+        highlight.SetHighlightColor(baseHighlightColor);
     }
 }
