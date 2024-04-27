@@ -124,7 +124,7 @@ public class PropertyManager : MonoBehaviour
         //TODO: use moral
         Vector3Int tilePos = position+Vector3Int.zero;
         tilePos.y = 0;
-        Tile tile=gridManager.GetTileAtPosition(tilePos);
+        Tile tile = gridManager.GetTileAtPosition(tilePos);
         float moral=tile.tileMorality.moralityLevel;
         HouseLevel houselevel=HouseLevel.None;
 
@@ -209,7 +209,7 @@ public class PropertyManager : MonoBehaviour
         dc.transform.localPosition = new Vector3((float)key.x / 2 - 5 - 0.25f, 0.75f, (float)key.z / 2 - 5 + 0.25f);
         return dc;
     }
-    //TODO Kivenni a random fgveket ha már nincs bennük hasznosítható
+    //TODO Kivenni a random fgveket ha mï¿½r nincs bennï¿½k hasznosï¿½thatï¿½
     /*
     void Log()
     {

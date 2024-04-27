@@ -20,6 +20,7 @@ public class Tile : MonoBehaviour
     private void Start()
     {   
         baseMaterial = GetComponent<MeshRenderer>().material;
+        test = new Material(destMaterial);
     }
 
     public void changeMaterial()

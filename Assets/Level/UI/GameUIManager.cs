@@ -122,7 +122,7 @@ public class GameUIManager : MonoBehaviour
         buildingList.itemsSource = buildings;
 
         buildingList.selectionChanged += OnBuildingSelected; 
-        buildingList.SetSelection(-1);
+        buildingList.SetSelection(0);
     }
 
     void OnBuildingSelected(IEnumerable<object> selectedItems) {

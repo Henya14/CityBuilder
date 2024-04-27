@@ -241,6 +241,10 @@ public class GridManager : MonoBehaviour
         }
     }
 
+    public Tile GetTileAtPosition(Vector3Int position) {
+        return tileMap.GetValueOrDefault(position, null);
+    }
+    
     public SelectionManager GetSelectedObjectAtPosition(Vector3Int position)
     {
         var gameObject = tileMap.GetValueOrDefault(position, null)?.gameObject;

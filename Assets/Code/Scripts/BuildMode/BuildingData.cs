@@ -22,7 +22,7 @@ public class BuildingData : ScriptableObject
     [SerializeField] public GameObject prefab;
     [SerializeField] public Texture2D buildingPicture;
     [SerializeField] Vector3 scales;
-    [SerializeField] bool buyableBuilding = false;
+    [SerializeField] public bool buyableBuilding = false;
 
     public Texture2D BuildingPicture {
         get { return buildingPicture; }
