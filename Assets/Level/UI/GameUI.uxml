@@ -1,7 +1,7 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <ui:Template name="Minimap" src="project://database/Assets/Level/UI/Minimap.uxml?fileID=9197481963319205126&amp;guid=d7a0894d5d8ec814f9891d9281d6df48&amp;type=3#Minimap" />
     <Style src="project://database/Assets/Level/UI/GameUIStyle.uss?fileID=7433441132597879392&amp;guid=c573eb51f56e9f5408e4ece8d0f99e9b&amp;type=3#GameUIStyle" />
-    <ui:VisualElement style="flex-grow: 1; justify-content: flex-end;">
+    <ui:VisualElement name="VisualElement" style="flex-grow: 1; justify-content: flex-end;">
         <ui:VisualElement name="info-text-container" style="flex-grow: 1; align-self: flex-end; width: 40%; justify-content: flex-start; align-items: center; position: absolute; top: 0; bottom: auto; height: 40%; background-color: rgba(49, 49, 49, 0.37); -unity-background-image-tint-color: rgb(255, 255, 255); border-top-width: 3px; border-right-width: 3px; border-bottom-width: 3px; border-left-width: 3px; border-left-color: rgb(64, 64, 64); border-right-color: rgb(64, 64, 64); border-top-color: rgb(64, 64, 64); border-bottom-color: rgb(64, 64, 64); border-top-left-radius: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; border-bottom-left-radius: 3px; margin-right: 30px; padding-right: 0; margin-top: 30px; right: 0; display: none;">
             <ui:Label tabindex="-1" parse-escape-sequences="true" display-tooltip-when-elided="true" name="info-text-label" />
         </ui:VisualElement>
@@ -21,6 +21,12 @@
             <ui:VisualElement name="map-toggle-container" style="flex-grow: 0; height: auto; width: auto; transition-property: all, ignored, ignored; transition-duration: 0s, 0s, 0s; transition-timing-function: ease, ease, ease; transition-delay: 0s, 0s, 0s; display: flex; visibility: visible; align-self: flex-end; align-items: flex-end; justify-content: flex-start; flex-direction: row;">
                 <ui:Toggle name="morality-toggle" style="padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; -unity-text-align: middle-center; height: 100%; justify-content: flex-start; align-items: stretch; align-self: stretch;" />
             </ui:VisualElement>
+            <ui:VisualElement name="building-button-container" style="flex-grow: 1; align-items: center; justify-content: center; height: 100%; width: 100%;">
+                <ui:Button text="Button" parse-escape-sequences="true" display-tooltip-when-elided="true" name="buildings-button" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="building-hud-container" style="flex-grow: 1; width: 100%; align-self: center; align-items: auto; height: 15%; bottom: 0; position: absolute; flex-direction: row; justify-content: space-between; margin-bottom: 10%; padding-bottom: 0; display: flex; visibility: hidden;">
+            <ui:Button text="&#10;" parse-escape-sequences="true" display-tooltip-when-elided="true" style="background-image: url(&apos;project://database/Assets/Art/Models/stone/tex/stone06_base_color.gif?fileID=2800000&amp;guid=617f3a7e3a06cc845a995f775011bd80&amp;type=3#stone06_base_color&apos;);" />
         </ui:VisualElement>
         <ui:ListView focusable="true" name="building-list" style="position: absolute; right: 0; top: 0; bottom: 0; left: 75%; align-items: stretch; background-color: rgba(0, 0, 0, 0.43); display: none;" />
     </ui:VisualElement>

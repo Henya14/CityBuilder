@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -23,12 +24,17 @@ public class GameUIManager : MonoBehaviour
 
     Toggle moralityViewToggle;
 
+    Button buildingsButton;
+    VisualElement buildingHud;
+
 
     List<Button> gameModeSelectorButtons = new List<Button>();
     public GameMode selectedGameMode {get; set;} = GameMode.SelectionMode;
 
     private BuildModeManager buildModeManager;
     private GridManager gridManager;
+    //New common manager: PropertyManager
+    //private ResidentManager residentManager;
     [SerializeField] VisualTreeAsset buildingListElementTemplate;
 
     const string SELECTED_BUTTON_CLASS_NAME = "selected";
@@ -46,7 +52,9 @@ public class GameUIManager : MonoBehaviour
 
         moralityViewToggle = root.Q<Toggle>("morality-toggle");
 
-        
+        buildingsButton = root.Q<Button>("buildings-button");
+        buildingHud = root.Q<VisualElement>("building-hud-container");
+
     }
     void Start() {
         selectionModeButton.clicked += OnSelectionModeButtonClicked;
@@ -58,6 +66,7 @@ public class GameUIManager : MonoBehaviour
 
         buildModeManager = FindObjectOfType<BuildModeManager>();
         gridManager = FindObjectOfType<GridManager>();
+        //residentManager = FindObjectOfType<ResidentManager>();
 
         timeStartStopButton.clicked += OnTimeStartStopButtonClicked;
         timeForwardButton.clicked += OnTimeForwardButtonClicked;
@@ -74,6 +83,9 @@ public class GameUIManager : MonoBehaviour
                 gridManager.ResetMaterialsOnFields();
             }
         });
+
+        LoadBuildings();
+        buildingsButton.clicked += ChangeVisibleOnBuildingHud;
     }
 
     void OnSelectionModeButtonClicked() {
@@ -174,5 +186,41 @@ public class GameUIManager : MonoBehaviour
 
     void UpdateTimer() {
         timeTextField.text = $"{TimeManager.Hour:00}:{TimeManager.Minute:00}";
+    }
+
+    void LoadBuildings() {
+
+        BuildingData[] loadedObjects = Resources.LoadAll<BuildingData>("Buildings");
+
+        Debug.Log(loadedObjects.Length);
+        foreach (BuildingData obj in loadedObjects) {
+            if (obj.BuyableBuilding) {
+                Button tempbutton = new Button();
+                if(obj.BuildingPicture == null) {
+                    tempbutton.text = obj.buildingName;
+                }
+                else {
+                    tempbutton.text = "";
+                    tempbutton.style.backgroundImage = obj.image;
+                }
+                
+                tempbutton.clicked += () => buildModeManager.BuildingDataSelected(obj);
+                tempbutton.clicked += () => gridManager.ChangeSelection(obj.size, obj.buildingType, obj.prefab);
+                buildingHud.Add(tempbutton);
+            }
+        }
+        
+    }
+
+    void ChangeVisibleOnBuildingHud() {
+        Debug.Log("click");
+        buildingHud.visible = !buildingHud.visible; 
+        if(buildingHud.visible) {
+            selectedGameMode = GameMode.BuildMode;
+        }
+        else {
+            selectedGameMode = GameMode.SelectionMode;
+        }
+        Debug.Log(selectedGameMode);
     }
 }
