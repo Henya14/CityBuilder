@@ -21,7 +21,7 @@ public abstract class AbstractBuildingType : MonoBehaviour
 
     public virtual void Init(BuildingData buildingData)
     {
-        buildingName = buildingData.buildingName;
+        buildingName = buildingData.Name;
         this.buildingData = buildingData;
     }
 
@@ -34,6 +34,7 @@ public abstract class AbstractBuildingType : MonoBehaviour
             var building = Instantiate(buildingData.prefab);
             building.transform.position = gamePosition;
             var selectionManager = building.AddComponent<SelectionManager>();
+            selectionManager.Description = buildingData.Description;
             foreach (var gridPosition in gridPositions) {
                 buildings.Add(gridPosition, building);
                 selectionManager.SetGridPosition(gridPosition);
@@ -76,5 +77,10 @@ public abstract class AbstractBuildingType : MonoBehaviour
     public GameObject GetBuildingPrefabForPosition(Vector3Int position)
     {
         return buildings.GetValueOrDefault(position, null)?.gameObject;
+    }
+
+    public string GetDescription()
+    {
+        return buildingData.Description;
     }
 }

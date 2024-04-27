@@ -11,7 +11,8 @@ public enum BuildingType {
 [CreateAssetMenu]
 public class BuildingData : ScriptableObject
 {
-   public string buildingName;
+   [SerializeField] public string Name;
+   [SerializeField] public string Description;
    public BuildingType buildingType;
    public int price;
    public Vector2Int size;
@@ -37,6 +38,6 @@ public class BuildingData : ScriptableObject
         get { return buyableBuilding; }
     }
     public string BuildingName {
-        get { return buildingName; }
+        get { return Name; }
     }
 }

@@ -12,10 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a54e024e6921ac14f9b018b85c295968, type: 3}
   m_Name: Shopping Zone
   m_EditorClassIdentifier: 
-  buildingName: Shopping Zone
+  Name: Shopping Zone
+  Description: Shopping Zone Tile
   buildingType: 2
   price: 0
   size: {x: 1, y: 1}
   isAvailable: 0
-  image: {fileID: 0}
   prefab: {fileID: 6515529762217398849, guid: 1dfddc6bac1206944899f66104e085fe, type: 3}
+  buildingPicture: {fileID: 0}
+  scales: {x: 0, y: 0, z: 0}
+  buyableBuilding: 0
