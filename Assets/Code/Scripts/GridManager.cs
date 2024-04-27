@@ -26,8 +26,8 @@ public class GridManager : MonoBehaviour
     public GameObject selectionPrefab { get; set; }
     GameObject selectionInstance;
     List<Vector3Int> lastSelectedObjectPositions = new List<Vector3Int>();
-    GameUIManager gameUIManager;
     bool isSelectionValid = false;
+    GameUIManager gameUIManager;
 
     float cooldown;
 
@@ -110,9 +110,9 @@ public class GridManager : MonoBehaviour
             }
         }
         isSelectionValid = IsSelectionValid(lastSelectedObjectPositions);
-        SetSelectionOfObjectsAtPositions(lastSelectedObjectPositions, true);
         if (isSelectionValid)
         {
+            SetSelectionOfObjectsAtPositions(lastSelectedObjectPositions, true);
             if (selectionInstance != null)
             {
                 var gamePosition = GetSelectionCenter(lastSelectedObjectPositions);
@@ -154,6 +154,9 @@ public class GridManager : MonoBehaviour
     private bool IsSelectionValid(List<Vector3Int> selectedTilePositions)
     {
         bool isValid = true;
+        if (selectedTilePositions.Count == 0) {
+            return false;
+        }
         var selectionMaxX = selectedTilePositions.Select(p => p.x).Max();
         var tileMapMaxX = tileMap.Keys.Select(p => p.x).Max();
         var tileMapMaxZ = tileMap.Keys.Select(p => p.z).Max();
@@ -162,19 +165,22 @@ public class GridManager : MonoBehaviour
         {
             return false;
         }
-        var buildingPositions = buildingsMap.Keys.Select(p => new Vector2(p.x, p.z));
-        var selectedTilePositionsVec2 = selectedTilePositions.Select(p => new Vector2(p.x, p.z));
 
-        foreach (var selectedTilePosition in selectedTilePositionsVec2)
+        if (gameUIManager.selectedGameMode == GameMode.BuildMode)
         {
-            if (buildingPositions.Contains(selectedTilePosition))
+
+            var buildingPositions = buildingsMap.Keys.Select(p => new Vector2(p.x, p.z));
+            var selectedTilePositionsVec2 = selectedTilePositions.Select(p => new Vector2(p.x, p.z));
+
+            foreach (var selectedTilePosition in selectedTilePositionsVec2)
             {
-                isValid = false;
+                if (buildingPositions.Contains(selectedTilePosition))
+                {
+                    isValid = false;
+                }
             }
+
         }
-
-
-
         return isValid;
     }
 
@@ -241,14 +247,16 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    public Tile GetTileAtPosition(Vector3Int position) {
+    public Tile GetTileAtPosition(Vector3Int position)
+    {
         return tileMap.GetValueOrDefault(position, null);
     }
-    
+
     public SelectionManager GetSelectedObjectAtPosition(Vector3Int position)
     {
         var gameObject = tileMap.GetValueOrDefault(position, null)?.gameObject;
-        if (gameObject == null) {
+        if (gameObject == null)
+        {
             gameObject = buildingsMap.GetValueOrDefault(position, null)?.GetBuildingPrefabForPosition(position);
         }
         return gameObject?.GetComponent<SelectionManager>();
@@ -288,13 +296,14 @@ public class GridManager : MonoBehaviour
                 Destroy(selectionInstance);
             }
             if ((selectionMode == SelectionMode.Rectangle || selectionMode == SelectionMode.Line) && lastSelectedObjectPositions.Count > 0 && isSelectionValid)
-            {                
+            {
                 var selectedObject = GetSelectedObjectAtPosition(lastSelectedObjectPositions[0]);
                 ManageObjectSelectionInRectangleAndLineMode(selectedObject);
                 ClearlastSelectedTilePositions();
                 VisualizeNeighbours();
             }
-        } else if (Input.GetKey(KeyCode.K) && cooldown < 0)
+        }
+        else if (Input.GetKey(KeyCode.K) && cooldown < 0)
         {
             isMouseButtonDown = true;
             if (lastSelectedObjectPositions.Count > 0)
@@ -303,7 +312,8 @@ public class GridManager : MonoBehaviour
                 ManageObjectSelectionInSingleMode(selectedObject);
                 Debug.Log("click at:" + selectedObject.GetGridPosition());
                 var tile = selectedObject.GetGameObject().GetComponent<Tile>();
-                if (tile != null) {
+                if (tile != null)
+                {
                     RecalcMorality(tile);
                 }
             }
@@ -329,9 +339,10 @@ public class GridManager : MonoBehaviour
     {
 
         Dictionary<Vector3, List<Vector3Int>> placingPositionsWithGridPositions = new Dictionary<Vector3, List<Vector3Int>>();
-        lastSelectedObjectPositions.ForEach(lstp => {
+        lastSelectedObjectPositions.ForEach(lstp =>
+        {
             var selectionCenter = GetSelectionCenter(new List<Vector3Int> { lstp });
-            placingPositionsWithGridPositions[selectionCenter] = new List<Vector3Int> {lstp};
+            placingPositionsWithGridPositions[selectionCenter] = new List<Vector3Int> { lstp };
         });
         gameUIManager.ObjectSelected(selectedObject, placingPositionsWithGridPositions);
     }
@@ -343,7 +354,7 @@ public class GridManager : MonoBehaviour
         var carGridPosition = new Vector3Int(selectedObjectGridPosition.x, 1, selectedObjectGridPosition.z);
         carPrefab.GetComponent<CarNavigation>().CurrentGridPosition = carGridPosition;
 
-        var carGamePosition = GetSelectionCenter(new List<Vector3Int>{carGridPosition});
+        var carGamePosition = GetSelectionCenter(new List<Vector3Int> { carGridPosition });
         carGamePosition.y = GetGamePositionForGridPosition(carGridPosition).y;
         carGamePosition.z += tileSize / 4;
         car.transform.position = carGamePosition;
@@ -425,14 +436,14 @@ public class GridManager : MonoBehaviour
             }
 
         }
-        
-        
 
-        Debug.Log("Arrow count:"+arrows.Count);
+
+
+        Debug.Log("Arrow count:" + arrows.Count);
         //Todo erase from here:
-        foreach(var prop in propertyMap)
+        foreach (var prop in propertyMap)
         {
-            Debug.Log($"Property at ({(float)prop.Key.x/2 - 5}, {(float)prop.Key.z / 2 - 5}): {prop.Value.HeadCount}/{prop.Value.Capacity}");
+            Debug.Log($"Property at ({(float)prop.Key.x / 2 - 5}, {(float)prop.Key.z / 2 - 5}): {prop.Value.HeadCount}/{prop.Value.Capacity}");
         }
         //Until This!!!!!!!!!!!
     }
@@ -485,9 +496,9 @@ public class GridManager : MonoBehaviour
 
     public Vector3Int GetGridPositionForGamePosition(Vector3 gamePosition)
     {
-        float x = gamePosition.x / tileSize + 2*offsetX;
+        float x = gamePosition.x / tileSize + 2 * offsetX;
         float y = gamePosition.y / tileSize;
-        float z = gamePosition.z / tileSize + 2*offsetZ;
+        float z = gamePosition.z / tileSize + 2 * offsetZ;
         Vector3Int gridPosition = new Vector3Int((int)Math.Ceiling(x), (int)Math.Ceiling(y), (int)Math.Ceiling(z));
         return gridPosition;
     }
@@ -507,13 +518,14 @@ public class GridManager : MonoBehaviour
         return selectionCenter;
     }
 
-    private void RecalcMorality(Tile selectedTile) {
+    private void RecalcMorality(Tile selectedTile)
+    {
         for (int i = 0; i < gridHeight; i++)
         {
             for (int j = 0; j < gridWidth; j++)
             {
                 Vector3Int element = new Vector3Int(i, 0, j);
-                int distance = (int) Vector3Int.Distance(tileMap[element].gridPosition, selectedTile.gridPosition);
+                int distance = (int)Vector3Int.Distance(tileMap[element].gridPosition, selectedTile.gridPosition);
                 switch (distance)
                 {
                     case 5:
@@ -534,15 +546,15 @@ public class GridManager : MonoBehaviour
                     case 0:
                         tileMap[element].tileMorality.moralityLevel += 0.75f;
                         break;
-                    default:break;
+                    default: break;
                 }
             }
         }
-        if(!notOnMap)
+        if (!notOnMap)
         {
             ChangeMaterialsToMorality();
         }
-        
+
     }
 
     public void ChangeMaterialsToMorality()
@@ -592,7 +604,7 @@ public class GridManager : MonoBehaviour
 
         return neighborDictionary;
     }
-    public Dictionary<Vector3Int,AbstractBuildingType> GetBuildingsMap()
+    public Dictionary<Vector3Int, AbstractBuildingType> GetBuildingsMap()
     {
         return buildingsMap;
     }
@@ -603,7 +615,7 @@ public class GridManager : MonoBehaviour
     }
     public void AddProperty(Vector3Int position, AbstarctProperty property)
     {
-        if(propertyMap.GetValueOrDefault(position,null )!=null)
+        if (propertyMap.GetValueOrDefault(position, null) != null)
         {
             throw new Exception("There is already a building at" + position);
         }

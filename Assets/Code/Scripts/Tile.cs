@@ -7,20 +7,26 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
-    public Vector3Int gridPosition {get; set;}
+    public Vector3Int gridPosition { get; set; }
 
-    [SerializeField] public string description;
-    public Vector2Int tileSize {get; set;} = new Vector2Int(1,1); 
+    [SerializeField] public string Name;
+    [SerializeField] public string Description;
+    public Vector2Int tileSize { get; set; } = new Vector2Int(1, 1);
 
-    public Morality tileMorality { get; set;}
+    public Morality tileMorality { get; set; }
 
     [SerializeField] Material destMaterial;
     Material test;
     public Material baseMaterial { get; set; }
     private void Start()
-    {   
+    {
         baseMaterial = GetComponent<MeshRenderer>().material;
         test = new Material(destMaterial);
+        var selectionManager = GetComponent<SelectionManager>();
+        if (selectionManager != null)
+        {
+            selectionManager.Description = Description;
+        }
     }
 
     public void changeMaterial()
@@ -32,6 +38,12 @@ public class Tile : MonoBehaviour
 
     public void resetMaterial()
     {
-       GetComponent<MeshRenderer>().material = baseMaterial;
+        GetComponent<MeshRenderer>().material = baseMaterial;
+    }
+
+
+    public string GetDescription()
+    {
+        return Description;
     }
 }

@@ -2,17 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public interface SelectableObject {
    
     Vector3Int GetGridPosition();
     void SetGridPosition(Vector3Int gridPosition);
     void ToggleHighlight(bool on);
     GameObject GetGameObject();
+    string GetDescription();
 }
 
 public class SelectionManager : MonoBehaviour, SelectableObject
 {
     Vector3Int? gridPosition = null;
+    public string Description {get; set;} = "";
     public Vector3Int GetGridPosition()
     {
         if (this.gridPosition != null) {
@@ -62,5 +65,9 @@ public class SelectionManager : MonoBehaviour, SelectableObject
     void Update()
     {
 
+    }
+    public string GetDescription()
+    {
+        return Description;
     }
 }

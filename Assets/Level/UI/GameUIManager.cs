@@ -160,10 +160,15 @@ public class GameUIManager : MonoBehaviour
     }
 
     void ObjectSelectedInSelectionMode(SelectableObject selectedObject) {
-        var tile = selectedObject.GetGameObject().GetComponent<Tile>();
-        if (tile != null) {
+        if (selectedObject != null) {
+            var displayText = selectedObject.GetDescription() ;
             infoContainer.style.display = DisplayStyle.Flex;
-            infoContainerText.text = tile.description + " morality:  " + tile.tileMorality.moralityLevel;
+            var tile = selectedObject.GetGameObject().GetComponent<Tile>();
+            if (tile != null) {
+                displayText += " morality:  " + tile.tileMorality.moralityLevel;
+            }
+            infoContainerText.text = displayText;
+        
         } else {
             infoContainer.style.display = DisplayStyle.None;
             infoContainerText.text = "";
@@ -197,7 +202,7 @@ public class GameUIManager : MonoBehaviour
             if (obj.BuyableBuilding) {
                 Button tempbutton = new Button();
                 if(obj.BuildingPicture == null) {
-                    tempbutton.text = obj.buildingName;
+                    tempbutton.text = obj.Name;
                 }
                 else {
                     tempbutton.text = "";

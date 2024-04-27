@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a54e024e6921ac14f9b018b85c295968, type: 3}
   m_Name: Mine
   m_EditorClassIdentifier: 
-  buildingName: "B\xE1nya"
+  Name: Mine
+  Description: Mine
   buildingType: 1
   price: 100
   size: {x: 3, y: 2}
