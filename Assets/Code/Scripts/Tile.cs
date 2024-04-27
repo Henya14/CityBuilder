@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
+
+
 public class Tile : MonoBehaviour
 {
     public Vector3Int gridPosition {get; set;}
@@ -15,21 +17,10 @@ public class Tile : MonoBehaviour
     [SerializeField] Material destMaterial;
     Material test;
     public Material baseMaterial { get; set; }
-
     private void Start()
-    {
+    {   
         baseMaterial = GetComponent<MeshRenderer>().material;
         test = new Material(destMaterial);
-    }
-
-    void OnMouseEnter() {
-        var manager = FindObjectOfType<GridManager>();
-        manager.TileSelectedAtPosition(gridPosition);
-    }
-
-    void OnMouseExit() {
-        var manager = FindObjectOfType<GridManager>();
-        manager.TileDeselectedAtPosition(gridPosition);
     }
 
     public void changeMaterial()
@@ -41,6 +32,6 @@ public class Tile : MonoBehaviour
 
     public void resetMaterial()
     {
-        GetComponent<MeshRenderer>().material = baseMaterial;
+       GetComponent<MeshRenderer>().material = baseMaterial;
     }
 }

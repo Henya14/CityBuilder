@@ -1,15 +1,9 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Data;
 using System.Linq;
 using Unity.VisualScripting;
-using Unity.VisualScripting.Dependencies.Sqlite;
 using UnityEngine;
-using UnityEngine.Tilemaps;
-using Color = UnityEngine.Color;
-
 
 public enum SelectionMode
 {
@@ -31,7 +25,7 @@ public class GridManager : MonoBehaviour
     public Vector2Int selectionSize { get; set; } = new Vector2Int(1, 1);
     public GameObject selectionPrefab { get; set; }
     GameObject selectionInstance;
-    List<Vector3Int> lastSelectedTilePositions = new List<Vector3Int>();
+    List<Vector3Int> lastSelectedObjectPositions = new List<Vector3Int>();
     GameUIManager gameUIManager;
     bool isSelectionValid = false;
 
@@ -40,6 +34,7 @@ public class GridManager : MonoBehaviour
     bool notOnMap = true;
     [SerializeField] GameObject debugCube;
     [SerializeField] GameObject debugArrow;
+    [SerializeField] GameObject carPrefab;
 
     List<GameObject> cubes = new List<GameObject>();
     List<GameObject> arrows = new List<GameObject>();
@@ -90,17 +85,17 @@ public class GridManager : MonoBehaviour
                 newTile.transform.position = newPosition;
 
                 tileMap[newTile.gridPosition] = newTile;
-                newTile.name = $"{newPosition.x}, {newPosition.z}";
+                newTile.name = $"GamePosition: {newPosition.x}, {newPosition.z}, GridPosition: {gridPosition.x}, {gridPosition.z} ";
             }
         }
     }
 
-    public void TileSelectedAtPosition(Vector3Int selectionPosition)
+    public void ObjectSelectedAtPosition(Vector3Int selectionPosition)
     {
         if (selectionMode == SelectionMode.Single)
         {
             ClearlastSelectedTilePositions();
-            lastSelectedTilePositions.AddRange(GetPositionsOfTilesInSelection(selectionPosition, selectionSize));
+            lastSelectedObjectPositions.AddRange(GetPositionsOfObjectsInSelection(selectionPosition, selectionSize));
         }
         else if (selectionMode == SelectionMode.Rectangle || selectionMode == SelectionMode.Line)
         {
@@ -110,23 +105,17 @@ public class GridManager : MonoBehaviour
             }
             else
             {
-                lastSelectedTilePositions.Clear();
-                lastSelectedTilePositions.Add(selectionPosition);
+                lastSelectedObjectPositions.Clear();
+                lastSelectedObjectPositions.Add(selectionPosition);
             }
         }
-        isSelectionValid = IsSelectionValid(lastSelectedTilePositions);
+        isSelectionValid = IsSelectionValid(lastSelectedObjectPositions);
+        SetSelectionOfObjectsAtPositions(lastSelectedObjectPositions, true);
         if (isSelectionValid)
         {
-
-            SetSelectionOfTilesAtPositions(lastSelectedTilePositions, true);
-            if (selectionInstance == null && selectionPrefab != null && selectionMode == SelectionMode.Single)
-            {
-                selectionInstance = Instantiate(selectionPrefab);
-            }
-
             if (selectionInstance != null)
             {
-                var gamePosition = GetSelectionCenter(lastSelectedTilePositions);
+                var gamePosition = GetSelectionCenter(lastSelectedObjectPositions);
                 gamePosition.y += tileSize;
                 selectionInstance.transform.position = gamePosition;
             }
@@ -139,11 +128,11 @@ public class GridManager : MonoBehaviour
 
     private void HandleSelectionWhenMouseIsDown(Vector3Int selectionPosition)
     {
-        if (lastSelectedTilePositions.Count == 0)
+        if (lastSelectedObjectPositions.Count == 0)
         {
             return;
         }
-        var firstSelectionPosition = lastSelectedTilePositions[0];
+        var firstSelectionPosition = lastSelectedObjectPositions[0];
         ClearlastSelectedTilePositions();
         var secondSelectionPosition = selectionPosition;
         if (selectionMode == SelectionMode.Line)
@@ -159,7 +148,7 @@ public class GridManager : MonoBehaviour
                 secondSelectionPosition.z = firstSelectionPosition.z;
             }
         }
-        lastSelectedTilePositions = GetPositionsOfTilesInRectangleBetweenTwoPositions(firstSelectionPosition, secondSelectionPosition);
+        lastSelectedObjectPositions = GetPositionsOfTilesInRectangleBetweenTwoPositions(firstSelectionPosition, secondSelectionPosition);
     }
 
     private bool IsSelectionValid(List<Vector3Int> selectedTilePositions)
@@ -189,7 +178,7 @@ public class GridManager : MonoBehaviour
         return isValid;
     }
 
-    public void TileDeselectedAtPosition(Vector3Int position)
+    public void ObjectDeselectedAtPosition(Vector3Int position)
     {
         if (!isMouseButtonDown)
         {
@@ -197,14 +186,14 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    List<Vector3Int> GetPositionsOfTilesInSelection(Vector3Int startTilePosition, Vector2 selectionSize)
+    List<Vector3Int> GetPositionsOfObjectsInSelection(Vector3Int startObjectPosition, Vector2 selectionSize)
     {
         List<Vector3Int> positions = new List<Vector3Int>();
         for (int x = 0; x < selectionSize.x; x++)
         {
             for (int z = 0; z < selectionSize.y; z++)
             {
-                positions.Add(new Vector3Int(startTilePosition.x + x, 0, startTilePosition.z + z));
+                positions.Add(new Vector3Int(startObjectPosition.x + x, startObjectPosition.y, startObjectPosition.z + z));
             }
         }
         return positions;
@@ -236,25 +225,33 @@ public class GridManager : MonoBehaviour
 
     void ClearlastSelectedTilePositions()
     {
-        SetSelectionOfTilesAtPositions(lastSelectedTilePositions, false);
-        lastSelectedTilePositions.Clear();
+        SetSelectionOfObjectsAtPositions(lastSelectedObjectPositions, false);
+        lastSelectedObjectPositions.Clear();
     }
 
-    void SetSelectionOfTilesAtPositions(List<Vector3Int> tilePositions, bool selected)
+    void SetSelectionOfObjectsAtPositions(List<Vector3Int> objectPositions, bool selected)
     {
-        foreach (var tilePosition in tilePositions)
+        foreach (var objectPosition in objectPositions)
         {
-            var tile = GetTileAtPosition(tilePosition);
-            if (tile != null && notOnMap)
+            var selectedObject = GetSelectedObjectAtPosition(objectPosition);
+            if (selectedObject != null && notOnMap)
             {
-                tile.GetComponent<Highlight>()?.ToggleHighlight(selected);
+                selectedObject.ToggleHighlight(selected);
             }
         }
     }
 
-    public Tile GetTileAtPosition(Vector3Int position)
-    {
+    public Tile GetTileAtPosition(Vector3Int position) {
         return tileMap.GetValueOrDefault(position, null);
+    }
+    
+    public SelectionManager GetSelectedObjectAtPosition(Vector3Int position)
+    {
+        var gameObject = tileMap.GetValueOrDefault(position, null)?.gameObject;
+        if (gameObject == null) {
+            gameObject = buildingsMap.GetValueOrDefault(position, null)?.GetBuildingPrefabForPosition(position);
+        }
+        return gameObject?.GetComponent<SelectionManager>();
     }
 
     public AbstractBuildingType GetBuildingAtPosition(Vector3Int position)
@@ -267,11 +264,20 @@ public class GridManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             isMouseButtonDown = true;
-            if (lastSelectedTilePositions.Count > 0 && selectionMode == SelectionMode.Single && isSelectionValid)
+
+            if (lastSelectedObjectPositions.Count > 0 && selectionMode == SelectionMode.Single && isSelectionValid)
             {
-                var selectedTile = GetTileAtPosition(lastSelectedTilePositions[0]);
-                gameUIManager.TileSelected(selectedTile, lastSelectedTilePositions, new List<Vector3> { GetSelectionCenter(lastSelectedTilePositions) });
+                var selectedObject = GetSelectedObjectAtPosition(lastSelectedObjectPositions[0]);
+                ManageObjectSelectionInSingleMode(selectedObject);
                 VisualizeNeighbours();
+                var selectedObjectGridPosition = selectedObject.GetGridPosition();
+                var buildingGridPosition = new Vector3Int(selectedObjectGridPosition.x, 1, selectedObjectGridPosition.z);
+                AbstractBuildingType buildingAtPos;
+                buildingsMap.TryGetValue(buildingGridPosition, out buildingAtPos);
+                if (buildingAtPos is Road)
+                {
+                    PlaceCarAtSelectedObject(selectedObject);
+                }
             }
         }
         else if (Input.GetMouseButtonUp(0))
@@ -281,29 +287,29 @@ public class GridManager : MonoBehaviour
             {
                 Destroy(selectionInstance);
             }
-            if ((selectionMode == SelectionMode.Rectangle || selectionMode == SelectionMode.Line) && lastSelectedTilePositions.Count > 0 && isSelectionValid)
-            {
-                var selectedTile = GetTileAtPosition(lastSelectedTilePositions[0]);
-                var prefabPlacePositions = lastSelectedTilePositions.Select(lstp => GetSelectionCenter(new List<Vector3Int> { lstp })).ToList();
-                gameUIManager.TileSelected(selectedTile, lastSelectedTilePositions, prefabPlacePositions);
+            if ((selectionMode == SelectionMode.Rectangle || selectionMode == SelectionMode.Line) && lastSelectedObjectPositions.Count > 0 && isSelectionValid)
+            {                
+                var selectedObject = GetSelectedObjectAtPosition(lastSelectedObjectPositions[0]);
+                ManageObjectSelectionInRectangleAndLineMode(selectedObject);
                 ClearlastSelectedTilePositions();
                 VisualizeNeighbours();
             }
-        }
-        if (Input.GetKey(KeyCode.K) && cooldown < 0)
+        } else if (Input.GetKey(KeyCode.K) && cooldown < 0)
         {
             isMouseButtonDown = true;
-            if (lastSelectedTilePositions.Count > 0)
+            if (lastSelectedObjectPositions.Count > 0)
             {
-                var selectedTile = GetTileAtPosition(lastSelectedTilePositions[0]);
-                gameUIManager.TileSelected(selectedTile, lastSelectedTilePositions, new List<Vector3> { GetSelectionCenter(lastSelectedTilePositions) });
-                Debug.Log("click at:" + selectedTile.gridPosition);
-
-                RecalcMorality(selectedTile);
+                var selectedObject = GetSelectedObjectAtPosition(lastSelectedObjectPositions[0]);
+                ManageObjectSelectionInSingleMode(selectedObject);
+                Debug.Log("click at:" + selectedObject.GetGridPosition());
+                var tile = selectedObject.GetGameObject().GetComponent<Tile>();
+                if (tile != null) {
+                    RecalcMorality(tile);
+                }
             }
             else
             {
-                gameUIManager.TileSelected(null, new List<Vector3Int>(), new List<Vector3> { new Vector3(0, 0, 0) });
+                gameUIManager.ObjectSelected(null, new Dictionary<Vector3, List<Vector3Int>>());
             }
 
             cooldown = 2f;
@@ -312,67 +318,112 @@ public class GridManager : MonoBehaviour
         cooldown -= Time.deltaTime;
     }
 
-    private void VisualizeNeighbours() {
-        foreach (var arrow in arrows) {
+    private void ManageObjectSelectionInSingleMode(SelectionManager selectedObject)
+    {
+        Dictionary<Vector3, List<Vector3Int>> placingPositionsWithGridPositions = new Dictionary<Vector3, List<Vector3Int>>();
+        placingPositionsWithGridPositions[GetSelectionCenter(lastSelectedObjectPositions)] = lastSelectedObjectPositions;
+        gameUIManager.ObjectSelected(selectedObject, placingPositionsWithGridPositions);
+    }
+
+    private void ManageObjectSelectionInRectangleAndLineMode(SelectionManager selectedObject)
+    {
+
+        Dictionary<Vector3, List<Vector3Int>> placingPositionsWithGridPositions = new Dictionary<Vector3, List<Vector3Int>>();
+        lastSelectedObjectPositions.ForEach(lstp => {
+            var selectionCenter = GetSelectionCenter(new List<Vector3Int> { lstp });
+            placingPositionsWithGridPositions[selectionCenter] = new List<Vector3Int> {lstp};
+        });
+        gameUIManager.ObjectSelected(selectedObject, placingPositionsWithGridPositions);
+    }
+
+    private void PlaceCarAtSelectedObject(SelectableObject selectedObject)
+    {
+        var car = Instantiate(carPrefab);
+        var selectedObjectGridPosition = selectedObject.GetGridPosition();
+        var carGridPosition = new Vector3Int(selectedObjectGridPosition.x, 1, selectedObjectGridPosition.z);
+        carPrefab.GetComponent<CarNavigation>().CurrentGridPosition = carGridPosition;
+
+        var carGamePosition = GetSelectionCenter(new List<Vector3Int>{carGridPosition});
+        carGamePosition.y = GetGamePositionForGridPosition(carGridPosition).y;
+        carGamePosition.z += tileSize / 4;
+        car.transform.position = carGamePosition;
+    }
+
+    private void VisualizeNeighbours()
+    {
+        foreach (var arrow in arrows)
+        {
             Destroy(arrow);
         }
 
         arrows.Clear();
 
-        foreach (var cube in cubes) {
+        foreach (var cube in cubes)
+        {
             Destroy(cube);
         }
 
-        foreach(var positionAndBuilding in buildingsMap) {
-            var cent = GetSelectionCenter(new List<Vector3Int>{positionAndBuilding.Key, positionAndBuilding.Key});
-            foreach(var dir in positionAndBuilding.Value.neighbourDatasForPositions[positionAndBuilding.Key].neighboursForGridPositions) {
-                    if(dir.Value == null) {
-                        continue;
-                    }
-                    var arr = Instantiate(debugArrow);
-                    cent.y = tileSize;
-                    
-                    var rotation = 0.0f;
-                    var highlight = arr.GetComponent<Highlight>();
-                    var directionVector = dir.Key - positionAndBuilding.Key;
+        foreach (var positionAndBuilding in buildingsMap)
+        {
+            var cent = GetSelectionCenter(new List<Vector3Int> { positionAndBuilding.Key, positionAndBuilding.Key });
+            foreach (var dir in positionAndBuilding.Value.neighbourDatasForPositions[positionAndBuilding.Key].neighboursForGridPositions)
+            {
+                if (dir.Value == null)
+                {
+                    continue;
+                }
+                var arr = Instantiate(debugArrow);
+                cent.y = tileSize;
 
-                    var direction = Direction.North;
+                var rotation = 0.0f;
+                var highlight = arr.GetComponent<Highlight>();
+                var directionVector = dir.Key - positionAndBuilding.Key;
 
-                    if (directionVector.z > 0) {
-                        direction = Direction.North;
-                    } else if (directionVector.z < 0) {
-                        direction = Direction.South;
-                    } else if (directionVector.x > 0) {
-                         direction = Direction.East;
-                    } else {
-                        direction = Direction.West;
-                    }
+                var direction = Direction.North;
 
-                    switch(direction) {
-                        case Direction.North:
-                            rotation = 90.0f;
-                            highlight.SetHighlightColor(UnityEngine.Color.blue);
-                            break;
-                        case Direction.South:
-                            rotation = -90.0f;
-                            highlight.SetHighlightColor(UnityEngine.Color.red);
-                            break;
-                        case Direction.East:
-                            rotation = 0.0f;
-                            highlight.SetHighlightColor(UnityEngine.Color.green);
-                            break;
-                        case Direction.West:
-                            rotation = 180.0f;
-                            highlight.SetHighlightColor(UnityEngine.Color.yellow);
-                            break;
-                    }
-                    highlight.ToggleHighlight(true);
-                    arr.transform.position = cent;
-                    arr.transform.Rotate(Vector3.forward, rotation);
-                    arrows.Add(arr);
-                
+                if (directionVector.z > 0)
+                {
+                    direction = Direction.North;
+                }
+                else if (directionVector.z < 0)
+                {
+                    direction = Direction.South;
+                }
+                else if (directionVector.x > 0)
+                {
+                    direction = Direction.East;
+                }
+                else
+                {
+                    direction = Direction.West;
+                }
+
+                switch (direction)
+                {
+                    case Direction.North:
+                        rotation = 90.0f;
+                        highlight.SetHighlightColor(Color.blue);
+                        break;
+                    case Direction.South:
+                        rotation = -90.0f;
+                        highlight.SetHighlightColor(Color.red);
+                        break;
+                    case Direction.East:
+                        rotation = 0.0f;
+                        highlight.SetHighlightColor(Color.green);
+                        break;
+                    case Direction.West:
+                        rotation = 180.0f;
+                        highlight.SetHighlightColor(Color.yellow);
+                        break;
+                }
+                highlight.ToggleHighlight(true);
+                arr.transform.position = cent;
+                arr.transform.Rotate(Vector3.forward, rotation);
+                arrows.Add(arr);
+
             }
-            
+
         }
         
         
@@ -416,8 +467,10 @@ public class GridManager : MonoBehaviour
     {
         foreach (var gridPosition in gridPositions)
         {
+            Debug.Log($"{gridPosition}, {buildingsMap.Keys}");
             buildingsMap.Add(gridPosition, building);
         }
+
     }
 
 
@@ -430,6 +483,14 @@ public class GridManager : MonoBehaviour
         return gamePosition;
     }
 
+    public Vector3Int GetGridPositionForGamePosition(Vector3 gamePosition)
+    {
+        float x = gamePosition.x / tileSize + 2*offsetX;
+        float y = gamePosition.y / tileSize;
+        float z = gamePosition.z / tileSize + 2*offsetZ;
+        Vector3Int gridPosition = new Vector3Int((int)Math.Ceiling(x), (int)Math.Ceiling(y), (int)Math.Ceiling(z));
+        return gridPosition;
+    }
     private Vector3 GetSelectionCenter(List<Vector3Int> selectedPositions)
     {
         var xMin = selectedPositions.Select(v => v.x).Min();

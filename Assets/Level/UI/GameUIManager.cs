@@ -122,7 +122,7 @@ public class GameUIManager : MonoBehaviour
         buildingList.itemsSource = buildings;
 
         buildingList.selectionChanged += OnBuildingSelected; 
-        buildingList.SetSelection(-1);
+        buildingList.SetSelection(0);
     }
 
     void OnBuildingSelected(IEnumerable<object> selectedItems) {
@@ -145,13 +145,13 @@ public class GameUIManager : MonoBehaviour
         }
     }
 
-    public void TileSelected(Tile tile, List<Vector3Int>  selectedTilesGridPositions, List<Vector3> prafabPlacePositions) {
+    public void  ObjectSelected(SelectableObject selectedObject, Dictionary<Vector3, List<Vector3Int>> placingPositionsWithGridPositions) {
         switch (selectedGameMode) {
             case GameMode.SelectionMode: 
-                TileSelectedInSelectionMode(tile);
+                ObjectSelectedInSelectionMode(selectedObject);
                 break;
             case GameMode.BuildMode:
-                TileSelectedInBuildMode(tile, selectedTilesGridPositions, prafabPlacePositions);
+                ObjectSelectedInBuildMode(selectedObject, placingPositionsWithGridPositions);
                 break;
             default:
                 break;
@@ -159,8 +159,9 @@ public class GameUIManager : MonoBehaviour
        
     }
 
-    void TileSelectedInSelectionMode(Tile tile) {
-         if (tile != null) {
+    void ObjectSelectedInSelectionMode(SelectableObject selectedObject) {
+        var tile = selectedObject.GetGameObject().GetComponent<Tile>();
+        if (tile != null) {
             infoContainer.style.display = DisplayStyle.Flex;
             infoContainerText.text = tile.description + " morality:  " + tile.tileMorality.moralityLevel;
         } else {
@@ -169,9 +170,9 @@ public class GameUIManager : MonoBehaviour
         }
     }
 
-    void TileSelectedInBuildMode(Tile tile, List<Vector3Int> selectedTilesGridPositions, List<Vector3> prefabPlacePositions) {
-         if (tile != null) {
-            buildModeManager.TileSelected(tile, selectedTilesGridPositions, prefabPlacePositions);
+    void ObjectSelectedInBuildMode(SelectableObject selectedObject, Dictionary<Vector3, List<Vector3Int>> placingPositionsWithGridPositions) {
+         if (selectedObject != null) {
+            buildModeManager.ObjectSelected(placingPositionsWithGridPositions);
         }
     }
 

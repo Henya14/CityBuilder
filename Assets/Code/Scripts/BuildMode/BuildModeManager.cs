@@ -15,22 +15,26 @@ public class BuildModeManager : MonoBehaviour
     void Start() {
         gridManager = FindObjectOfType<GridManager>();
     }
-    public void TileSelected(Tile tile, List<Vector3Int> selectedTilesGridPositions, List<Vector3> prefabPlacePositions)
+    public void ObjectSelected(Dictionary<Vector3, List<Vector3Int>> placingPositionsWithGridPositions)
     {
+        var gridPositions = new List<Vector3Int>();
+        placingPositionsWithGridPositions.Values.ToList().ForEach(v => gridPositions.AddRange(v));
+        gridPositions = gridPositions.Select(p => new Vector3Int(p.x, p.y + 1, p.z)).ToList();
 
-        var gridPositions = selectedTilesGridPositions.Select(p => new Vector3Int(p.x, p.y + 1, p.z)).ToList();
         var selectedBuilding = CreateBuildingFromBuildingData(selectedBuildingData);
         List<Vector3> placePositions = new List<Vector3>();
-        foreach (var prefabPlacePosition in prefabPlacePositions)
+        Dictionary<Vector3, List<Vector3Int>> updatedPlacingPositionsWithGridPositions = new Dictionary<Vector3, List<Vector3Int>>();
+        foreach (var prefabPlacePosition in placingPositionsWithGridPositions.Keys)
         {
             var gamePositionY = gridManager.GetGamePositionForGridPosition(gridPositions[0]).y;
             var placePosition = new Vector3(prefabPlacePosition.x, gamePositionY, prefabPlacePosition.z);
             placePositions.Add(placePosition);
+            updatedPlacingPositionsWithGridPositions[placePosition] = placingPositionsWithGridPositions[prefabPlacePosition].Select(p => new Vector3Int(p.x, p.y + 1, p.z)).ToList();
         }
 
         gridManager.AddBuildingToGrid(selectedBuilding, gridPositions);
         Dictionary<Vector3Int, NeighbourData> neigbours = GetNeighboursForGridPositions(gridPositions);
-        selectedBuilding.PlaceAtPosition(gridPositions, placePositions, neigbours);
+        selectedBuilding.PlaceAtPosition(updatedPlacingPositionsWithGridPositions, neigbours);
     }
 
     private Dictionary<Vector3Int, NeighbourData> GetNeighboursForGridPositions(List<Vector3Int> gridPositions)

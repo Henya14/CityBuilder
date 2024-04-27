@@ -16,12 +16,18 @@ public class Highlight : MonoBehaviour
         {
             materials.AddRange(new List<Material>(renderer.materials));
         }
+        ToggleHighlight(isHighlighted);
     }
 
     public void SetHighlightColor(Color color)
     {
         highlightColor = color;
         RefreshHighlight();
+    }
+
+    public Color GetHighlightColor()
+    {
+       return highlightColor;
     }
 
     public void ToggleHighlight(bool on)

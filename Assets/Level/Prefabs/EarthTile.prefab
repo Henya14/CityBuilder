@@ -85,6 +85,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: f5fec3ab5e1c8e84a9e3efb1bf8c891c, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4797590543997082655}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: f5fec3ab5e1c8e84a9e3efb1bf8c891c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7803914798295994036}
   m_SourcePrefab: {fileID: 100100000, guid: f5fec3ab5e1c8e84a9e3efb1bf8c891c, type: 3}
 --- !u!1 &5421234974674936797 stripped
 GameObject:
@@ -141,6 +144,19 @@ MonoBehaviour:
   renderers:
   - {fileID: 5781746764977783304}
   highlightColor: {r: 0.8980366, g: 1, b: 0, a: 0.5882353}
+  isHighlighted: 0
+--- !u!114 &7803914798295994036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5421234974674936797}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 338ea7e41f157c84a8d6f9e2966966df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!23 &5781746764977783304 stripped
 MeshRenderer:
   m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: f5fec3ab5e1c8e84a9e3efb1bf8c891c, type: 3}
