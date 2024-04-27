@@ -159,14 +159,10 @@ MonoBehaviour:
   gridWidth: 20
   tileSize: 0.5
   chanceToSwitchTile: 0.1
-  previousTilePlaced: {fileID: 2005425898260501881, guid: 8260dadb88cda8843a22cfd7080baec9,
-    type: 3}
-  debugCube: {fileID: 8530455344680319768, guid: 8814f62e8ce3a0c49afb78ad1eac2e1c,
-    type: 3}
-  debugArrow: {fileID: 7116504243019251136, guid: 5879af0d3714acc4fb64382be09183f4,
-    type: 3}
-  carPrefab: {fileID: 9168529152632990214, guid: e0c91f8d3194c9e4c87e1e6378a77c50,
-    type: 3}
+  previousTilePlaced: {fileID: 2005425898260501881, guid: 8260dadb88cda8843a22cfd7080baec9, type: 3}
+  debugCube: {fileID: 8530455344680319768, guid: 8814f62e8ce3a0c49afb78ad1eac2e1c, type: 3}
+  debugArrow: {fileID: 7116504243019251136, guid: 5879af0d3714acc4fb64382be09183f4, type: 3}
+  carPrefab: {fileID: 9168529152632990214, guid: e0c91f8d3194c9e4c87e1e6378a77c50, type: 3}
 --- !u!4 &158693461
 Transform:
   m_ObjectHideFlags: 0
@@ -212,8 +208,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65c492cba06848342a7d2055f529e58f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buildingListElementTemplate: {fileID: 9197481963319205126, guid: d487024cffbf6f14eacb4e64a6e70eea,
-    type: 3}
+  buildingListElementTemplate: {fileID: 9197481963319205126, guid: d487024cffbf6f14eacb4e64a6e70eea, type: 3}
 --- !u!114 &522320332
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -228,8 +223,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_PanelSettings: {fileID: 11400000, guid: 2e76c324fa8a2eb4e807a50f915f4fdc, type: 2}
   m_ParentUI: {fileID: 0}
-  sourceAsset: {fileID: 9197481963319205126, guid: 13c43ee64581a364695a7bb11f8d12ae,
-    type: 3}
+  sourceAsset: {fileID: 9197481963319205126, guid: 13c43ee64581a364695a7bb11f8d12ae, type: 3}
   m_SortingOrder: 0
 --- !u!4 &522320333
 Transform:
@@ -484,7 +478,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 8, z: -8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: [{fileID: 1040957732}]
+  m_Children:
+  - {fileID: 1040957732}
   m_Father: {fileID: 1664904813}
   m_LocalEulerAnglesHint: {x: 50, y: 0, z: 0}
 --- !u!114 &963194229
@@ -572,7 +567,7 @@ GameObject:
   - component: {fileID: 1040957732}
   - component: {fileID: 1040957731}
   m_Layer: 0
-  m_Name: Camera
+  m_Name: MiniMapCamera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -613,7 +608,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 10
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
@@ -638,7 +633,7 @@ Transform:
   m_GameObject: {fileID: 1040957729}
   serializedVersion: 2
   m_LocalRotation: {x: 0.3420202, y: -0, z: -0, w: 0.9396926}
-  m_LocalPosition: {x: 0, y: 7.413932, z: 0}
+  m_LocalPosition: {x: 0, y: 10, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
