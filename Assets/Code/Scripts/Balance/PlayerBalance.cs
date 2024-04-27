@@ -41,7 +41,7 @@ public class PlayerBalance : MonoBehaviour
     }
 
     private void updatePopulation() {
-        //Get the population numbers from a manager here, now its a dummy data
+        //Get the population numbers from a gridManager here, now its a dummy data
         for (int i = 0; residentsPopulation.Count > 0; i++)
             residentsPopulation[i] += 1;
 

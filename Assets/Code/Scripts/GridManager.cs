@@ -8,6 +8,7 @@ using Unity.VisualScripting;
 using Unity.VisualScripting.Dependencies.Sqlite;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using Color = UnityEngine.Color;
 
 
 public enum SelectionMode
@@ -46,6 +47,7 @@ public class GridManager : MonoBehaviour
 
     Dictionary<Vector3Int, Tile> tileMap = new Dictionary<Vector3Int, Tile>();
     Dictionary<Vector3Int, AbstractBuildingType> buildingsMap = new Dictionary<Vector3Int, AbstractBuildingType>();
+    Dictionary<Vector3Int, AbstarctProperty> propertyMap = new Dictionary<Vector3Int, AbstarctProperty>();
     int offsetX = 10;
     int offsetZ = 10;
 
@@ -56,7 +58,7 @@ public class GridManager : MonoBehaviour
         offsetX = gridHeight / 4;
         offsetZ = gridWidth / 4;
         GenerateGrid();
-        
+
     }
 
     private void GenerateGrid()
@@ -288,6 +290,26 @@ public class GridManager : MonoBehaviour
                 VisualizeNeighbours();
             }
         }
+        if (Input.GetKey(KeyCode.K) && cooldown < 0)
+        {
+            isMouseButtonDown = true;
+            if (lastSelectedTilePositions.Count > 0)
+            {
+                var selectedTile = GetTileAtPosition(lastSelectedTilePositions[0]);
+                gameUIManager.TileSelected(selectedTile, lastSelectedTilePositions, new List<Vector3> { GetSelectionCenter(lastSelectedTilePositions) });
+                Debug.Log("click at:" + selectedTile.gridPosition);
+
+                RecalcMorality(selectedTile);
+            }
+            else
+            {
+                gameUIManager.TileSelected(null, new List<Vector3Int>(), new List<Vector3> { new Vector3(0, 0, 0) });
+            }
+
+            cooldown = 2f;
+        }
+
+        cooldown -= Time.deltaTime;
     }
 
     private void VisualizeNeighbours() {
@@ -329,19 +351,19 @@ public class GridManager : MonoBehaviour
                     switch(direction) {
                         case Direction.North:
                             rotation = 90.0f;
-                            highlight.SetHighlightColor(Color.blue);
+                            highlight.SetHighlightColor(UnityEngine.Color.blue);
                             break;
                         case Direction.South:
                             rotation = -90.0f;
-                            highlight.SetHighlightColor(Color.red);
+                            highlight.SetHighlightColor(UnityEngine.Color.red);
                             break;
                         case Direction.East:
                             rotation = 0.0f;
-                            highlight.SetHighlightColor(Color.green);
+                            highlight.SetHighlightColor(UnityEngine.Color.green);
                             break;
                         case Direction.West:
                             rotation = 180.0f;
-                            highlight.SetHighlightColor(Color.yellow);
+                            highlight.SetHighlightColor(UnityEngine.Color.yellow);
                             break;
                     }
                     highlight.ToggleHighlight(true);
@@ -353,27 +375,15 @@ public class GridManager : MonoBehaviour
             
         }
         
-        if (Input.GetKey(KeyCode.K) && cooldown < 0)
+        
+
+        Debug.Log("Arrow count:"+arrows.Count);
+        //Todo erase from here:
+        foreach(var prop in propertyMap)
         {
-            isMouseButtonDown = true;
-            if (lastSelectedTilePositions.Count > 0)
-            {
-                var selectedTile = GetTileAtPosition(lastSelectedTilePositions[0]);
-                gameUIManager.TileSelected(selectedTile, lastSelectedTilePositions, new List<Vector3>{GetSelectionCenter(lastSelectedTilePositions)});
-                Debug.Log("click at:" + selectedTile.gridPosition);
-
-                RecalcMorality(selectedTile);
-            }
-            else
-            {
-                gameUIManager.TileSelected(null, new List<Vector3Int>(), new List<Vector3>{new Vector3(0, 0, 0)});
-            }
-
-            cooldown = 2f;
+            Debug.Log($"Property at ({(float)prop.Key.x/2 - 5}, {(float)prop.Key.z / 2 - 5}): {prop.Value.HeadCount}/{prop.Value.Capacity}");
         }
-
-        cooldown -= Time.deltaTime;
-        Debug.Log(arrows.Count);
+        //Until This!!!!!!!!!!!
     }
 
     public void ChangeSelection(Vector2Int selectionSize, BuildingType? buildingType, GameObject prefabToShowAtSelection)
@@ -520,5 +530,26 @@ public class GridManager : MonoBehaviour
         neighborDictionary[westNeighbourPosition] = GetBuildingAtPosition(westNeighbourPosition);
 
         return neighborDictionary;
+    }
+    public Dictionary<Vector3Int,AbstractBuildingType> GetBuildingsMap()
+    {
+        return buildingsMap;
+    }
+
+    public AbstarctProperty GetPropertyAt(Vector3Int position)
+    {
+        return propertyMap.GetValueOrDefault(position, null);
+    }
+    public void AddProperty(Vector3Int position, AbstarctProperty property)
+    {
+        if(propertyMap.GetValueOrDefault(position,null )!=null)
+        {
+            throw new Exception("There is already a building at" + position);
+        }
+        else
+        {
+            propertyMap.Add(position, property);
+            //gameUIManager.AddEstate(position, property.PropertyType);
+        }
     }
 }

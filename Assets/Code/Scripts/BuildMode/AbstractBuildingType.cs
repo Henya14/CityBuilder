@@ -18,6 +18,7 @@ public abstract class AbstractBuildingType : MonoBehaviour
 
     public virtual void Init(BuildingData buildingData)
     {
+        buildingName = buildingData.buildingName;
         this.buildingData = buildingData;
     }
 
