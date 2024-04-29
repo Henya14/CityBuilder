@@ -622,6 +622,11 @@ public class GridManager : MonoBehaviour
         else
         {
             propertyMap.Add(position, property);
+            var buildingPosition = new Vector3Int(position.x, position.y -1, position.z);
+            if (buildingsMap.GetValueOrDefault(buildingPosition) is Zone) {
+                Zone zone = buildingsMap.GetValueOrDefault(buildingPosition, null) as Zone;
+                zone.AddProperty(buildingPosition, property);
+            }
             //gameUIManager.AddEstate(position, property.PropertyType);
         }
     }

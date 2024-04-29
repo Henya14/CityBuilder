@@ -97,18 +97,28 @@ public class PropertyManager : MonoBehaviour
                             default:
                                 var propertyObject = Construct(position, hlvl, nhbDir);
                                 //Add script based on given property type 
+                                var description = "";
                                 switch (propertyType)
                                 {
                                     case PropertyType.Residental:
                                         property = propertyObject.AddComponent<ResidentialProperty>();
+                                        description = "Residental property";
                                         break;
                                     case PropertyType.Industrial:
                                         property = propertyObject.AddComponent<IndustrialProperty>();
+                                        description = "Industrial building";
                                         break;
                                     case PropertyType.Shopping: 
                                         property= propertyObject.AddComponent<ShoppingProperty>();
+                                        description = "Shopping building";
                                         break;
                                 }
+                                property.PropertyGameObject = propertyObject;
+                                var selectionManager = propertyObject.AddComponent<SelectionManager>();
+                                selectionManager.Description = description; 
+                                var highlight = propertyObject.AddComponent<Highlight>();
+                                highlight.SetRenderers(new List<Renderer>{propertyObject.GetComponent<Renderer>()});
+                                highlight.SetHighlightColor(Color.white);
                                 property.AddPerson();
                                 gridManager.AddProperty(position, property);
                                 break;
@@ -173,7 +183,7 @@ public class PropertyManager : MonoBehaviour
     }
     GameObject PlaceBuilding(Vector3Int key,GameObject prefab, Vector3Int roadDir)
     {
-        var dc = GameObject.Instantiate(prefab);
+        var dc = Instantiate(prefab);
 
         dc.name = $"{propertyType.ToString()} Property  {(float)key.x / 2 - 5}, {(float)key.z / 2 - 5}";
         dc.transform.parent = this.transform;

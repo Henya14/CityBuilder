@@ -11,6 +11,14 @@ public class Highlight : MonoBehaviour
 
     private void Awake()
     {
+        if (renderers != null) {
+            SetRenderers(renderers);
+        }
+    }
+
+    public void SetRenderers(List<Renderer> renderers)
+    {
+        this.renderers = renderers;
         materials = new List<Material>();
         foreach (var renderer in renderers)
         {

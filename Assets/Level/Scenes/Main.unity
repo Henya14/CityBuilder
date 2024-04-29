@@ -366,11 +366,11 @@ MonoBehaviour:
   gridManager: {fileID: 158693460}
   buildModeManager: {fileID: 1511013243}
   level1Propeties:
-  - {fileID: 100000, guid: 510435f1271872f4bbed536bbe36fa06, type: 3}
+  - {fileID: 7642472303934086966, guid: a37250a0a3d0cb6458b9d084b81c3e3a, type: 3}
   level2Propeties:
-  - {fileID: 100000, guid: e29e5916b5df6014ebc74a7df781bc25, type: 3}
+  - {fileID: 457993698721474479, guid: c94df7b8c8cff7e48993be44e90f7091, type: 3}
   level3Propeties:
-  - {fileID: 100000, guid: 014a9adc62efe2c42ac5b24034755457, type: 3}
+  - {fileID: 4141209273072478805, guid: 62428b9975e38fe4f9ae76290bed6fcb, type: 3}
   propertyType: 1
   zoneNameSeacrhWord: Industrial Zone
 --- !u!4 &889684982
@@ -889,25 +889,25 @@ MonoBehaviour:
   gridManager: {fileID: 158693460}
   buildModeManager: {fileID: 1511013243}
   level1Propeties:
-  - {fileID: 100000, guid: 2746675f4f1ec0d48933c668c549320f, type: 3}
-  - {fileID: 100000, guid: ac4da1c5de7b5a943a527875fd2de972, type: 3}
-  - {fileID: 100000, guid: c32064e8d581c8b459c70b3642f0974c, type: 3}
-  - {fileID: 100000, guid: ff7dc930a08a61a4baa4dc7d46f4938d, type: 3}
+  - {fileID: 4298058141050979140, guid: 97819d03e3ef76945844b9eb7931e43a, type: 3}
+  - {fileID: 5898422965110743349, guid: 67e35ce6ca9b71a4999e1246785d5ebd, type: 3}
+  - {fileID: 4357047649273596833, guid: d098bb1066d24854eba453936f4061a9, type: 3}
+  - {fileID: 6419584990312364905, guid: ddc76e358fa551141993c135ffcb4257, type: 3}
   level2Propeties:
-  - {fileID: 100000, guid: c8c0ac4c680f7704691118a770df51ba, type: 3}
-  - {fileID: 100000, guid: 9f122409af2c3464286d66eb2f28d8a3, type: 3}
-  - {fileID: 100000, guid: 89dc16182088c0e469111bbd0406a344, type: 3}
-  - {fileID: 100000, guid: 8cc5b14060ac8164e8fb7443b7d7cb85, type: 3}
-  - {fileID: 100000, guid: 90b3007ed7074dd4ea1220f4352dbdec, type: 3}
-  - {fileID: 100000, guid: f990cc832b99eab4ea0073e7221a922b, type: 3}
-  - {fileID: 100000, guid: a40834da7edbc10449a74445ffa1222b, type: 3}
-  - {fileID: 100000, guid: d83a08cfe7c933d4abc0f3bd024231b1, type: 3}
+  - {fileID: 5193796070401255405, guid: ee1bcfb33cafab34bb6e85fe80262d0c, type: 3}
+  - {fileID: 5254832811281726414, guid: ec1ab210a2e8eca428d01441c122df1d, type: 3}
+  - {fileID: 4393707747564310304, guid: a0625e24a6bd95a4983544f5ccd46f8a, type: 3}
+  - {fileID: 6368273626620397284, guid: a451cb77e002d18498d0bba5b846d13b, type: 3}
+  - {fileID: 7274757934250116613, guid: aa8e14d1c45ecc347bb508c64d6fe54a, type: 3}
+  - {fileID: 6231266746736724242, guid: 37fc3df997c9eeb45be35aac78bdb437, type: 3}
+  - {fileID: 3747156443054566580, guid: 8359fea1b543f96479704855cc2a6232, type: 3}
+  - {fileID: 8584727068314453868, guid: e76ff30074982ea42a6b722e0a269d54, type: 3}
   level3Propeties:
-  - {fileID: 100000, guid: 4bd170f19c37d0b48a85f1f2f24866f0, type: 3}
-  - {fileID: 100000, guid: c506096798388f045a996b9f6841df1a, type: 3}
-  - {fileID: 100000, guid: 40ecd4bba47b9244ab4518df433a1a5f, type: 3}
-  - {fileID: 100000, guid: 00432b2421cc0104f97d189f80d8cbae, type: 3}
-  - {fileID: 100000, guid: 77887f27c8b05084594ae26a2a830405, type: 3}
+  - {fileID: 8440464543212926721, guid: ed5d96a571ac61748bd9a4b70c709e41, type: 3}
+  - {fileID: 3572620932821204707, guid: 6042c6c61c333454e8c714e26eb2c198, type: 3}
+  - {fileID: 6057233292502816946, guid: a15310c04c1a4824a807b3945bde211f, type: 3}
+  - {fileID: 37766575081253609, guid: ee9e1d84daca6f24a8bd8418cebd1fbe, type: 3}
+  - {fileID: 3556323903029100493, guid: 809e3663af177264fb93adc49b201bd2, type: 3}
   propertyType: 0
   zoneNameSeacrhWord: Housing Zone
 --- !u!4 &1587329826
