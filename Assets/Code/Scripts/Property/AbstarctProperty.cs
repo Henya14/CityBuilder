@@ -9,6 +9,8 @@ public abstract class AbstarctProperty : MonoBehaviour
     [SerializeField] public PropertyType PropertyType { get; protected set; }
     public int MaxCapacity { get; protected set; } = 100;
 
+    public GameObject PropertyGameObject { get; set; }
+
 
     // Start is called before the first frame update
     void Start()

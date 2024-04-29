@@ -74,7 +74,7 @@ public abstract class AbstractBuildingType : MonoBehaviour
         neighbourDataForPosition.SetNeighbour(neighbourPosition, neighbour);
     }
 
-    public GameObject GetBuildingPrefabForPosition(Vector3Int position)
+    public virtual GameObject GetBuildingPrefabForPosition(Vector3Int position)
     {
         return buildings.GetValueOrDefault(position, null)?.gameObject;
     }
