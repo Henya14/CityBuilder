@@ -8,6 +8,7 @@ public interface SelectableObject {
     Vector3Int GetGridPosition();
     void SetGridPosition(Vector3Int gridPosition);
     void ToggleHighlight(bool on);
+    void FreezeHighlight(bool shouldFreeze);
     GameObject GetGameObject();
     string GetDescription();
 }
@@ -40,6 +41,10 @@ public class SelectionManager : MonoBehaviour, SelectableObject
         GetHighlight().ToggleHighlight(on);
     }
 
+    public void FreezeHighlight(bool shouldFreeze) {
+        GetHighlight().IsHighlightChangeable = !shouldFreeze;
+    }
+ 
     public GameObject GetGameObject()
     {
         return gameObject;

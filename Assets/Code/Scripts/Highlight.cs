@@ -8,10 +8,12 @@ public class Highlight : MonoBehaviour
     private List<Material> materials;
     [SerializeField] private Color highlightColor = Color.white;
     [SerializeField] private bool isHighlighted = false;
+    [SerializeField] public bool IsHighlightChangeable { get; set; } = true;
 
     private void Awake()
     {
-        if (renderers != null) {
+        if (renderers != null)
+        {
             SetRenderers(renderers);
         }
     }
@@ -35,11 +37,15 @@ public class Highlight : MonoBehaviour
 
     public Color GetHighlightColor()
     {
-       return highlightColor;
+        return highlightColor;
     }
 
     public void ToggleHighlight(bool on)
     {
+        if (!IsHighlightChangeable)
+        {
+            return;
+        }
         isHighlighted = on;
         RefreshHighlight();
     }
