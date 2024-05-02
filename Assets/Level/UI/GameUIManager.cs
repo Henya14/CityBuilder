@@ -35,6 +35,7 @@ public class GameUIManager : MonoBehaviour
 
     private BuildModeManager buildModeManager;
     private GridManager gridManager;
+    private NavigationManager navigationManager;
     //New common manager: PropertyManager
     //private ResidentManager residentManager;
     [SerializeField] VisualTreeAsset buildingListElementTemplate;
@@ -71,6 +72,7 @@ public class GameUIManager : MonoBehaviour
 
         buildModeManager = FindObjectOfType<BuildModeManager>();
         gridManager = FindObjectOfType<GridManager>();
+        navigationManager = FindObjectOfType<NavigationManager>();
         //residentManager = FindObjectOfType<ResidentManager>();
 
         timeStartStopButton.clicked += OnTimeStartStopButtonClicked;
@@ -103,6 +105,7 @@ public class GameUIManager : MonoBehaviour
     private void ResetOnGameModeChange()
     {
         SetSelectedForGameModeSelectorButtons(false);
+        navigationManager.DeselectObjects();
         gridManager.ResetSelection();
         buildingList.SetSelection(-1);
         buildingList.style.display = DisplayStyle.None;
@@ -172,6 +175,9 @@ public class GameUIManager : MonoBehaviour
             case GameMode.BuildMode:
                 ObjectSelectedInBuildMode(selectedObject, placingPositionsWithGridPositions);
                 break;
+            case GameMode.NavigationMode:
+                ObjectSelectedInNavigationMode(selectedObject);
+                break;
             default:
                 break;
         }
@@ -197,6 +203,12 @@ public class GameUIManager : MonoBehaviour
     void ObjectSelectedInBuildMode(SelectableObject selectedObject, Dictionary<Vector3, List<Vector3Int>> placingPositionsWithGridPositions) {
          if (selectedObject != null) {
             buildModeManager.ObjectSelected(placingPositionsWithGridPositions);
+        }
+    }
+
+    void ObjectSelectedInNavigationMode(SelectableObject selectedObject) {
+         if (selectedObject != null) {
+            navigationManager.ObjectSelected(selectedObject);
         }
     }
 
