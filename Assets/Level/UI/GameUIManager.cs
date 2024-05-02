@@ -8,12 +8,14 @@ using UnityEngine.UIElements;
 
 public enum GameMode {
     SelectionMode,
-    BuildMode
+    BuildMode,
+    NavigationMode
 }
 public class GameUIManager : MonoBehaviour
 {
     Button selectionModeButton;
     Button buildModeButton;
+    Button navigationModeButton;
     VisualElement infoContainer;
     Label infoContainerText;
     ListView buildingList;
@@ -42,6 +44,7 @@ public class GameUIManager : MonoBehaviour
         VisualElement root = GetComponent<UIDocument>().rootVisualElement;
         selectionModeButton = root.Q<Button>("selection-mode-button");
         buildModeButton = root.Q<Button>("building-mode-button");
+        navigationModeButton = root.Q<Button>("navigation-mode-button");
         infoContainer = root.Q<VisualElement>("info-text-container");
         infoContainerText = root.Q<Label>("info-text-label");
         buildingList = root.Q<ListView>("building-list");
@@ -60,9 +63,11 @@ public class GameUIManager : MonoBehaviour
         selectionModeButton.clicked += OnSelectionModeButtonClicked;
         selectionModeButton.AddToClassList(SELECTED_BUTTON_CLASS_NAME);
         buildModeButton.clicked += OnBuildModeButtonClicked;
+        navigationModeButton.clicked += OnNavigationModeButtonClicked;
 
         gameModeSelectorButtons.Add(selectionModeButton);
         gameModeSelectorButtons.Add(buildModeButton);
+        gameModeSelectorButtons.Add(navigationModeButton);
 
         buildModeManager = FindObjectOfType<BuildModeManager>();
         gridManager = FindObjectOfType<GridManager>();
@@ -88,11 +93,18 @@ public class GameUIManager : MonoBehaviour
         buildingsButton.clicked += ChangeVisibleOnBuildingHud;
     }
 
-    void OnSelectionModeButtonClicked() {
-        SetSelectedForGameModeSelectorButtons(false);
+    void OnSelectionModeButtonClicked()
+    {
         selectedGameMode = GameMode.SelectionMode;
+        ResetOnGameModeChange();
         selectionModeButton.AddToClassList(SELECTED_BUTTON_CLASS_NAME);
+    }
+
+    private void ResetOnGameModeChange()
+    {
+        SetSelectedForGameModeSelectorButtons(false);
         gridManager.ResetSelection();
+        buildingList.SetSelection(-1);
         buildingList.style.display = DisplayStyle.None;
     }
 
@@ -102,6 +114,12 @@ public class GameUIManager : MonoBehaviour
         buildModeButton.AddToClassList(SELECTED_BUTTON_CLASS_NAME);
         buildingList.style.display = DisplayStyle.Flex;
         InitializeBuildingsList();
+    }
+
+    void OnNavigationModeButtonClicked() {
+        selectedGameMode = GameMode.NavigationMode;
+        ResetOnGameModeChange();
+        navigationModeButton.AddToClassList(SELECTED_BUTTON_CLASS_NAME);
     }
     void InitializeBuildingsList() {
         var buildings = buildModeManager.GetBuildingDatas();
@@ -129,6 +147,7 @@ public class GameUIManager : MonoBehaviour
         var selectedBuilding = buildingList.selectedItem as BuildingData;
         if (selectedBuilding == null) {
             gridManager.ChangeSelection(new Vector2Int(1,1), null, null);
+            buildModeManager.BuildingDataSelected(null);
         } else {
             buildModeManager.BuildingDataSelected(selectedBuilding);
             gridManager.ChangeSelection(selectedBuilding.size, selectedBuilding.buildingType, selectedBuilding.prefab);
@@ -145,7 +164,7 @@ public class GameUIManager : MonoBehaviour
         }
     }
 
-    public void  ObjectSelected(SelectableObject selectedObject, Dictionary<Vector3, List<Vector3Int>> placingPositionsWithGridPositions) {
+    public void ObjectSelected(SelectableObject selectedObject, Dictionary<Vector3, List<Vector3Int>> placingPositionsWithGridPositions) {
         switch (selectedGameMode) {
             case GameMode.SelectionMode: 
                 ObjectSelectedInSelectionMode(selectedObject);

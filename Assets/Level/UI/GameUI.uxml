@@ -12,6 +12,7 @@
             <ui:VisualElement name="game-mode-selection-button-container" style="flex-grow: 0; align-items: auto; justify-content: flex-start; align-self: flex-end; height: auto; width: auto; position: relative; flex-direction: row;">
                 <ui:Button text="Selection" parse-escape-sequences="true" display-tooltip-when-elided="true" name="selection-mode-button" class="gamemode-selector gamemode-selector-button" />
                 <ui:Button text="Build" parse-escape-sequences="true" display-tooltip-when-elided="true" name="building-mode-button" class="gamemode-selector gamemode-selector-button" />
+                <ui:Button text="Navi" parse-escape-sequences="true" display-tooltip-when-elided="true" name="navigation-mode-button" style="justify-content: flex-start; align-self: center;" />
             </ui:VisualElement>
             <ui:VisualElement name="time-controller-container" style="align-self: flex-end; width: auto; align-items: auto; height: auto; bottom: auto; position: relative; flex-direction: row; justify-content: space-between; right: auto; -unity-background-scale-mode: stretch-to-fill; white-space: nowrap; -unity-text-align: middle-center; flex-grow: 0; flex-wrap: nowrap; flex-shrink: 1; display: flex;">
                 <ui:Label tabindex="-1" text="15:15:15" parse-escape-sequences="true" display-tooltip-when-elided="true" enable-rich-text="true" name="time-text-field" style="align-items: auto; justify-content: center; width: auto; -unity-text-align: middle-center; white-space: nowrap;" />
