@@ -437,8 +437,6 @@ public class GridManager : MonoBehaviour
 
         }
 
-
-
         Debug.Log("Arrow count:" + arrows.Count);
         //Todo erase from here:
         foreach (var prop in propertyMap)
