@@ -116,6 +116,7 @@ public class PropertyManager : MonoBehaviour
                                 property.PropertyGameObject = propertyObject;
                                 var selectionManager = propertyObject.AddComponent<SelectionManager>();
                                 selectionManager.Description = description; 
+                                selectionManager.SetGridPosition(position);
                                 var highlight = propertyObject.AddComponent<Highlight>();
                                 highlight.SetRenderers(new List<Renderer>{propertyObject.GetComponent<Renderer>()});
                                 highlight.SetHighlightColor(Color.white);
