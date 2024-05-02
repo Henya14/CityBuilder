@@ -18,7 +18,7 @@ public abstract class AbstractBuildingType : MonoBehaviour
     public Dictionary<Vector3Int, GameObject> buildings { get; set; } = new Dictionary<Vector3Int, GameObject>();
 
     public Dictionary<Vector3Int, NeighbourData> neighbourDatasForPositions { get; private set; } = new Dictionary<Vector3Int, NeighbourData>();
-
+    private NavigationManager navigationManager;
     public virtual void Init(BuildingData buildingData)
     {
         buildingName = buildingData.Name;
