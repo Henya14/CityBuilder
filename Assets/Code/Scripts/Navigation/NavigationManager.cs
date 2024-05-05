@@ -10,13 +10,19 @@ public struct NeighbourWeights { public int WeightFromNeighbour; public int Weig
 public class BuildingAdjacencyMatrix
 {
     List<List<int>> weights = new List<List<int>>();
-    List<SelectableObject> buildigs = new List<SelectableObject>();
+    List<SelectableObject> buildings = new List<SelectableObject>();
 
+    public BuildingAdjacencyMatrix() { }
 
+    public BuildingAdjacencyMatrix(List<List<int>> weights, List<SelectableObject> buildings)
+    {
+        this.weights = weights;
+        this.buildings = buildings;
+    }
     public int GetWeightOfPath(SelectableObject from, SelectableObject to)
     {
-        int indexOfFromBuilding = buildigs.IndexOf(from);
-        int indexOfToBuilding = buildigs.IndexOf(to);
+        int indexOfFromBuilding = buildings.IndexOf(from);
+        int indexOfToBuilding = buildings.IndexOf(to);
         return weights[indexOfFromBuilding][indexOfToBuilding];
     }
 
@@ -34,12 +40,12 @@ public class BuildingAdjacencyMatrix
         }
 
         weights.Add(Enumerable.Repeat(0, widthOfMatrix).ToList());
-        buildigs.Add(building);
+        buildings.Add(building);
 
         foreach (var neighbour in neighbours)
         {
-            int indexOfNeighbour = buildigs.IndexOf(neighbour.Key);
-            int indexOfBuilding = buildigs.IndexOf(building);
+            int indexOfNeighbour = buildings.IndexOf(neighbour.Key);
+            int indexOfBuilding = buildings.IndexOf(building);
             if (indexOfNeighbour == -1)
             {
                 throw new Exception($"Neighbour not in the list of buildings for {building.GetGameObject().name} {building.Description()}");
@@ -51,31 +57,44 @@ public class BuildingAdjacencyMatrix
 
     public void RemoveBuilding(SelectableObject building)
     {
-        int indexOfBuilding = buildigs.IndexOf(building);
+        int indexOfBuilding = buildings.IndexOf(building);
         for (int i = 0; i < weights.Count; i++)
         {
             weights[i].RemoveAt(indexOfBuilding);
         }
 
         weights.RemoveAt(indexOfBuilding);
-        buildigs.Remove(building);
+        buildings.Remove(building);
     }
 
     public int GetIndexOfBuildingAtGridPosition(Vector3Int gridPosition)
     {
-        int indexOfBuilding = buildigs.FindIndex(b => b.GetGridPosition() == gridPosition);
+        int indexOfBuilding = buildings.FindIndex(b => b.GetGridPosition() == gridPosition);
         return indexOfBuilding;
     }
 
     public SelectableObject GetBuildingAtGridPosition(Vector3Int gridPosition)
     {
-        SelectableObject building = buildigs.Find(b => b.GetGridPosition() == gridPosition);
+        SelectableObject building = buildings.Find(b => b.GetGridPosition() == gridPosition);
         return building;
     }
 
+    public BuildingAdjacencyMatrix WhereBuildings(Func<SelectableObject, bool> predicate)
+    {
+        var sublist = new List<List<int>>();
+        var filteredBuildings =buildings.Where(predicate).ToList();
+        var indexes = filteredBuildings.Select(b => buildings.IndexOf(b)).ToList();
 
+        var weightsWithFilteredRows = weights.Where((row, rowIdx) => indexes.Contains(rowIdx)).ToList();
+        weightsWithFilteredRows.ForEach(row => sublist.Add(row.Where((col, colIdx) => indexes.Contains(colIdx)).ToList()));
 
+        return new BuildingAdjacencyMatrix(sublist, filteredBuildings);
+    }
 }
+
+
+
+
 public class NavigationManager : MonoBehaviour
 {
     BuildingAdjacencyMatrix adjacencyMatrix = new BuildingAdjacencyMatrix();
@@ -99,7 +118,8 @@ public class NavigationManager : MonoBehaviour
         {
             DeselectObjects();
         }
-        if (adjacencyMatrix.GetBuildingAtGridPosition(selectedObject.GetGridPosition()) != null) {
+        if (adjacencyMatrix.GetBuildingAtGridPosition(selectedObject.GetGridPosition()) != null)
+        {
             selectedObjects.Add(selectedObject);
             selectedObject.FreezeHighlight(true);
             selectedObject.ToggleHighlight(true);
