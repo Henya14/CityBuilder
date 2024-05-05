@@ -456,7 +456,7 @@ public class GridManager : MonoBehaviour
         }
         switch (buildingType)
         {
-            case BuildingType.Building:
+            case BuildingType.IndividualBuilding:
                 selectionMode = SelectionMode.Single;
                 break;
             case BuildingType.Zone:

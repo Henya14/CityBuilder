@@ -25,7 +25,7 @@ public class Tile : MonoBehaviour
         var selectionManager = GetComponent<SelectionManager>();
         if (selectionManager != null)
         {
-            selectionManager.Description = Description;
+            selectionManager.SetDescription(Description);
         }
     }
 

@@ -29,7 +29,7 @@ public class BuildingAdjacencyMatrix
     {
         for (int i = 0; i < weights.Count; i++)
         {
-            weights[i].Add(0);
+            weights[i].Add(int.MinValue);
         }
 
         int widthOfMatrix = weights[0].Count;
@@ -38,7 +38,7 @@ public class BuildingAdjacencyMatrix
             widthOfMatrix = 1;
         }
 
-        weights.Add(Enumerable.Repeat(0, widthOfMatrix).ToList());
+        weights.Add(Enumerable.Repeat(int.MinValue, widthOfMatrix).ToList());
         buildings.Add(building);
 
         foreach (var neighbour in neighbours)
@@ -80,13 +80,28 @@ public class BuildingAdjacencyMatrix
 
     public BuildingAdjacencyMatrix WhereBuildings(Func<SelectableObject, bool> predicate)
     {
-        var sublist = new List<List<int>>();
-        var filteredBuildings =buildings.Where(predicate).ToList();
+        var filteredBuildings = buildings.Where(predicate).ToList();
         var indexes = filteredBuildings.Select(b => buildings.IndexOf(b)).ToList();
-
-        var weightsWithFilteredRows = weights.Where((row, rowIdx) => indexes.Contains(rowIdx)).ToList();
-        weightsWithFilteredRows.ForEach(row => sublist.Add(row.Where((col, colIdx) => indexes.Contains(colIdx)).ToList()));
+        var sublist = this[indexes, indexes];
 
         return new BuildingAdjacencyMatrix(sublist, filteredBuildings);
+    }
+
+    public int this[int row, int column] {
+        get  {
+            return weights[row][column];
+        }
+        set  {
+            weights[row][column] = value;
+        }
+    }
+
+    public List<List<int>> this[List<int> rowIndexes, List<int> columnIndexes] {
+        get  {
+            var sublist = new List<List<int>>();
+            var weightsWithFilteredRows = weights.Where((row, rowIdx) => rowIndexes.Contains(rowIdx)).ToList();
+            weightsWithFilteredRows.ForEach(row => sublist.Add(row.Where((col, colIdx) => columnIndexes.Contains(colIdx)).ToList()));
+            return sublist;
+        }
     }
 }

@@ -2,7 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
+public enum SelectableObjectType {
+    Road,
+    Zone,
+    Building,
+    ZoneBuilding
+}
 public interface SelectableObject {
    
     Vector3Int GetGridPosition();
@@ -11,12 +16,26 @@ public interface SelectableObject {
     void FreezeHighlight(bool shouldFreeze);
     GameObject GetGameObject();
     string GetDescription();
+    void SetDescription(string description);
+    SelectableObjectType GetSelectableObjectType();
 }
 
 public class SelectionManager : MonoBehaviour, SelectableObject
 {
     Vector3Int? gridPosition = null;
-    public string Description {get; set;} = "";
+    private string Description {get; set;} = "";
+
+    
+    SelectableObjectType type;
+
+    public void Init(Vector3Int gridPosition, string description, SelectableObjectType type) 
+    {
+        this.gridPosition = gridPosition;
+        Description = description;
+        this.type = type;
+    }
+
+
     public Vector3Int GetGridPosition()
     {
         if (this.gridPosition != null) {
@@ -74,5 +93,15 @@ public class SelectionManager : MonoBehaviour, SelectableObject
     public string GetDescription()
     {
         return Description;
+    }
+
+    public void SetDescription(string description)
+    {
+        Description = description;
+    }
+
+    public SelectableObjectType GetSelectableObjectType()
+    {
+        return type;
     }
 }

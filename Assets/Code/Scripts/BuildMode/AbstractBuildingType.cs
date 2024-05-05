@@ -34,7 +34,7 @@ public abstract class AbstractBuildingType : MonoBehaviour
             var building = Instantiate(buildingData.prefab);
             building.transform.position = gamePosition;
             var selectionManager = building.AddComponent<SelectionManager>();
-            selectionManager.Description = buildingData.Description;
+            selectionManager.Init(new Vector3Int(), buildingData.Description, buildingData.buildingType.ToSelectableObjectType());
             foreach (var gridPosition in gridPositions) {
                 buildings.Add(gridPosition, building);
                 selectionManager.SetGridPosition(gridPosition);

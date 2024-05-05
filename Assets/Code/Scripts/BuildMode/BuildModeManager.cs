@@ -70,7 +70,7 @@ public class BuildModeManager : MonoBehaviour
                 var createdRoad = gameObject.AddComponent<Road>();
                 createdRoad.Init(data);
                 return createdRoad; 
-            case BuildingType.Building:
+            case BuildingType.IndividualBuilding:
                 var createdBuilding = gameObject.AddComponent<Building>();
                 createdBuilding.Init(data);
                 return createdBuilding; 
