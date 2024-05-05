@@ -29,7 +29,7 @@ public class BuildingAdjacencyMatrix
     {
         for (int i = 0; i < weights.Count; i++)
         {
-            weights[i].Add(int.MinValue);
+            weights[i].Add(0);
         }
 
         int widthOfMatrix = weights[0].Count;
@@ -38,7 +38,7 @@ public class BuildingAdjacencyMatrix
             widthOfMatrix = 1;
         }
 
-        weights.Add(Enumerable.Repeat(int.MinValue, widthOfMatrix).ToList());
+        weights.Add(Enumerable.Repeat(0, widthOfMatrix).ToList());
         buildings.Add(building);
 
         foreach (var neighbour in neighbours)
