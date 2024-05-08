@@ -28,6 +28,7 @@ public class GridManager : MonoBehaviour
     List<Vector3Int> lastSelectedObjectPositions = new List<Vector3Int>();
     bool isSelectionValid = false;
     GameUIManager gameUIManager;
+    NavigationManager navigationManager;
 
     float cooldown;
 
@@ -46,10 +47,12 @@ public class GridManager : MonoBehaviour
     int offsetX = 10;
     int offsetZ = 10;
 
+
     // Start is called before the first frame update
     void Start()
     {
         gameUIManager = FindObjectOfType<GameUIManager>();
+        navigationManager = FindObjectOfType<NavigationManager>();
         offsetX = gridHeight / 4;
         offsetZ = gridWidth / 4;
         GenerateGrid();
@@ -154,7 +157,8 @@ public class GridManager : MonoBehaviour
     private bool IsSelectionValid(List<Vector3Int> selectedTilePositions)
     {
         bool isValid = true;
-        if (selectedTilePositions.Count == 0) {
+        if (selectedTilePositions.Count == 0)
+        {
             return false;
         }
         var selectionMaxX = selectedTilePositions.Select(p => p.x).Max();
@@ -265,6 +269,11 @@ public class GridManager : MonoBehaviour
     public AbstractBuildingType GetBuildingAtPosition(Vector3Int position)
     {
         return buildingsMap.GetValueOrDefault(position, null);
+    }
+
+    public SelectableObject GetSelectableObjectAtPosition(Vector3Int position)
+    {
+        return buildingsMap.GetValueOrDefault(position, null)?.GetSelectionManagerForGridPosition(position) ?? propertyMap.GetValueOrDefault(position, null).SelectionManager;
     }
 
     void Update()
@@ -437,8 +446,6 @@ public class GridManager : MonoBehaviour
 
         }
 
-
-
         Debug.Log("Arrow count:" + arrows.Count);
         //Todo erase from here:
         foreach (var prop in propertyMap)
@@ -458,7 +465,7 @@ public class GridManager : MonoBehaviour
         }
         switch (buildingType)
         {
-            case BuildingType.Building:
+            case BuildingType.IndividualBuilding:
                 selectionMode = SelectionMode.Single;
                 break;
             case BuildingType.Zone:
@@ -481,7 +488,6 @@ public class GridManager : MonoBehaviour
             Debug.Log($"{gridPosition}, {buildingsMap.Keys}");
             buildingsMap.Add(gridPosition, building);
         }
-
     }
 
 
@@ -589,20 +595,32 @@ public class GridManager : MonoBehaviour
         ChangeSelection(new Vector2Int(1, 1), null, null);
     }
 
-    public Dictionary<Vector3Int, AbstractBuildingType> GetNeigbouringBuildingsOfTile(Vector3Int tilePosition)
+    public Vector3Int GetVectorToDirection(Vector3Int position, Direction direction)
     {
-        Dictionary<Vector3Int, AbstractBuildingType> neighborDictionary = new Dictionary<Vector3Int, AbstractBuildingType>();
-
-        var northNeighbourPosition = new Vector3Int(tilePosition.x, tilePosition.y, tilePosition.z + 1);
-        neighborDictionary[northNeighbourPosition] = GetBuildingAtPosition(northNeighbourPosition);
-        var southNeighbourPosition = new Vector3Int(tilePosition.x, tilePosition.y, tilePosition.z - 1);
-        neighborDictionary[southNeighbourPosition] = GetBuildingAtPosition(southNeighbourPosition);
-        var eastNeighbourPosition = new Vector3Int(tilePosition.x + 1, tilePosition.y, tilePosition.z);
-        neighborDictionary[eastNeighbourPosition] = GetBuildingAtPosition(eastNeighbourPosition);
-        var westNeighbourPosition = new Vector3Int(tilePosition.x - 1, tilePosition.y, tilePosition.z);
-        neighborDictionary[westNeighbourPosition] = GetBuildingAtPosition(westNeighbourPosition);
-
-        return neighborDictionary;
+        switch (direction)
+        {
+            case Direction.North:
+                return new Vector3Int(position.x, position.y, position.z + 1);
+            case Direction.South:
+                return new Vector3Int(position.x, position.y, position.z - 1);
+            case Direction.East:
+                return new Vector3Int(position.x + 1, position.y, position.z);
+            case Direction.West:
+                return new Vector3Int(position.x - 1, position.y, position.z);
+            default:
+                return position;
+        }
+    }
+   
+    public Dictionary<Vector3Int, AbstractBuildingType> GetNeigbouringBuildingsForPosition(Vector3Int position)
+    {
+        Dictionary<Vector3Int, AbstractBuildingType> neighbourDictionary = new Dictionary<Vector3Int, AbstractBuildingType>();
+        foreach (var direction in Enum.GetValues(typeof(Direction)).Cast<Direction>())
+        {
+            var neighbourPositionToDirection = GetVectorToDirection(position, direction);
+            neighbourDictionary[neighbourPositionToDirection] = GetBuildingAtPosition(neighbourPositionToDirection);
+        }
+        return neighbourDictionary;
     }
     public Dictionary<Vector3Int, AbstractBuildingType> GetBuildingsMap()
     {
@@ -622,8 +640,9 @@ public class GridManager : MonoBehaviour
         else
         {
             propertyMap.Add(position, property);
-            var buildingPosition = new Vector3Int(position.x, position.y -1, position.z);
-            if (buildingsMap.GetValueOrDefault(buildingPosition) is Zone) {
+            var buildingPosition = new Vector3Int(position.x, position.y - 1, position.z);
+            if (buildingsMap.GetValueOrDefault(buildingPosition) is Zone)
+            {
                 Zone zone = buildingsMap.GetValueOrDefault(buildingPosition, null) as Zone;
                 zone.AddProperty(buildingPosition, property);
             }

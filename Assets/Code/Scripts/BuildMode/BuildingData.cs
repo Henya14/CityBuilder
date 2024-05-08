@@ -1,11 +1,30 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
 
 public enum BuildingType {
-    Road, Building, Zone
+    Road, IndividualBuilding, Zone
+
+    
+}
+
+public static class BuildingTypeMethods {
+    public static SelectableObjectType ToSelectableObjectType(this BuildingType type) {
+
+        switch (type) {
+            case BuildingType.Road:
+                return SelectableObjectType.Road;
+            case BuildingType.IndividualBuilding:
+                return SelectableObjectType.Building;
+            case BuildingType.Zone:
+                return SelectableObjectType.Zone;
+            default:
+                return SelectableObjectType.Building;
+        }
+    }
 }
 
 [CreateAssetMenu]

@@ -10,6 +10,7 @@ public abstract class AbstarctProperty : MonoBehaviour
     public int MaxCapacity { get; protected set; } = 100;
 
     public GameObject PropertyGameObject { get; set; }
+    public SelectionManager SelectionManager {get; set;}
 
 
     // Start is called before the first frame update
