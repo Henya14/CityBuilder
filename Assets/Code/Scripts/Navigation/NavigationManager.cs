@@ -6,7 +6,9 @@ using Unity.VisualScripting;
 using UnityEngine;
 
 
-
+public interface ShortestPathStrategy {
+    void FindShortestPathToDestination(BuildingAdjacencyMatrix adjacencyMatrix, SelectableObject source, SelectableObject destination);
+}
 
 public class NavigationManager : MonoBehaviour
 {
