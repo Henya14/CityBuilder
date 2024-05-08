@@ -6,7 +6,6 @@ using UnityEngine.EventSystems;
 using UnityEngine.PlayerLoop;
 
 
-
 public abstract class AbstractBuildingType : MonoBehaviour
 {
     public string buildingName { get; private set; }
@@ -18,7 +17,9 @@ public abstract class AbstractBuildingType : MonoBehaviour
     public Dictionary<Vector3Int, GameObject> buildings { get; set; } = new Dictionary<Vector3Int, GameObject>();
 
     public Dictionary<Vector3Int, NeighbourData> neighbourDatasForPositions { get; private set; } = new Dictionary<Vector3Int, NeighbourData>();
-    private NavigationManager navigationManager;
+    private Dictionary<Vector3Int, SelectionManager> selectionManagers  = new Dictionary<Vector3Int, SelectionManager>();
+  
+
     public virtual void Init(BuildingData buildingData)
     {
         buildingName = buildingData.Name;
@@ -36,6 +37,7 @@ public abstract class AbstractBuildingType : MonoBehaviour
             var selectionManager = building.AddComponent<SelectionManager>();
             selectionManager.Init(new Vector3Int(), buildingData.Description, buildingData.buildingType.ToSelectableObjectType());
             foreach (var gridPosition in gridPositions) {
+                selectionManagers.Add(gridPosition, selectionManager);
                 buildings.Add(gridPosition, building);
                 selectionManager.SetGridPosition(gridPosition);
             }
@@ -82,5 +84,10 @@ public abstract class AbstractBuildingType : MonoBehaviour
     public string GetDescription()
     {
         return buildingData.Description;
+    }
+
+    public SelectionManager GetSelectionManagerForGridPosition(Vector3Int gridPosition)
+    {
+        return selectionManagers.GetValueOrDefault(gridPosition, null);
     }
 }
