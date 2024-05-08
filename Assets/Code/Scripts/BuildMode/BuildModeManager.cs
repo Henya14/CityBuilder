@@ -12,8 +12,10 @@ public class BuildModeManager : MonoBehaviour
 {
     private BuildingData selectedBuildingData;
     private GridManager gridManager;
+    private NavigationManager navigationManager;
     void Start() {
         gridManager = FindObjectOfType<GridManager>();
+        navigationManager = FindObjectOfType<NavigationManager>();
     }
     public void ObjectSelected(Dictionary<Vector3, List<Vector3Int>> placingPositionsWithGridPositions)
     {
@@ -33,8 +35,24 @@ public class BuildModeManager : MonoBehaviour
         }
 
         gridManager.AddBuildingToGrid(selectedBuilding, gridPositions);
-        Dictionary<Vector3Int, NeighbourData> neigbours = GetNeighboursForGridPositions(gridPositions);
-        selectedBuilding.PlaceAtPosition(updatedPlacingPositionsWithGridPositions, neigbours);
+        Dictionary<Vector3Int, NeighbourData> neigboursForBuildingPositions = GetNeighboursForGridPositions(gridPositions);
+        selectedBuilding.PlaceAtPosition(updatedPlacingPositionsWithGridPositions, neigboursForBuildingPositions);
+        
+
+        foreach (var neighboursForPosition in neigboursForBuildingPositions) {
+            var d = new Dictionary<SelectableObject, NeighbourWeights>();
+            foreach (var neigbour in neighboursForPosition.Value.neighboursForGridPositions) {
+                if (neigbour.Value != null) {
+                    var neighbourWeights = new NeighbourWeights {
+                        WeightFromNeighbour = GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT,
+                        WeightToNeighbour = GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT,
+                    };
+                    var selectableObject = neigbour.Value.GetSelectionManagerForGridPosition(neigbour.Key);
+                    d.Add(selectableObject, neighbourWeights);
+                }
+            }
+            navigationManager.AddBuilding(selectedBuilding.GetSelectionManagerForGridPosition(neighboursForPosition.Key), d);
+        }
     }
 
     private Dictionary<Vector3Int, NeighbourData> GetNeighboursForGridPositions(List<Vector3Int> gridPositions)
@@ -42,7 +60,7 @@ public class BuildModeManager : MonoBehaviour
         var neigbours = new Dictionary<Vector3Int, NeighbourData>();
         foreach (var gridPosition in gridPositions)
         {
-            var neighbourDictionary = gridManager.GetNeigbouringBuildingsOfTile(gridPosition);
+            var neighbourDictionary = gridManager.GetNeigbouringBuildingsForPosition(gridPosition);
             var neighbourData = new NeighbourData(neighbourDictionary);
             neigbours[gridPosition] = neighbourData;
         }
