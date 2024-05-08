@@ -7,12 +7,13 @@ using UnityEngine;
 
 
 public interface ShortestPathStrategy {
-    void FindShortestPathToDestination(BuildingAdjacencyMatrix adjacencyMatrix, SelectableObject source, SelectableObject destination);
+    void FindShortestPathToDestination(BuildingAdjacencyGraph adjacencyGraph, SelectableObject source, SelectableObject destination);
 }
 
 public class NavigationManager : MonoBehaviour
 {
     BuildingAdjacencyMatrix adjacencyMatrix = new BuildingAdjacencyMatrix();
+    BuildingAdjacencyGraph adjacencyGraph = new BuildingAdjacencyGraph();
     List<SelectableObject> selectedObjects = new List<SelectableObject>();
 
     // Start is called before the first frame update
@@ -51,6 +52,11 @@ public class NavigationManager : MonoBehaviour
         });
 
         selectedObjects.Clear();
+    }
+
+    public void AddBuilding(SelectableObject building, Dictionary<SelectableObject, NeighbourWeights> weights) 
+    {
+        adjacencyGraph.AddBuilding(building, weights);
     }
 
 }

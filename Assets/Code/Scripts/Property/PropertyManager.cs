@@ -51,7 +51,7 @@ public class PropertyManager : MonoBehaviour
 
                 //Check if next to road
                 bool nextToRoad=false;
-                Dictionary<Vector3Int, AbstractBuildingType> nhbs = gridManager.GetNeigbouringBuildingsOfTile(position);
+                Dictionary<Vector3Int, AbstractBuildingType> nhbs = gridManager.GetNeigbouringBuildingsForPosition(position);
                 Vector3Int nhbDir = Vector3Int.zero;
                 foreach (var nhb in nhbs)
                 {
@@ -116,6 +116,7 @@ public class PropertyManager : MonoBehaviour
                                 property.PropertyGameObject = propertyObject;
                                 var selectionManager = propertyObject.AddComponent<SelectionManager>();
                                 selectionManager.Init(position, description, SelectableObjectType.ZoneBuilding);
+                                property.SelectionManager = selectionManager;
                                 var highlight = propertyObject.AddComponent<Highlight>();
                                 highlight.SetRenderers(new List<Renderer>{propertyObject.GetComponent<Renderer>()});
                                 highlight.SetHighlightColor(Color.white);

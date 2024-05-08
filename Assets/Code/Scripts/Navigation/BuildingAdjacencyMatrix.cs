@@ -8,7 +8,6 @@ public struct NeighbourWeights { public int WeightFromNeighbour; public int Weig
 
 public class BuildingAdjacencyMatrix
 {
-    List<GraphNode<SelectableObject>> matrix = new List<GraphNode<SelectableObject>>();
     List<List<int>> weights = new List<List<int>>();
     List<SelectableObject> buildings = new List<SelectableObject>();
 
