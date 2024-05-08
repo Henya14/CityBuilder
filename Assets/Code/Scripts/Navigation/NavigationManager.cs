@@ -34,11 +34,11 @@ public class NavigationManager : MonoBehaviour
         {
             DeselectObjects();
         }
-        if (adjacencyMatrix.GetBuildingAtGridPosition(selectedObject.GetGridPosition()) != null)
+        if (adjacencyGraph.GetGraphNodeAtGridPosition(selectedObject.GetGridPosition()) != null)
         {
             selectedObjects.Add(selectedObject);
-            selectedObject.FreezeHighlight(true);
             selectedObject.ToggleHighlight(true);
+            selectedObject.FreezeHighlight(true);
 
         }
     }

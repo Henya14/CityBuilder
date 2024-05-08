@@ -22,6 +22,7 @@ public class PropertyManager : MonoBehaviour
     [SerializeField] List<GameObject> level3Propeties;
 
     [SerializeField] PropertyType propertyType;
+    NavigationManager navigationManager;
 
     public string zoneNameSeacrhWord;
 
@@ -30,6 +31,7 @@ public class PropertyManager : MonoBehaviour
     {
         gridManager = FindObjectOfType<GridManager>();
         buildModeManager = FindObjectOfType<BuildModeManager>();
+        navigationManager = FindObjectOfType<NavigationManager>();
         buildings = gridManager.GetBuildingsMap();
         //TimeManager.OnMinuteChanged += Log;
         //TimeManager.OnMinuteChanged += MoveIn;
@@ -53,11 +55,18 @@ public class PropertyManager : MonoBehaviour
                 bool nextToRoad=false;
                 Dictionary<Vector3Int, AbstractBuildingType> nhbs = gridManager.GetNeigbouringBuildingsForPosition(position);
                 Vector3Int nhbDir = Vector3Int.zero;
+                var neighbourDictionary = new Dictionary<SelectableObject, NeighbourWeights>();
+
                 foreach (var nhb in nhbs)
                 {
                     if (nhb.Value == null) { continue; }
-                    if (nhb.Value.buildingName.Contains("Road"))
+                    if (nhb.Value is Road)
                     {
+                        var adjacentRoad = nhb.Value as Road;
+                        neighbourDictionary.Add(adjacentRoad.GetSelectionManagerForGridPosition(nhb.Key), new NeighbourWeights {
+                            WeightFromNeighbour = 1,
+                            WeightToNeighbour = 1
+                        });
                         nextToRoad = true;
                         nhbDir += nhb.Key - position;
                         Debug.Log($"nhb dir: {nhbDir.x}, {nhbDir.z}");
@@ -122,6 +131,10 @@ public class PropertyManager : MonoBehaviour
                                 highlight.SetHighlightColor(Color.white);
                                 property.AddPerson();
                                 gridManager.AddProperty(position, property);
+
+                                
+                                navigationManager.AddBuilding(selectionManager, neighbourDictionary);
+                                //navigationManager.AddBuilding(selectedBuilding.GetSelectionManagerForGridPosition(neighboursForPosition.Key), weights);
                                 break;
                         }
                     }

@@ -31,6 +31,9 @@ public class BuildingAdjacencyGraph
         foreach (var neighbour in neighbours)
         {
             var neighbourNode = GraphNodes.Find(x => x.Value.Equals(neighbour.Key));
+            if (neighbourNode == null) {
+                continue;
+            }
             if (neighbour.Value.WeightFromNeighbour != GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT) {
                 neighbourNode.AddConnection(node, neighbour.Value.WeightFromNeighbour);
             }

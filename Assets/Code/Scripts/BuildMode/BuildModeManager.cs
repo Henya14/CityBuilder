@@ -37,22 +37,55 @@ public class BuildModeManager : MonoBehaviour
         gridManager.AddBuildingToGrid(selectedBuilding, gridPositions);
         Dictionary<Vector3Int, NeighbourData> neigboursForBuildingPositions = GetNeighboursForGridPositions(gridPositions);
         selectedBuilding.PlaceAtPosition(updatedPlacingPositionsWithGridPositions, neigboursForBuildingPositions);
-        
-
-        foreach (var neighboursForPosition in neigboursForBuildingPositions) {
-            var d = new Dictionary<SelectableObject, NeighbourWeights>();
-            foreach (var neigbour in neighboursForPosition.Value.neighboursForGridPositions) {
-                if (neigbour.Value != null) {
-                    var neighbourWeights = new NeighbourWeights {
-                        WeightFromNeighbour = GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT,
-                        WeightToNeighbour = GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT,
-                    };
-                    var selectableObject = neigbour.Value.GetSelectionManagerForGridPosition(neigbour.Key);
-                    d.Add(selectableObject, neighbourWeights);
-                }
-            }
-            navigationManager.AddBuilding(selectedBuilding.GetSelectionManagerForGridPosition(neighboursForPosition.Key), d);
+        if (selectedBuilding is Building || selectedBuilding is Road) {
+            AddBuildingToNavigationManager(selectedBuilding, neigboursForBuildingPositions);
         }
+
+    }
+
+    private void AddBuildingToNavigationManager(AbstractBuildingType selectedBuilding, Dictionary<Vector3Int, NeighbourData> neigboursForBuildingPositions)
+    {
+        var weights = new Dictionary<SelectableObject, NeighbourWeights>();
+        foreach (var neighboursForPosition in neigboursForBuildingPositions)
+        {
+            if (selectedBuilding is Road)
+            {
+                weights = new Dictionary<SelectableObject, NeighbourWeights>();
+            }
+            weights = GetWeightsToNeighbour(selectedBuilding, neighboursForPosition, weights);
+            if (selectedBuilding is Road)
+            {
+                navigationManager.AddBuilding(selectedBuilding.GetSelectionManagerForGridPosition(neighboursForPosition.Key), weights);
+            }
+        }
+
+        if (selectedBuilding is Building)
+        {
+            navigationManager.AddBuilding(selectedBuilding.GetSelectionManagerForGridPosition(selectedBuilding.gridPositions[0]), weights);
+        }
+    }
+
+    private Dictionary<SelectableObject, NeighbourWeights> GetWeightsToNeighbour(AbstractBuildingType selectedBuilding, KeyValuePair<Vector3Int, NeighbourData> neighboursForPosition, Dictionary<SelectableObject, NeighbourWeights> weights)
+    {
+        foreach (var neigbour in neighboursForPosition.Value.neighboursForGridPositions)
+        {
+            if (selectedBuilding is not Road && (neigbour.Value == selectedBuilding || neigbour.Value == null))
+            {
+                continue;
+            }
+            if (neigbour.Value != null)
+            {
+                var neighbourWeights = new NeighbourWeights
+                {
+                    WeightFromNeighbour = 1,
+                    WeightToNeighbour = 1,
+                };
+                var selectableObject = neigbour.Value.GetSelectionManagerForGridPosition(neigbour.Key);
+                weights.Add(selectableObject, neighbourWeights);
+            }
+        }
+
+        return weights;
     }
 
     private Dictionary<Vector3Int, NeighbourData> GetNeighboursForGridPositions(List<Vector3Int> gridPositions)
