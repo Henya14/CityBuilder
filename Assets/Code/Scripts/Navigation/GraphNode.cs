@@ -7,44 +7,45 @@ public class GraphNode<T>
 {
 
     public T Value { get; set; }
-    private List<GraphConnection<T>> connections { get; set; } = new List<GraphConnection<T>>();
+    public List<GraphConnection<GraphNode<T>>> Connections { get; set; } = new List<GraphConnection<GraphNode<T>>>();
 
-    public void AddConnection(GraphConnection<T> connection)
+    public void AddConnection(GraphConnection<GraphNode<T>> connection)
     {
-        connections.Add(connection);
+        Connections.Add(connection);
     }
 
     public void AddConnection(GraphNode<T> destination, int weight)
     {
-        var connection = new GraphConnection<T>
+        var connection = new GraphConnection<GraphNode<T>>
         {
             Source = this,
             Destination = destination,
             Weight = weight
         };
-        connections.Add(connection);
+        Connections.Add(connection);
     }
 
-    public void RemoveConnection(GraphConnection<T> connection)
+    public void RemoveConnection(GraphConnection<GraphNode<T>> connection)
     {
-        connections.Remove(connection);
+        Connections.Remove(connection);
     }
 
-    public GraphConnection<T> GetConnection(GraphNode<T> from, GraphNode<T> to)
+    public GraphConnection<GraphNode<T>> GetConnection(GraphNode<T> from, GraphNode<T> to)
     {
-        return connections.Find(x => x.Source == from && x.Destination == to) ?? null;
+        return Connections.Find(x => x.Source == from && x.Destination == to) ?? null;
     }
 
-    public List<GraphConnection<T>> WhereConnections(Func<GraphConnection<T>, bool> predicate)
+    public List<GraphConnection<GraphNode<T>>> WhereConnections(Func<GraphConnection<GraphNode<T>>, bool> predicate)
     {
-        return connections.Where(predicate).ToList();
+        return Connections.Where(predicate).ToList();
     }
 }
 
-public class GraphSearchNode<T> : GraphNode<T>
+public class GraphSearchNode<T>
 {
-
-    public GraphConnection<T> ShortestConnectionToStart { get; set; } = null;
-    public int CostToStart { get; set; } = 0;
+    public GraphNode<T> GraphNode {get; set;}
+    public GraphConnection<GraphNode<T>> ShortestConnectionToStart { get; set; } = null;
+    public GraphSearchNode<T> ShortestNodeToStart { get; set; } = null;
+    public int? CostToStart { get; set; } = null;
     public bool Visited { get; set; } = false;
 }

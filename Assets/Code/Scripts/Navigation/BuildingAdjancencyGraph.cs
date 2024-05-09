@@ -85,4 +85,21 @@ public class BuildingAdjacencyGraph
         return GraphNodes.Find(o => o.Value.GetGridPosition() == gridPosition);
     }
 
+    public List<GraphSearchNode<SelectableObject>> GetGraphSearchNodes() 
+    {
+        var searchNodes = new List<GraphSearchNode<SelectableObject>>();
+        foreach (var node in GraphNodes) 
+        {
+            var searchNode = new GraphSearchNode<SelectableObject> {
+                CostToStart = null,
+                ShortestConnectionToStart = null,
+                Visited = false,
+                GraphNode = node
+            };
+            searchNodes.Add(searchNode);
+        } 
+
+        return searchNodes;
+    }
+
 }

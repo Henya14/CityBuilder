@@ -7,7 +7,7 @@ using UnityEngine;
 
 
 public interface ShortestPathStrategy {
-    void FindShortestPathToDestination(BuildingAdjacencyGraph adjacencyGraph, SelectableObject source, SelectableObject destination);
+    List<GraphSearchNode<SelectableObject>> FindShortestPathToDestination(List<GraphSearchNode<SelectableObject>> adjacencyGraph, GraphSearchNode<SelectableObject> source, GraphSearchNode<SelectableObject> destination);
 }
 
 public class NavigationManager : MonoBehaviour
