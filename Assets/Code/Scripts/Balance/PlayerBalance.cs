@@ -1,18 +1,28 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerBalance : MonoBehaviour
 {
-    [SerializeField] int balance = 0;
+    public static PlayerBalance instance;
+    private void Awake()
+    {
+        if (instance == null)
+            instance = this;
+    }
     
-    List<float> residentsTaxes;
-    List<float> shopTaxes;
-    List<float> factoryTaxes;
+    List<float> residentsTaxes = new List<float> { 0, 0, 0 };
+    List<float> shopTaxes = new List<float> { 0, 0, 0 };
+    List<float> factoryTaxes = new List<float> { 0, 0, 0 };
 
-    List<float> residentsPopulation;
-    List<float> shopPopulation;
-    List<float> factoryPopulation;
+    List<float> residentsPopulation = new List<float> { 0, 0, 0 };
+    List<float> shopPopulation = new List<float> { 0, 0, 0 };
+    List<float> factoryPopulation = new List<float> { 0, 0, 0 };
+
+    public static Action OnPlayerBalanceChanged;
+
+    [SerializeField] public static int Balance { get; private set; }
 
 
     void Start() {
@@ -21,6 +31,7 @@ public class PlayerBalance : MonoBehaviour
         factoryTaxes = new List<float>();
 
         TimeManager.OnHourChanged += calcTaxes;
+
     }
 
     private void calcTaxes() {
@@ -37,18 +48,18 @@ public class PlayerBalance : MonoBehaviour
         for (int i = 0; i < factoryTaxes.Count; i++)
             currTaxIncome += factoryTaxes[i] * factoryPopulation[i];
 
-        balance += (int)currTaxIncome;
+        Balance += (int)currTaxIncome;
     }
 
     private void updatePopulation() {
         //Get the population numbers from a gridManager here, now its a dummy data
-        for (int i = 0; residentsPopulation.Count > 0; i++)
+        for (int i = 0; i < residentsPopulation.Count; i++)
             residentsPopulation[i] += 1;
 
-        for (int i = 0; shopPopulation.Count > 0; i++)
+        for (int i = 0; i < shopPopulation.Count; i++)
             shopPopulation[i] += 1;
 
-        for (int i = 0; factoryPopulation.Count > 0; i++)
+        for (int i = 0; i <  factoryPopulation.Count; i++)
             factoryPopulation[i] += 1;
     }
 
@@ -57,5 +68,23 @@ public class PlayerBalance : MonoBehaviour
         residentsTaxes = loadedRTaxes;
         shopTaxes = loadedSTaxes;
         factoryTaxes = loadedFTaxes;
+    }
+
+    public void increaseBalance(int amount)
+    {
+        if(amount >= 0)
+        {
+            Balance += amount;
+            OnPlayerBalanceChanged?.Invoke();
+        }
+    }
+
+    public void decreaseBalance(int amount)
+    {
+        if (amount <= 0 && ((Balance - amount) >= 0))
+        {
+            Balance -= amount;
+            OnPlayerBalanceChanged?.Invoke();
+        }  
     }
 }

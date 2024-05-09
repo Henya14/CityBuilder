@@ -20,6 +20,8 @@ public class GameUIManager : MonoBehaviour
     Label infoContainerText;
     ListView buildingList;
 
+    Label balanceLabel;
+
     Button timeStartStopButton;
     Button timeForwardButton;
     Label timeTextField;
@@ -28,7 +30,6 @@ public class GameUIManager : MonoBehaviour
 
     Button buildingsButton;
     VisualElement buildingHud;
-
 
     List<Button> gameModeSelectorButtons = new List<Button>();
     public GameMode selectedGameMode {get; set;} = GameMode.SelectionMode;
@@ -49,6 +50,8 @@ public class GameUIManager : MonoBehaviour
         infoContainer = root.Q<VisualElement>("info-text-container");
         infoContainerText = root.Q<Label>("info-text-label");
         buildingList = root.Q<ListView>("building-list");
+
+        balanceLabel = root.Q<Label>("balance-text");
 
         timeStartStopButton = root.Q<Button>("time-start-stop-button");
         timeForwardButton = root.Q<Button>("time-forward-button");
@@ -93,6 +96,8 @@ public class GameUIManager : MonoBehaviour
 
         LoadBuildings();
         buildingsButton.clicked += ChangeVisibleOnBuildingHud;
+
+        PlayerBalance.OnPlayerBalanceChanged += updateBalanceText;
     }
 
     void OnSelectionModeButtonClicked()
@@ -100,6 +105,7 @@ public class GameUIManager : MonoBehaviour
         selectedGameMode = GameMode.SelectionMode;
         ResetOnGameModeChange();
         selectionModeButton.AddToClassList(SELECTED_BUTTON_CLASS_NAME);
+        HideSpecialBuildings();
     }
 
     private void ResetOnGameModeChange()
@@ -117,6 +123,7 @@ public class GameUIManager : MonoBehaviour
         buildModeButton.AddToClassList(SELECTED_BUTTON_CLASS_NAME);
         buildingList.style.display = DisplayStyle.Flex;
         InitializeBuildingsList();
+        HideSpecialBuildings();
     }
 
     void OnNavigationModeButtonClicked() {
@@ -232,14 +239,13 @@ public class GameUIManager : MonoBehaviour
         foreach (BuildingData obj in loadedObjects) {
             if (obj.BuyableBuilding) {
                 Button tempbutton = new Button();
-                if(obj.BuildingPicture == null) {
-                    tempbutton.text = obj.Name;
-                }
-                else {
-                    tempbutton.text = "";
-                    tempbutton.style.backgroundImage = obj.image;
-                }
-                
+                tempbutton.text = obj.Name;
+                //tempbutton.clicked += () => buildModeManager.BuildingDataSelected(obj);
+                //tempbutton.clicked += () => buildModeManager.CreateBuildingFromBuildingData(obj);
+
+                //tempbutton.clicked += () => gridManager.ChangeSelection(obj.size, obj.buildingType, obj.prefab);
+
+
                 tempbutton.clicked += () => buildModeManager.BuildingDataSelected(obj);
                 tempbutton.clicked += () => gridManager.ChangeSelection(obj.size, obj.buildingType, obj.prefab);
                 buildingHud.Add(tempbutton);
@@ -248,15 +254,25 @@ public class GameUIManager : MonoBehaviour
         
     }
 
+    void HideSpecialBuildings()
+    {
+        if (buildingHud.visible)
+            buildingHud.visible = !buildingHud.visible;
+    }
+
     void ChangeVisibleOnBuildingHud() {
-        Debug.Log("click");
         buildingHud.visible = !buildingHud.visible; 
         if(buildingHud.visible) {
+            ResetOnGameModeChange();
             selectedGameMode = GameMode.BuildMode;
         }
         else {
-            selectedGameMode = GameMode.SelectionMode;
+            OnSelectionModeButtonClicked();
         }
-        Debug.Log(selectedGameMode);
+    }
+
+    void updateBalanceText()
+    {
+        balanceLabel.text = PlayerBalance.Balance.ToString() + " $";
     }
 }

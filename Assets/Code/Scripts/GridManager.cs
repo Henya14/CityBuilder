@@ -285,6 +285,7 @@ public class GridManager : MonoBehaviour
             if (lastSelectedObjectPositions.Count > 0 && selectionMode == SelectionMode.Single && isSelectionValid)
             {
                 var selectedObject = GetSelectedObjectAtPosition(lastSelectedObjectPositions[0]);
+                if (selectedObject == null) return;
                 ManageObjectSelectionInSingleMode(selectedObject);
                 VisualizeNeighbours();
                 var selectedObjectGridPosition = selectedObject.GetGridPosition();
