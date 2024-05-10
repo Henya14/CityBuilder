@@ -6,7 +6,8 @@ public enum SelectableObjectType {
     Road,
     Zone,
     Building,
-    ZoneBuilding
+    ZoneBuilding,
+    Tile
 }
 public interface SelectableObject {
    

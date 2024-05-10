@@ -3,12 +3,13 @@ using System.Linq;
 
 public class DijkstraAlgorithm : ShortestPathStrategy
 {
-    public List<GraphSearchNode<SelectableObject>> FindShortestPathToDestination(List<GraphSearchNode<SelectableObject>> adjacencyGraph, GraphSearchNode<SelectableObject> source, GraphSearchNode<SelectableObject> destination)
+    public List<GraphSearchNode<SelectableObject>> FindShortestPathToDestination(List<GraphSearchNode<SelectableObject>> graphSearchNodes, GraphNode<SelectableObject> source, GraphNode<SelectableObject> destination)
     {
-        
-        source.CostToStart = 0;        
+        var sourceSearchNode = graphSearchNodes.Find(sn => sn.GraphNode == source);
+        sourceSearchNode.CostToStart = 0;
+        var destinationSearchNode =  graphSearchNodes.Find(sn => sn.GraphNode == destination);
         var nodeList = new List<GraphSearchNode<SelectableObject>> {
-            source
+            sourceSearchNode
         };
         while (nodeList.Any())  
         {   
@@ -17,8 +18,7 @@ public class DijkstraAlgorithm : ShortestPathStrategy
             nodeList.Remove(node);
             foreach (var connection in node.GraphNode.Connections) 
             {
-                var neighbourSearchNode = adjacencyGraph.Find(n => connection.Destination == n.GraphNode);
-
+                var neighbourSearchNode = graphSearchNodes.Find(n => connection.Destination == n.GraphNode);
                 if (neighbourSearchNode.Visited) {
                     continue;
                 }
@@ -35,20 +35,20 @@ public class DijkstraAlgorithm : ShortestPathStrategy
             }
             node.Visited = true;
 
-            if (node == destination) {
+            if (node == destinationSearchNode) {
                 break;
             }
         }
        
 
-        if (destination.ShortestNodeToStart == null) 
+        if (destinationSearchNode.ShortestNodeToStart == null) 
         {
             return null;
         }
         else 
         {
-            var shortestPath = new List<GraphSearchNode<SelectableObject>>{destination};
-            var node = destination;
+            var shortestPath = new List<GraphSearchNode<SelectableObject>>{destinationSearchNode};
+            var node = destinationSearchNode;
             while (node.ShortestNodeToStart != null) 
             {
                 shortestPath.Add(node);
