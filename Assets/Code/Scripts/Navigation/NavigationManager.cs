@@ -7,12 +7,11 @@ using UnityEngine;
 
 
 public interface ShortestPathStrategy {
-    void FindShortestPathToDestination(BuildingAdjacencyGraph adjacencyGraph, SelectableObject source, SelectableObject destination);
+    List<GraphSearchNode<SelectableObject>> FindShortestPathToDestination(List<GraphSearchNode<SelectableObject>> adjacencyGraph, GraphNode<SelectableObject> source, GraphNode<SelectableObject> destination);
 }
 
 public class NavigationManager : MonoBehaviour
 {
-    BuildingAdjacencyMatrix adjacencyMatrix = new BuildingAdjacencyMatrix();
     BuildingAdjacencyGraph adjacencyGraph = new BuildingAdjacencyGraph();
     List<SelectableObject> selectedObjects = new List<SelectableObject>();
 
@@ -30,7 +29,10 @@ public class NavigationManager : MonoBehaviour
 
     public void ObjectSelected(SelectableObject selectedObject)
     {
-        if (selectedObjects.Count == 2)
+        if (selectedObject.GetSelectableObjectType() == SelectableObjectType.Tile) {
+            return;
+        }
+        if (selectedObjects.Count >= 2)
         {
             DeselectObjects();
         }
@@ -39,6 +41,19 @@ public class NavigationManager : MonoBehaviour
             selectedObjects.Add(selectedObject);
             selectedObject.ToggleHighlight(true);
             selectedObject.FreezeHighlight(true);
+            if (selectedObjects.Count == 2) {
+                
+                var algo = new DijkstraAlgorithm();
+                var ruta = algo.FindShortestPathToDestination(adjacencyGraph.GetGraphSearchNodes(), 
+                adjacencyGraph.GetGraphNodeForSelectableObject(selectedObjects[0]), 
+                adjacencyGraph.GetGraphNodeForSelectableObject(selectedObjects[1]));
+                ruta?.ForEach(r => {
+                    r.GraphNode.Value.FreezeHighlight(false);
+                    r.GraphNode.Value.ToggleHighlight(true);
+                    r.GraphNode.Value.FreezeHighlight(true);
+                    selectedObjects.Add(r.GraphNode.Value);
+                });
+            }
 
         }
     }
