@@ -107,7 +107,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Name: Dirt Tile
-  Description: Dirty dirt tile
+  Description: EarthTile
   destMaterial: {fileID: 2100000, guid: 767d2f4402b72d54b8cffac96e06c7dd, type: 2}
 --- !u!65 &3297212600633482310
 BoxCollider:

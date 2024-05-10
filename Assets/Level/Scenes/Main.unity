@@ -163,6 +163,7 @@ MonoBehaviour:
   debugCube: {fileID: 8530455344680319768, guid: 8814f62e8ce3a0c49afb78ad1eac2e1c, type: 3}
   debugArrow: {fileID: 7116504243019251136, guid: 5879af0d3714acc4fb64382be09183f4, type: 3}
   carPrefab: {fileID: 9168529152632990214, guid: e0c91f8d3194c9e4c87e1e6378a77c50, type: 3}
+  saveLoadManager: {fileID: 0}
 --- !u!4 &158693461
 Transform:
   m_ObjectHideFlags: 0
@@ -1045,6 +1046,53 @@ Transform:
   - {fileID: 963194228}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1827308582
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1827308584}
+  - component: {fileID: 1827308583}
+  m_Layer: 0
+  m_Name: SaveLoadManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1827308583
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1827308582}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af090b576aac8a647a2aa021895e2695, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buildModeManager: {fileID: 1511013243}
+  gridManager: {fileID: 158693460}
+  saveFileName: SaveTest
+--- !u!4 &1827308584
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1827308582}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1987765548
 GameObject:
   m_ObjectHideFlags: 0
@@ -1190,3 +1238,4 @@ SceneRoots:
   - {fileID: 889684982}
   - {fileID: 1033488529}
   - {fileID: 784740398}
+  - {fileID: 1827308584}
