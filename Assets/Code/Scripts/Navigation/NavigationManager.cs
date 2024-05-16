@@ -43,10 +43,16 @@ public class NavigationManager : MonoBehaviour
             selectedObject.FreezeHighlight(true);
             if (selectedObjects.Count == 2) {
                 
-                var algo = new DijkstraAlgorithm();
-                var ruta = algo.FindShortestPathToDestination(adjacencyGraph.GetGraphSearchNodes(), 
-                adjacencyGraph.GetGraphNodeForSelectableObject(selectedObjects[0]), 
-                adjacencyGraph.GetGraphNodeForSelectableObject(selectedObjects[1]));
+                var algo = new AStarAlgorithm();
+                var start = adjacencyGraph.GetGraphNodeForSelectableObject(selectedObjects[0]);
+                var destination = adjacencyGraph.GetGraphNodeForSelectableObject(selectedObjects[1]);
+                var searchNodes = adjacencyGraph.GetGraphSearchNodes().Select(sn => {
+                    sn.StraightLineDistanceToDestination = (start.Value.GetGridPosition() - sn.GraphNode.Value.GetGridPosition()).magnitude;
+                    return sn;
+                }).ToList();
+                var ruta = algo.FindShortestPathToDestination(searchNodes, 
+                start, 
+                destination);
                 ruta?.ForEach(r => {
                     r.GraphNode.Value.FreezeHighlight(false);
                     r.GraphNode.Value.ToggleHighlight(true);
