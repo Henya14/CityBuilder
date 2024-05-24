@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="menu-container" style="flex-grow: 1; background-color: rgba(113, 0, 3, 0);">
+        <ui:VisualElement name="main-menu-container" style="flex-grow: 1; display: none; align-items: center; justify-content: center; visibility: visible;">
+            <ui:Label tabindex="-1" text="City Builder" parse-escape-sequences="true" display-tooltip-when-elided="true" name="game-title-text" style="background-color: rgba(0, 0, 0, 0); color: rgb(226, 151, 0); font-size: 100px; -unity-font-style: bold; flex-direction: column; position: absolute; top: 15%;" />
+            <ui:Button text="Start" parse-escape-sequences="true" display-tooltip-when-elided="true" name="start-game-button" style="width: auto; -unity-font-style: bold; font-size: 35px; padding-top: 30px; padding-right: 70px; padding-bottom: 30px; padding-left: 70px; margin-bottom: 30px; margin-top: 20%;" />
+            <ui:Button text="Settings" parse-escape-sequences="true" display-tooltip-when-elided="true" name="settings-button" style="font-size: 30px; padding-right: 80px; padding-left: 80px; padding-top: 25px; padding-bottom: 25px; margin-bottom: 30px; margin-top: 30px;" />
+            <ui:Button text="Quit" parse-escape-sequences="true" display-tooltip-when-elided="true" name="quit-button" style="margin-top: 30px; font-size: 25px; padding-right: 20px; padding-left: 20px; padding-bottom: 15px; padding-top: 15px;" />
+        </ui:VisualElement>
+        <ui:VisualElement name="settings-container" style="flex-grow: 1; display: flex; visibility: visible; align-items: center; justify-content: center;">
+            <ui:Button text="Back to Main Menu" parse-escape-sequences="true" display-tooltip-when-elided="true" name="back-to-mainmenu-button" style="-unity-font-style: bold; font-size: 40px; padding-bottom: 15px; padding-top: 15px; padding-right: 20px; padding-left: 20px; bottom: 5%; position: absolute;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
