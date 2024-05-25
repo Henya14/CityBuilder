@@ -27,21 +27,6 @@ public class MenuUIManager : MonoBehaviour
         backToMainMenuButton = root.Q<Button>("back-to-mainmenu-button");
         mainMenuContainer = root.Q<VisualElement>("main-menu-container");
         settingsContainer = root.Q<VisualElement>("settings-container");
-        //selectionModeButton = root.Q<Button>("selection-mode-button");
-        //buildModeButton = root.Q<Button>("building-mode-button");
-        //navigationModeButton = root.Q<Button>("navigation-mode-button");
-        //infoContainer = root.Q<VisualElement>("info-text-container");
-        //infoContainerText = root.Q<Label>("info-text-label");
-        //buildingList = root.Q<ListView>("building-list");
-
-        //timeStartStopButton = root.Q<Button>("time-start-stop-button");
-        //timeForwardButton = root.Q<Button>("time-forward-button");
-        //timeTextField = root.Q<Label>("time-text-field");
-
-        //moralityViewToggle = root.Q<Toggle>("morality-toggle");
-
-        //buildingsButton = root.Q<Button>("buildings-button");
-        //buildingHud = root.Q<VisualElement>("building-hud-container");
 
     }
     // Start is called before the first frame update
