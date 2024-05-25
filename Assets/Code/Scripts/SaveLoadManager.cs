@@ -229,7 +229,7 @@ public class SaveLoadManager : MonoBehaviour
 
         GameUIManager guiM = FindObjectOfType<GameUIManager>();
         guiM.UpdateTimer();
-        guiM.updateBalanceText();
+        guiM.UpdateBalanceText();
     }
 }
 [Serializable]
