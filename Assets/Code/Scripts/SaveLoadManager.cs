@@ -20,9 +20,11 @@ public class SaveLoadManager : MonoBehaviour
 
     //used for testing
     [SerializeField] bool saved=true;
-    //TODO: Move it to Function
-    [SerializeField] SerializableList<TileSaveData> tilesToSave;
-    [SerializeField] SerializableList<BuildingSaveData> buildingsToSave;
+    [SerializeField] bool TurnedOff=true;
+    //Suggestion: Move it to Function
+    [SerializeField] SerializableList<TileSaveData> tilesToSaveOrLoad;
+    [SerializeField] SerializableList<BuildingSaveData> buildingsToSaveOrLoad;
+    [SerializeField] SerializableList<PropertySaveData> propertyToSaveOrLoad;
 
     // Start is called before the first frame update
     void Start()
@@ -40,6 +42,7 @@ public class SaveLoadManager : MonoBehaviour
     }
     void DummySaveLoad()
     {
+        if (TurnedOff) return;
         if (!saved)
         {
             gridManager.Save();
@@ -55,7 +58,7 @@ public class SaveLoadManager : MonoBehaviour
     {
         SerializableList<TileSaveData> serializableList = new SerializableList<TileSaveData>();
         serializableList.list = new List<TileSaveData>();
-        tilesToSave = serializableList;
+        tilesToSaveOrLoad = serializableList;
     }
     public void SaveTiles(Dictionary<Vector3Int, Tile> tileMap)
     {
@@ -70,9 +73,9 @@ public class SaveLoadManager : MonoBehaviour
                 PositionZ = VandB.Key.z
             };
             data.ConvertTile(VandB.Value);
-            tilesToSave.list.Add(data);
+            tilesToSaveOrLoad.list.Add(data);
         }
-        string tileJson = JsonUtility.ToJson(tilesToSave);
+        string tileJson = JsonUtility.ToJson(tilesToSaveOrLoad);
         /*
         Debug.Log(tileJson);
         */
@@ -84,22 +87,22 @@ public class SaveLoadManager : MonoBehaviour
         ResetTilesList();
 
         string tileJson = File.ReadAllText(saveFileName + "Tiles.json");
-        tilesToSave = JsonUtility.FromJson<SerializableList<TileSaveData>>(tileJson);
+        tilesToSaveOrLoad = JsonUtility.FromJson<SerializableList<TileSaveData>>(tileJson);
 
         /*
-        foreach (var TSD in tilesToSave.list)
+        foreach (var TSD in tilesToSaveOrLoad.list)
         {
             Debug.Log(TSD.PositionX+" "+ TSD.Name);
         }
         */
 
-        gridManager.LoadGrid(tilesToSave.list);
+        gridManager.LoadGrid(tilesToSaveOrLoad.list);
     }
     private void ResetBuildingsList()
     {
         SerializableList<BuildingSaveData> serializableList = new SerializableList<BuildingSaveData>();
         serializableList.list = new List<BuildingSaveData>();
-        buildingsToSave = serializableList;
+        buildingsToSaveOrLoad = serializableList;
     }
     public void SaveBuildings(Dictionary<Vector3Int, AbstractBuildingType> buildingsMap)
     {
@@ -129,9 +132,9 @@ public class SaveLoadManager : MonoBehaviour
 
             data.ConvertBuildingData(VandB.Value.GetBuildingData());
 
-            buildingsToSave.list.Add(data);
+            buildingsToSaveOrLoad.list.Add(data);
         }
-        string buildingJson = JsonUtility.ToJson(buildingsToSave);
+        string buildingJson = JsonUtility.ToJson(buildingsToSaveOrLoad);
         /*
         Debug.Log(buildingJson);
         */
@@ -143,18 +146,46 @@ public class SaveLoadManager : MonoBehaviour
         ResetBuildingsList();
 
         string buildingJson = File.ReadAllText(saveFileName + "Buildings.json");
-        buildingsToSave = JsonUtility.FromJson<SerializableList<BuildingSaveData>>(buildingJson);
+        buildingsToSaveOrLoad = JsonUtility.FromJson<SerializableList<BuildingSaveData>>(buildingJson);
 
-        buildModeManager.LoadBuildings(buildingsToSave.list);
+        buildModeManager.LoadBuildings(buildingsToSaveOrLoad.list);
     }
 
+    private void ResetPropertiesList()
+    {
+        SerializableList<PropertySaveData> serializableList = new SerializableList<PropertySaveData>();
+        serializableList.list = new List<PropertySaveData>();
+        propertyToSaveOrLoad = serializableList;
+    }
     public void SaveProperties(Dictionary<Vector3Int, AbstarctProperty> propertyMap)
     {
+        ResetPropertiesList();
+
+        foreach(var property in propertyMap)
+        {
+            PropertySaveData propertySaveData = new PropertySaveData();
+            propertySaveData.Convert(property.Value);
+            propertySaveData.sVector3 = new SVector3(property.Key);
+
+            propertyToSaveOrLoad.list.Add(propertySaveData);
+        }
+        string propertyJson = JsonUtility.ToJson(propertyToSaveOrLoad);
+
+        File.WriteAllText(saveFileName + "Properties.json", propertyJson);
 
     }
 
     public void LoadProperties()
     {
+        ResetPropertiesList();
+
+        string propertyJson = File.ReadAllText(saveFileName + "Properties.json");
+        propertyToSaveOrLoad = JsonUtility.FromJson<SerializableList<PropertySaveData>>(propertyJson);
+
+        foreach(var manager in FindObjectsOfType<PropertyManager>())
+        {
+            manager.loadProperties(propertyToSaveOrLoad.list);
+        }
 
     }
 
@@ -256,16 +287,22 @@ public class BuildingSaveData
 public class PropertySaveData
 {
     //Vector3Int:
-    public int PositionX;
-    public int PositionY;
-    public int PositionZ;
+    public SVector3 sVector3;
     //Property:
     public int Capacity;
     public int HeadCount;
     public PropertyType PropertyType;
     public int MaxCapacity;
-    //SelectionManager:
-    public string Description;
+    public HouseLevel HouseLevel;
+    
+    public void Convert(AbstarctProperty property)
+    {
+        Capacity= property.Capacity;
+        HeadCount= property.HeadCount;
+        PropertyType= property.PropertyType;
+        MaxCapacity= property.MaxCapacity;
+        HouseLevel= property.HouseLevel;
+    }
 
 }
 [Serializable]
@@ -286,6 +323,7 @@ public class SVector3
     {
         return $"X: {X}, Y: {Y}, Z: {Z}";
     }
+    public Vector3Int ConvertBack() => new Vector3Int(X,Y,Z);
 }
 
 [Serializable]

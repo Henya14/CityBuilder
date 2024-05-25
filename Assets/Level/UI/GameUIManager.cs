@@ -34,6 +34,8 @@ public class GameUIManager : MonoBehaviour
     Button buildingsButton;
     VisualElement buildingHud;
 
+    Button saveButton;
+
     List<Button> gameModeSelectorButtons = new List<Button>();
     public GameMode selectedGameMode {get; set;} = GameMode.SelectionMode;
 
@@ -68,6 +70,9 @@ public class GameUIManager : MonoBehaviour
         buildingsButton = root.Q<Button>("buildings-button");
         buildingHud = root.Q<VisualElement>("building-hud-container");
 
+
+
+        saveButton = root.Q<Button>("save-button");
     }
     void Start() {
         selectionModeButton.clicked += OnSelectionModeButtonClicked;
@@ -102,6 +107,8 @@ public class GameUIManager : MonoBehaviour
 
         LoadBuildings();
         buildingsButton.clicked += ChangeVisibleOnBuildingHud;
+
+        saveButton.clicked += gridManager.Save;
 
         PlayerBalance.OnPlayerStatsChanged += updateBalanceText;
     }

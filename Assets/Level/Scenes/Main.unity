@@ -1078,6 +1078,14 @@ MonoBehaviour:
   buildModeManager: {fileID: 1511013243}
   gridManager: {fileID: 158693460}
   saveFileName: SaveTest
+  saved: 1
+  TurnedOff: 1
+  tilesToSave:
+    list: []
+  buildingsToSave:
+    list: []
+  propertyToSave:
+    list: []
 --- !u!4 &1827308584
 Transform:
   m_ObjectHideFlags: 0
@@ -1283,3 +1291,4 @@ SceneRoots:
   - {fileID: 1033488529}
   - {fileID: 784740398}
   - {fileID: 2104500887}
+  - {fileID: 1827308584}

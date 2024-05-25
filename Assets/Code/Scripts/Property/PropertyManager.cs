@@ -130,6 +130,7 @@ public class PropertyManager : MonoBehaviour
                                 highlight.SetRenderers(new List<Renderer>{propertyObject.GetComponent<Renderer>()});
                                 highlight.SetHighlightColor(Color.white);
                                 property.AddPerson();
+                                property.HouseLevel = hlvl;
                                 gridManager.AddProperty(position, property);
 
                                 
@@ -142,7 +143,76 @@ public class PropertyManager : MonoBehaviour
             }
         }
     }
+    public void loadProperties(List<PropertySaveData> properties)
+    {
+        foreach (var propertyData in properties)
+        {
+            //Only load property for this zone
+            if (propertyData.PropertyType == propertyType)
+            {
 
+                var position = propertyData.sVector3.ConvertBack() + Vector3Int.zero;
+
+                //Check if next to road
+                Dictionary<Vector3Int, AbstractBuildingType> nhbs = gridManager.GetNeigbouringBuildingsForPosition(position);
+                Vector3Int nhbDir = Vector3Int.zero;
+                var neighbourDictionary = new Dictionary<SelectableObject, NeighbourWeights>();
+
+                foreach (var nhb in nhbs)
+                {
+                    if (nhb.Value == null) { continue; }
+                    if (nhb.Value is Road)
+                    {
+                        var adjacentRoad = nhb.Value as Road;
+                        neighbourDictionary.Add(adjacentRoad.GetSelectionManagerForGridPosition(nhb.Key), new NeighbourWeights
+                        {
+                            WeightFromNeighbour = 1,
+                            WeightToNeighbour = 1
+                        });
+                        nhbDir += nhb.Key - position;
+                        Debug.Log($"nhb dir: {nhbDir.x}, {nhbDir.z}");
+                        break;
+                    }
+                }
+                AbstarctProperty property;
+
+                var propertyObject = Construct(position, propertyData.HouseLevel, nhbDir);
+                //Add script based on given property type 
+                var description = "";
+                switch (propertyType)
+                {
+                    case PropertyType.Residental:
+                        property = propertyObject.AddComponent<ResidentialProperty>();
+                        description = "Residental property";
+                        break;
+                    case PropertyType.Industrial:
+                        property = propertyObject.AddComponent<IndustrialProperty>();
+                        description = "Industrial building";
+                        break;
+                    default:
+                        property = propertyObject.AddComponent<ShoppingProperty>();
+                        description = "Shopping building";
+                        break;
+                }
+                property.PropertyGameObject = propertyObject;
+                var selectionManager = propertyObject.AddComponent<SelectionManager>();
+                selectionManager.Init(position, description, SelectableObjectType.ZoneBuilding);
+                property.SelectionManager = selectionManager;
+                var highlight = propertyObject.AddComponent<Highlight>();
+                highlight.SetRenderers(new List<Renderer> { propertyObject.GetComponent<Renderer>() });
+                highlight.SetHighlightColor(Color.white);
+                //LoadData instead of add person and house level
+                property.loadSaveData(propertyData);
+                gridManager.AddProperty(position, property);
+
+
+                navigationManager.AddBuilding(selectionManager, neighbourDictionary);
+                
+
+
+            }
+        }
+    }
     public HouseLevel ShouldBeIncreased(Vector3Int position)
     {
         //TODO: use moral

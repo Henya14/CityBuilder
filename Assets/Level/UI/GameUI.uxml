@@ -37,6 +37,7 @@
             <ui:VisualElement name="building-button-container" style="flex-grow: 0; align-items: center; justify-content: flex-start; height: auto; width: auto; flex-direction: row; align-self: flex-end;">
                 <ui:Button text="Special-Buildings" parse-escape-sequences="true" display-tooltip-when-elided="true" name="buildings-button" />
             </ui:VisualElement>
+            <ui:Button text="Save" parse-escape-sequences="true" display-tooltip-when-elided="true" name="save-button" />
         </ui:VisualElement>
         <ui:VisualElement name="building-hud-container" style="flex-grow: 1; width: 15%; align-self: auto; align-items: center; height: 15%; bottom: auto; position: absolute; flex-direction: row; justify-content: space-between; margin-bottom: 10%; padding-bottom: 0; display: flex; visibility: hidden; left: 30%; top: 0; right: auto;" />
         <ui:ListView focusable="true" name="building-list" style="position: absolute; right: 0; top: 0; bottom: 0; left: 75%; align-items: stretch; background-color: rgba(0, 0, 0, 0.43); display: none;" />

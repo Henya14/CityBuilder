@@ -697,12 +697,14 @@ public class GridManager : MonoBehaviour
     {
         saveLoadManager.SaveTiles(tileMap);
         saveLoadManager.SaveBuildings(buildingsMap);
+        saveLoadManager.SaveProperties(propertyMap);
     }
 
     public void Load()
     {
         saveLoadManager.LoadTiles();
         saveLoadManager.LoadBuildings();
+        saveLoadManager.LoadProperties();
     }
 
 }
