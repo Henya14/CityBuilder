@@ -90,4 +90,8 @@ public abstract class AbstractBuildingType : MonoBehaviour
     {
         return selectionManagers.GetValueOrDefault(gridPosition, null);
     }
+    public BuildingData GetBuildingData()
+    {
+        return buildingData;
+    }
 }

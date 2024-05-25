@@ -36,6 +36,8 @@ public class GameUIManager : MonoBehaviour
     Button buildingsButton;
     VisualElement buildingHud;
 
+    Button saveButton;
+
     List<Button> gameModeSelectorButtons = new List<Button>();
     public GameMode selectedGameMode {get; set;} = GameMode.SelectionMode;
 
@@ -74,6 +76,7 @@ public class GameUIManager : MonoBehaviour
         buildingsButton = root.Q<Button>("buildings-button");
         buildingHud = root.Q<VisualElement>("building-hud-container");
 
+        saveButton = root.Q<Button>("save-button");
         questText = root.Q<Label>("quest-text");
 
     }
@@ -110,6 +113,8 @@ public class GameUIManager : MonoBehaviour
 
         LoadBuildings();
         buildingsButton.clicked += ChangeVisibleOnBuildingHud;
+
+        saveButton.clicked += gridManager.Save;
 
         PlayerBalance.OnPlayerStatsChanged += UpdateBalanceText;
     }
@@ -249,7 +254,7 @@ public class GameUIManager : MonoBehaviour
         TimeManager.instance.ChangeTimerSpeed();
     }
 
-    void UpdateTimer() {
+    public void UpdateTimer() {
         timeTextField.text = $"{TimeManager.Hour:00}:{TimeManager.Minute:00}";
     }
 
@@ -283,8 +288,8 @@ public class GameUIManager : MonoBehaviour
             OnSelectionModeButtonClicked();
         }
     }
-
-    void UpdateBalanceText()
+    //Todo: saveManager modif upadte...->Update 
+    public void UpdateBalanceText()
     {
         balanceLabel.text = PlayerBalance.Balance.ToString() + " $";
         electricityLabel.text = PlayerBalance.Electricity.ToString();

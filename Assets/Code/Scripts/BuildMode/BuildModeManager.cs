@@ -43,6 +43,14 @@ public class BuildModeManager : MonoBehaviour
         }
 
     }
+    public void LoadBuildings(List<BuildingSaveData> buildings) 
+    {
+        foreach (var BSD in buildings)
+        {
+            BuildingDataSelected(BSD.GetBuildingData());
+            ObjectSelected(BSD.GetDictionary(gridManager));
+        }
+    }
 
     private void AddBuildingToNavigationManager(AbstractBuildingType selectedBuilding, Dictionary<Vector3Int, NeighbourData> neigboursForBuildingPositions)
     {

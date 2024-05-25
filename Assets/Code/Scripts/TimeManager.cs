@@ -92,4 +92,9 @@ public class TimeManager : MonoBehaviour
         stopped = !stopped;
     }
 
+    public void LoadTime(int hour, int minute)
+    {
+        Hour=hour;
+        Minute=minute;
+    }
 }
