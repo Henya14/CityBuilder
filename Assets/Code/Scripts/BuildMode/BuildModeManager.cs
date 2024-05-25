@@ -58,7 +58,7 @@ public class BuildModeManager : MonoBehaviour
         foreach (var BSD in buildings)
         {
             BuildingDataSelected(BSD.GetBuildinData());
-            ObjectSelected(BSD.GetDictionary());
+            ObjectSelected(BSD.GetDictionary(gridManager));
         }
     }
 

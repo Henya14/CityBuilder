@@ -551,7 +551,7 @@ public class GridManager : MonoBehaviour
         Vector3Int gridPosition = new Vector3Int((int)Math.Ceiling(x), (int)Math.Ceiling(y), (int)Math.Ceiling(z));
         return gridPosition;
     }
-    private Vector3 GetSelectionCenter(List<Vector3Int> selectedPositions)
+    public Vector3 GetSelectionCenter(List<Vector3Int> selectedPositions)
     {
         var xMin = selectedPositions.Select(v => v.x).Min();
         var zMin = selectedPositions.Select(v => v.z).Min();

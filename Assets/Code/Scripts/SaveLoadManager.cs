@@ -210,9 +210,9 @@ public class BuildingSaveData
         SizeY = buildingData.size.y;
 
     }
-    public Dictionary<Vector3, List<Vector3Int>> GetDictionary()
+    public Dictionary<Vector3, List<Vector3Int>> GetDictionary(GridManager gridManager)
     {
-        var ret = new Dictionary<Vector3, List<Vector3Int>>();
+        //var ret = new Dictionary<Vector3, List<Vector3Int>>();
         //List<Vector3Int> list = GridPositions.list.ConvertAll(sv3 => new Vector3Int(sv3.X, 0, sv3.Z));
         List<Vector3Int> list = new List<Vector3Int>();
         foreach (var sv3 in GridPositions.list)
@@ -221,13 +221,20 @@ public class BuildingSaveData
         }
 
 
-        var vector3 = new Vector3((float)list[0].x / 2 - 5 - 0.25F, 0, (float)list[0].z / 2 - 5 + 0.25F);
+        //var vector3 = gridManager.GetSelectionCenter(list);
+
+        Dictionary<Vector3, List<Vector3Int>> placingPositionsWithGridPositions = new Dictionary<Vector3, List<Vector3Int>>();
+        list.ForEach(item =>
+        {
+            var selectionCenter = gridManager.GetSelectionCenter(new List<Vector3Int> { item });
+            placingPositionsWithGridPositions[selectionCenter] = new List<Vector3Int> { item };
+        });
         /*
         Vector3 vector3 = new Vector3((float)sVector3.X / 2 - 5 -0.25F,0, (float)sVector3.Z / 2 - 5 + 0.25F);
         list.Add(new Vector3Int(sVector3.X, 0, sVector3.Z));
-        */
         ret.Add(vector3, list);
-        return ret;
+        */
+        return placingPositionsWithGridPositions;
     }
     public BuildingData GetBuildinData()
     {
