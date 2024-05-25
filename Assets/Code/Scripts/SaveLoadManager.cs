@@ -114,7 +114,6 @@ public class SaveLoadManager : MonoBehaviour
             savedList.Add(VandB.Value.gridPositions[0]);
 
             BuildingSaveData data = new BuildingSaveData();
-            //Debug.Log(VandB.Value.buildingName);
 
             SerializableList<SVector3> list = new SerializableList<SVector3>();
             List<SVector3> sVector3s = new List<SVector3>();
@@ -123,13 +122,10 @@ public class SaveLoadManager : MonoBehaviour
 
             foreach(var gridpos in VandB.Value.gridPositions)
             {
-                //Debug.Log( new SVector3(gridpos).ToStrig());
                 
                 data.GridPositions.list.Add(new SVector3(gridpos));
             }
             
-            //data.sVector3= new SVector3(VandB.Key);
-            //data.GridPositions.list = VandB.Value.gridPositions.ConvertAll(x => new SVector3(x));
 
             data.ConvertBuildingData(VandB.Value.GetBuildingData());
 
@@ -212,33 +208,30 @@ public class BuildingSaveData
     }
     public Dictionary<Vector3, List<Vector3Int>> GetDictionary(GridManager gridManager)
     {
-        //var ret = new Dictionary<Vector3, List<Vector3Int>>();
-        //List<Vector3Int> list = GridPositions.list.ConvertAll(sv3 => new Vector3Int(sv3.X, 0, sv3.Z));
         List<Vector3Int> list = new List<Vector3Int>();
         foreach (var sv3 in GridPositions.list)
         {
             list.Add(new Vector3Int(sv3.X, 0, sv3.Z));
         }
-
-
-        //var vector3 = gridManager.GetSelectionCenter(list);
-
         Dictionary<Vector3, List<Vector3Int>> placingPositionsWithGridPositions = new Dictionary<Vector3, List<Vector3Int>>();
-        list.ForEach(item =>
+        if (BuildingType == BuildingType.IndividualBuilding)
         {
-            var selectionCenter = gridManager.GetSelectionCenter(new List<Vector3Int> { item });
-            placingPositionsWithGridPositions[selectionCenter] = new List<Vector3Int> { item };
-        });
-        /*
-        Vector3 vector3 = new Vector3((float)sVector3.X / 2 - 5 -0.25F,0, (float)sVector3.Z / 2 - 5 + 0.25F);
-        list.Add(new Vector3Int(sVector3.X, 0, sVector3.Z));
-        ret.Add(vector3, list);
-        */
+            placingPositionsWithGridPositions[gridManager.GetSelectionCenter(list)]= list;
+        }
+
+        else
+        {
+            list.ForEach(item =>
+            {
+                var selectionCenter = gridManager.GetSelectionCenter(new List<Vector3Int> { item });
+                placingPositionsWithGridPositions[selectionCenter] = new List<Vector3Int> { item };
+            });
+        }
         return placingPositionsWithGridPositions;
     }
-    public BuildingData GetBuildinData()
+    public BuildingData GetBuildingData()
     {
-        BuildingData buildingData = new BuildingData();
+        BuildingData buildingData = ScriptableObject.CreateInstance<BuildingData>();
         buildingData.Name = Name;
         buildingData.Description = Description;
         buildingData.buildingType = BuildingType;

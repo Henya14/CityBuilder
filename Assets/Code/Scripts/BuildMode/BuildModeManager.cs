@@ -19,16 +19,6 @@ public class BuildModeManager : MonoBehaviour
     }
     public void ObjectSelected(Dictionary<Vector3, List<Vector3Int>> placingPositionsWithGridPositions)
     {
-        foreach(var p in placingPositionsWithGridPositions)
-        {
-            Debug.Log("Pos");
-            Debug.Log("X:" + p.Key.x + "Y:" + p.Key.y + "Z:" + p.Key.z);
-            Debug.Log("List");
-            foreach(var v in p.Value)
-            {
-                Debug.Log("X:" + v.x + "Y:" + v.y + "Z:" + v.z);
-            }
-        }
         var gridPositions = new List<Vector3Int>();
         placingPositionsWithGridPositions.Values.ToList().ForEach(v => gridPositions.AddRange(v));
         gridPositions = gridPositions.Select(p => new Vector3Int(p.x, p.y + 1, p.z)).ToList();
@@ -57,7 +47,7 @@ public class BuildModeManager : MonoBehaviour
     {
         foreach (var BSD in buildings)
         {
-            BuildingDataSelected(BSD.GetBuildinData());
+            BuildingDataSelected(BSD.GetBuildingData());
             ObjectSelected(BSD.GetDictionary(gridManager));
         }
     }
