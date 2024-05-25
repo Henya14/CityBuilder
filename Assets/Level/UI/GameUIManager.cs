@@ -20,6 +20,11 @@ public class GameUIManager : MonoBehaviour
     Label infoContainerText;
     ListView buildingList;
 
+    Label balanceLabel;
+    Label electricityLabel;
+    Label coalLabel;
+    Label woodLabel;
+
     Button timeStartStopButton;
     Button timeForwardButton;
     Label timeTextField;
@@ -28,7 +33,6 @@ public class GameUIManager : MonoBehaviour
 
     Button buildingsButton;
     VisualElement buildingHud;
-
 
     List<Button> gameModeSelectorButtons = new List<Button>();
     public GameMode selectedGameMode {get; set;} = GameMode.SelectionMode;
@@ -49,6 +53,11 @@ public class GameUIManager : MonoBehaviour
         infoContainer = root.Q<VisualElement>("info-text-container");
         infoContainerText = root.Q<Label>("info-text-label");
         buildingList = root.Q<ListView>("building-list");
+
+        balanceLabel = root.Q<Label>("balance-text");
+        electricityLabel = root.Q<Label>("electricity-text");
+        coalLabel = root.Q<Label>("coal-text");
+        woodLabel = root.Q<Label>("wood-text");
 
         timeStartStopButton = root.Q<Button>("time-start-stop-button");
         timeForwardButton = root.Q<Button>("time-forward-button");
@@ -93,13 +102,16 @@ public class GameUIManager : MonoBehaviour
 
         LoadBuildings();
         buildingsButton.clicked += ChangeVisibleOnBuildingHud;
+
+        PlayerBalance.OnPlayerStatsChanged += updateBalanceText;
     }
 
     void OnSelectionModeButtonClicked()
     {
+        HideSpecialBuildings();
         selectedGameMode = GameMode.SelectionMode;
         ResetOnGameModeChange();
-        selectionModeButton.AddToClassList(SELECTED_BUTTON_CLASS_NAME);
+        selectionModeButton.AddToClassList(SELECTED_BUTTON_CLASS_NAME); 
     }
 
     private void ResetOnGameModeChange()
@@ -112,11 +124,12 @@ public class GameUIManager : MonoBehaviour
     }
 
     void OnBuildModeButtonClicked() {
+        HideSpecialBuildings();
         SetSelectedForGameModeSelectorButtons(false);
         selectedGameMode = GameMode.BuildMode;
         buildModeButton.AddToClassList(SELECTED_BUTTON_CLASS_NAME);
         buildingList.style.display = DisplayStyle.Flex;
-        InitializeBuildingsList();
+        InitializeBuildingsList();      
     }
 
     void OnNavigationModeButtonClicked() {
@@ -225,21 +238,11 @@ public class GameUIManager : MonoBehaviour
     }
 
     void LoadBuildings() {
-
         BuildingData[] loadedObjects = Resources.LoadAll<BuildingData>("Buildings");
-
-        Debug.Log(loadedObjects.Length);
         foreach (BuildingData obj in loadedObjects) {
             if (obj.BuyableBuilding) {
                 Button tempbutton = new Button();
-                if(obj.BuildingPicture == null) {
-                    tempbutton.text = obj.Name;
-                }
-                else {
-                    tempbutton.text = "";
-                    tempbutton.style.backgroundImage = obj.image;
-                }
-                
+                tempbutton.text = obj.Name;
                 tempbutton.clicked += () => buildModeManager.BuildingDataSelected(obj);
                 tempbutton.clicked += () => gridManager.ChangeSelection(obj.size, obj.buildingType, obj.prefab);
                 buildingHud.Add(tempbutton);
@@ -248,15 +251,28 @@ public class GameUIManager : MonoBehaviour
         
     }
 
+    void HideSpecialBuildings()
+    {
+        if (buildingHud.visible)
+            buildingHud.visible = !buildingHud.visible;
+    }
+
     void ChangeVisibleOnBuildingHud() {
-        Debug.Log("click");
         buildingHud.visible = !buildingHud.visible; 
         if(buildingHud.visible) {
+            ResetOnGameModeChange();
             selectedGameMode = GameMode.BuildMode;
         }
         else {
-            selectedGameMode = GameMode.SelectionMode;
+            OnSelectionModeButtonClicked();
         }
-        Debug.Log(selectedGameMode);
+    }
+
+    void updateBalanceText()
+    {
+        balanceLabel.text = PlayerBalance.Balance.ToString() + " $";
+        electricityLabel.text = PlayerBalance.Electricity.ToString();
+        coalLabel.text = PlayerBalance.Coal.ToString();
+        woodLabel.text = PlayerBalance.Wood.ToString();
     }
 }

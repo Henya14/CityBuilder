@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a54e024e6921ac14f9b018b85c295968, type: 3}
-  m_Name: Level1_House_A
+  m_Name: WoodFarm
   m_EditorClassIdentifier: 
-  Name: Level 1 House
-  Description: Level 1 House Small
+  Name: TreeFarm
+  Description: TreeFarm
   buildingType: 1
-  price: 100
-  size: {x: 1, y: 1}
+  price: 200
+  size: {x: 3, y: 3}
   isAvailable: 1
-  prefab: {fileID: 3050391959329161442, guid: 3d1031fbc0605a045bc49132ecf095d4, type: 3}
+  prefab: {fileID: 6827586368791729764, guid: fca4f6f9b482f0b4886a25c0b086c8c5, type: 3}
   buildingPicture: {fileID: 0}
   scales: {x: 0, y: 0, z: 0}
   buyableBuilding: 1
