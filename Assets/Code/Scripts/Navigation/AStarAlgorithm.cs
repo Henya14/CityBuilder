@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-public class DijkstraAlgorithm : ShortestPathStrategy
+public class AStarAlgorithm : ShortestPathStrategy
 {
     public List<GraphSearchNode<SelectableObject>> FindShortestPathToDestination(List<GraphSearchNode<SelectableObject>> graphSearchNodes, GraphNode<SelectableObject> source, GraphNode<SelectableObject> destination)
     {
@@ -13,7 +13,7 @@ public class DijkstraAlgorithm : ShortestPathStrategy
         };
         while (nodeList.Any())  
         {   
-            nodeList = nodeList.OrderBy(n => n.CostToStart).ToList();
+            nodeList = nodeList.OrderBy(n => n.CostToStart + n.StraightLineDistanceToDestination).ToList();
             var node = nodeList.First();
             nodeList.Remove(node);
             foreach (var connection in node.GraphNode.Connections) 

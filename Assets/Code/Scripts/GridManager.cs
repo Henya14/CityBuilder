@@ -29,8 +29,6 @@ public class GridManager : MonoBehaviour
     List<Vector3Int> lastSelectedObjectPositions = new List<Vector3Int>();
     bool isSelectionValid = false;
     GameUIManager gameUIManager;
-    NavigationManager navigationManager;
-
     float cooldown;
 
     bool notOnMap = true;
@@ -54,7 +52,6 @@ public class GridManager : MonoBehaviour
     void Start()
     {
         gameUIManager = FindObjectOfType<GameUIManager>();
-        navigationManager = FindObjectOfType<NavigationManager>();
         saveLoadManager = FindObjectOfType<SaveLoadManager>();
         offsetX = gridHeight / 4;
         offsetZ = gridWidth / 4;

@@ -22,11 +22,8 @@ public class Tile : MonoBehaviour
     {
         baseMaterial = GetComponent<MeshRenderer>().material;
         test = new Material(destMaterial);
-        var selectionManager = GetComponent<SelectionManager>();
-        if (selectionManager != null)
-        {
-            selectionManager.SetDescription(Description);
-        }
+        var selectionManager = this.AddComponent<SelectionManager>();
+        selectionManager.Init(gridPosition, Description, SelectableObjectType.Tile);
     }
 
     public void changeMaterial()

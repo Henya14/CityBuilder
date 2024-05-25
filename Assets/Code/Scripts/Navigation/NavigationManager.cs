@@ -7,12 +7,11 @@ using UnityEngine;
 
 
 public interface ShortestPathStrategy {
-    void FindShortestPathToDestination(BuildingAdjacencyGraph adjacencyGraph, SelectableObject source, SelectableObject destination);
+    List<GraphSearchNode<SelectableObject>> FindShortestPathToDestination(List<GraphSearchNode<SelectableObject>> adjacencyGraph, GraphNode<SelectableObject> source, GraphNode<SelectableObject> destination);
 }
 
 public class NavigationManager : MonoBehaviour
 {
-    BuildingAdjacencyMatrix adjacencyMatrix = new BuildingAdjacencyMatrix();
     BuildingAdjacencyGraph adjacencyGraph = new BuildingAdjacencyGraph();
     List<SelectableObject> selectedObjects = new List<SelectableObject>();
 
@@ -30,7 +29,10 @@ public class NavigationManager : MonoBehaviour
 
     public void ObjectSelected(SelectableObject selectedObject)
     {
-        if (selectedObjects.Count == 2)
+        if (selectedObject.GetSelectableObjectType() == SelectableObjectType.Tile) {
+            return;
+        }
+        if (selectedObjects.Count >= 2)
         {
             DeselectObjects();
         }
@@ -39,6 +41,25 @@ public class NavigationManager : MonoBehaviour
             selectedObjects.Add(selectedObject);
             selectedObject.ToggleHighlight(true);
             selectedObject.FreezeHighlight(true);
+            if (selectedObjects.Count == 2) {
+                
+                var algo = new AStarAlgorithm();
+                var start = adjacencyGraph.GetGraphNodeForSelectableObject(selectedObjects[0]);
+                var destination = adjacencyGraph.GetGraphNodeForSelectableObject(selectedObjects[1]);
+                var searchNodes = adjacencyGraph.GetGraphSearchNodes().Select(sn => {
+                    sn.StraightLineDistanceToDestination = (start.Value.GetGridPosition() - sn.GraphNode.Value.GetGridPosition()).magnitude;
+                    return sn;
+                }).ToList();
+                var ruta = algo.FindShortestPathToDestination(searchNodes, 
+                start, 
+                destination);
+                ruta?.ForEach(r => {
+                    r.GraphNode.Value.FreezeHighlight(false);
+                    r.GraphNode.Value.ToggleHighlight(true);
+                    r.GraphNode.Value.FreezeHighlight(true);
+                    selectedObjects.Add(r.GraphNode.Value);
+                });
+            }
 
         }
     }
