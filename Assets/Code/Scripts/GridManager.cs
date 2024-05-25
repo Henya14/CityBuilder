@@ -698,6 +698,7 @@ public class GridManager : MonoBehaviour
         saveLoadManager.SaveTiles(tileMap);
         saveLoadManager.SaveBuildings(buildingsMap);
         saveLoadManager.SaveProperties(propertyMap);
+        saveLoadManager.SaveRest();
     }
 
     public void Load()
@@ -705,6 +706,7 @@ public class GridManager : MonoBehaviour
         saveLoadManager.LoadTiles();
         saveLoadManager.LoadBuildings();
         saveLoadManager.LoadProperties();
+        saveLoadManager.LoadRest();
     }
 
 }

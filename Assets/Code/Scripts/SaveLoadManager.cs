@@ -25,6 +25,7 @@ public class SaveLoadManager : MonoBehaviour
     [SerializeField] SerializableList<TileSaveData> tilesToSaveOrLoad;
     [SerializeField] SerializableList<BuildingSaveData> buildingsToSaveOrLoad;
     [SerializeField] SerializableList<PropertySaveData> propertyToSaveOrLoad;
+    [SerializeField] PlayerSaveData playerSaveData;
 
     // Start is called before the first frame update
     void Start()
@@ -189,6 +190,47 @@ public class SaveLoadManager : MonoBehaviour
 
     }
 
+    public void ResetRest() => playerSaveData=new PlayerSaveData();
+    public void SaveRest()
+    {
+        ResetRest();
+        playerSaveData.Hour = TimeManager.Hour;
+        playerSaveData.Minute = TimeManager.Minute;
+
+        playerSaveData.Balance = PlayerBalance.Balance;
+        playerSaveData.Coal=PlayerBalance.Coal;
+        playerSaveData.Eletricty=PlayerBalance.Electricity;
+        playerSaveData.Wood = PlayerBalance.Wood;
+
+        playerSaveData.RresidentsTaxes = new SerializableList<float>();
+        playerSaveData.RresidentsTaxes.list = PlayerBalance.instance.GetResidnetTaxes();
+        playerSaveData.ShopTaxes = new SerializableList<float>();
+        playerSaveData.ShopTaxes.list = PlayerBalance.instance.GetShopTaxes();
+        playerSaveData.FactoryTaxes = new SerializableList<float>();
+        playerSaveData.FactoryTaxes.list = PlayerBalance.instance.GetFactoryTaxes();
+
+
+        string playerJson = JsonUtility.ToJson(playerSaveData);
+        File.WriteAllText(saveFileName + "Player.json", playerJson);
+
+    }
+
+    public void LoadRest()
+    {
+        ResetRest();
+        TimeManager.instance.StartStopTimer();
+
+        string playerJson = File.ReadAllText(saveFileName + "Player.json");
+        playerSaveData = JsonUtility.FromJson<PlayerSaveData>(playerJson);
+
+        TimeManager.instance.LoadTime(playerSaveData.Hour, playerSaveData.Minute);
+
+        PlayerBalance.instance.LoadData(playerSaveData);
+
+        GameUIManager guiM = FindObjectOfType<GameUIManager>();
+        guiM.UpdateTimer();
+        guiM.updateBalanceText();
+    }
 }
 [Serializable]
 public class TileSaveData
@@ -324,6 +366,24 @@ public class SVector3
         return $"X: {X}, Y: {Y}, Z: {Z}";
     }
     public Vector3Int ConvertBack() => new Vector3Int(X,Y,Z);
+}
+
+[Serializable]
+public class PlayerSaveData
+{
+    //Time:
+    public int Hour;
+    public int Minute;
+    //PlayerBalance:
+    public int Balance;
+    public int Wood;
+    public int Eletricty;
+    public int Coal;
+    public SerializableList<float> RresidentsTaxes;
+    public SerializableList<float> ShopTaxes;
+    public SerializableList<float> FactoryTaxes;
+    //TODO: Popolation ?
+
 }
 
 [Serializable]

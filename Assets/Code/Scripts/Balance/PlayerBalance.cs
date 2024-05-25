@@ -97,6 +97,17 @@ public class PlayerBalance : MonoBehaviour
             }
         }
     }
+    public void LoadData(PlayerSaveData data)
+    {
+        balance = data.Balance;
+        coal = data.Coal;
+        electricity = data.Eletricty;
+        wood = data.Wood;
+        //LoadTaxes(data.RresidentsTaxes.list, data.ShopTaxes.list, data.FactoryTaxes.list);
+    }
+    public List<float> GetResidnetTaxes() { return residentsTaxes; }
+    public List<float> GetShopTaxes() { return shopTaxes; }
+    public List<float> GetFactoryTaxes() { return factoryTaxes; }
 
     void Start() {
         residentsTaxes = new List<float>();

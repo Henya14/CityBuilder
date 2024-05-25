@@ -108,7 +108,7 @@ public class GameUIManager : MonoBehaviour
         LoadBuildings();
         buildingsButton.clicked += ChangeVisibleOnBuildingHud;
 
-        saveButton.clicked += gridManager.Save;
+        saveButton.clicked += gridManager.Load;
 
         PlayerBalance.OnPlayerStatsChanged += updateBalanceText;
     }
@@ -240,7 +240,7 @@ public class GameUIManager : MonoBehaviour
         TimeManager.instance.ChangeTimerSpeed();
     }
 
-    void UpdateTimer() {
+    public void UpdateTimer() {
         timeTextField.text = $"{TimeManager.Hour:00}:{TimeManager.Minute:00}";
     }
 
@@ -275,7 +275,7 @@ public class GameUIManager : MonoBehaviour
         }
     }
 
-    void updateBalanceText()
+    public void updateBalanceText()
     {
         balanceLabel.text = PlayerBalance.Balance.ToString() + " $";
         electricityLabel.text = PlayerBalance.Electricity.ToString();
