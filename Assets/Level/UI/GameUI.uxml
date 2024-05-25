@@ -2,7 +2,7 @@
     <ui:Template name="Minimap" src="project://database/Assets/Level/UI/Minimap.uxml?fileID=9197481963319205126&amp;guid=d7a0894d5d8ec814f9891d9281d6df48&amp;type=3#Minimap" />
     <Style src="project://database/Assets/Level/UI/GameUIStyle.uss?fileID=7433441132597879392&amp;guid=c573eb51f56e9f5408e4ece8d0f99e9b&amp;type=3#GameUIStyle" />
     <ui:VisualElement name="VisualElement" style="flex-grow: 1; justify-content: flex-end;">
-        <ui:VisualElement name="info-box-container" style="flex-grow: 1; width: 40%; height: 40%; align-self: auto; flex-direction: column;">
+        <ui:VisualElement name="info-box-container" style="flex-grow: 1; width: auto; height: auto; align-self: auto; flex-direction: column; background-color: rgba(238, 0, 0, 0); justify-content: flex-start; align-items: stretch; overflow: visible;">
             <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="balance-text" style="width: auto;" />
             <ui:Label tabindex="-1" text="Electricity:" parse-escape-sequences="true" display-tooltip-when-elided="true" name="eletricity-label">
                 <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="electricity-text" style="left: 13%;" />

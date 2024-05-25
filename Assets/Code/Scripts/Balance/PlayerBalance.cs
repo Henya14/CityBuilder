@@ -22,7 +22,7 @@ public class PlayerBalance : MonoBehaviour
 
     public static Action OnPlayerStatsChanged;
 
-    static int balance;
+    static int balance; 
     static int wood;
     static int electricity;
     static int coal;
