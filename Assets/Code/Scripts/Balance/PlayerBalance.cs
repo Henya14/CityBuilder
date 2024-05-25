@@ -22,10 +22,13 @@ public class PlayerBalance : MonoBehaviour
 
     public static Action OnPlayerStatsChanged;
 
-    static int balance;
+    static int balance; 
     static int wood;
     static int electricity;
     static int coal;
+
+    [SerializeField] List<Quest> quests;
+    [SerializeField] List<Quest> doneQuests;
 
     [SerializeField] public static int Balance { 
         get { return balance; } 
@@ -103,11 +106,11 @@ public class PlayerBalance : MonoBehaviour
         shopTaxes = new List<float>();
         factoryTaxes = new List<float>();
 
-        TimeManager.OnHourChanged += calcTaxes;
-
+        TimeManager.OnHourChanged += CalcTaxes;
+        TimeManager.OnHourChanged += CheckQuests;
     }
 
-    private void calcTaxes() {
+    private void CalcTaxes() {
         updatePopulation();
 
         float currTaxIncome = 0;
@@ -141,5 +144,18 @@ public class PlayerBalance : MonoBehaviour
         residentsTaxes = loadedRTaxes;
         shopTaxes = loadedSTaxes;
         factoryTaxes = loadedFTaxes;
+    }
+
+    private void CheckQuests()
+    {
+        for (int i = 0; i<quests.Count; i++)
+        {
+            quests[i].CheckTheQuest();
+            if (quests[i].IsDone())
+            {
+                doneQuests.Add(quests[i]);
+                quests.RemoveAt(i);
+            }
+        }
     }
 }

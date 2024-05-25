@@ -25,6 +25,8 @@ public class GameUIManager : MonoBehaviour
     Label coalLabel;
     Label woodLabel;
 
+    Label questText;
+
     Button timeStartStopButton;
     Button timeForwardButton;
     Label timeTextField;
@@ -43,6 +45,10 @@ public class GameUIManager : MonoBehaviour
     //New common manager: PropertyManager
     //private ResidentManager residentManager;
     [SerializeField] VisualTreeAsset buildingListElementTemplate;
+
+
+    private float timeToAppear = 10f;
+    private float timeWhenDisappear;
 
     const string SELECTED_BUTTON_CLASS_NAME = "selected";
     private void OnEnable() {
@@ -67,6 +73,8 @@ public class GameUIManager : MonoBehaviour
 
         buildingsButton = root.Q<Button>("buildings-button");
         buildingHud = root.Q<VisualElement>("building-hud-container");
+
+        questText = root.Q<Label>("quest-text");
 
     }
     void Start() {
@@ -103,7 +111,15 @@ public class GameUIManager : MonoBehaviour
         LoadBuildings();
         buildingsButton.clicked += ChangeVisibleOnBuildingHud;
 
-        PlayerBalance.OnPlayerStatsChanged += updateBalanceText;
+        PlayerBalance.OnPlayerStatsChanged += UpdateBalanceText;
+    }
+
+    private void Update()
+    {
+        if ((questText.style.display == DisplayStyle.Flex) && (Time.time >= timeWhenDisappear))
+        {
+            questText.style.display = DisplayStyle.None;
+        }
     }
 
     void OnSelectionModeButtonClicked()
@@ -268,11 +284,18 @@ public class GameUIManager : MonoBehaviour
         }
     }
 
-    void updateBalanceText()
+    void UpdateBalanceText()
     {
         balanceLabel.text = PlayerBalance.Balance.ToString() + " $";
         electricityLabel.text = PlayerBalance.Electricity.ToString();
         coalLabel.text = PlayerBalance.Coal.ToString();
         woodLabel.text = PlayerBalance.Wood.ToString();
+    }
+
+    public void QuestCompleted(string text)
+    {
+        questText.style.display = DisplayStyle.Flex;
+        questText.text = text;
+        timeWhenDisappear = Time.time + timeToAppear;
     }
 }

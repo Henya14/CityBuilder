@@ -15,6 +15,7 @@ public class MenuUIManager : MonoBehaviour
     Button settingsButton;
     Button quitButton;
     Button backToMainMenuButton;
+    Button loadLastSaveButton;
     VisualElement mainMenuContainer;
     VisualElement settingsContainer;
 
@@ -24,10 +25,10 @@ public class MenuUIManager : MonoBehaviour
         startButton = root.Q<Button>("start-game-button");
         settingsButton = root.Q<Button>("settings-button");
         quitButton = root.Q<Button>("quit-button");
+        loadLastSaveButton = root.Q<Button>("load-game-button");
         backToMainMenuButton = root.Q<Button>("back-to-mainmenu-button");
         mainMenuContainer = root.Q<VisualElement>("main-menu-container");
         settingsContainer = root.Q<VisualElement>("settings-container");
-
     }
     // Start is called before the first frame update
     void Start()
@@ -36,12 +37,7 @@ public class MenuUIManager : MonoBehaviour
         settingsButton.clicked += SettingsButton;
         quitButton.clicked += QuitButton;
         backToMainMenuButton.clicked += MainMenuButton;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        loadLastSaveButton.clicked += LoadGameButton;
     }
 
     void StartButton() {
@@ -58,5 +54,10 @@ public class MenuUIManager : MonoBehaviour
     void MainMenuButton() {
         settingsContainer.style.display = DisplayStyle.None;
         mainMenuContainer.style.display = DisplayStyle.Flex;
+    }
+    void LoadGameButton()
+    {
+        StartButton();
+        //Oliver LoadGame
     }
 }
