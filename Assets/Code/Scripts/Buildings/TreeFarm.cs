@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Mine : Building
+public class treeFarm : Building
 {
     void Start()
     {
@@ -10,6 +10,6 @@ public class Mine : Building
     }
     public void processBuilding()
     {
-        PlayerBalance.Coal = 50;
+        PlayerBalance.Wood = 5;
     }
 }

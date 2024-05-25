@@ -21,6 +21,9 @@ public class GameUIManager : MonoBehaviour
     ListView buildingList;
 
     Label balanceLabel;
+    Label electricityLabel;
+    Label coalLabel;
+    Label woodLabel;
 
     Button timeStartStopButton;
     Button timeForwardButton;
@@ -52,6 +55,9 @@ public class GameUIManager : MonoBehaviour
         buildingList = root.Q<ListView>("building-list");
 
         balanceLabel = root.Q<Label>("balance-text");
+        electricityLabel = root.Q<Label>("electricity-text");
+        coalLabel = root.Q<Label>("coal-text");
+        woodLabel = root.Q<Label>("wood-text");
 
         timeStartStopButton = root.Q<Button>("time-start-stop-button");
         timeForwardButton = root.Q<Button>("time-forward-button");
@@ -97,15 +103,15 @@ public class GameUIManager : MonoBehaviour
         LoadBuildings();
         buildingsButton.clicked += ChangeVisibleOnBuildingHud;
 
-        PlayerBalance.OnPlayerBalanceChanged += updateBalanceText;
+        PlayerBalance.OnPlayerStatsChanged += updateBalanceText;
     }
 
     void OnSelectionModeButtonClicked()
     {
+        HideSpecialBuildings();
         selectedGameMode = GameMode.SelectionMode;
         ResetOnGameModeChange();
-        selectionModeButton.AddToClassList(SELECTED_BUTTON_CLASS_NAME);
-        HideSpecialBuildings();
+        selectionModeButton.AddToClassList(SELECTED_BUTTON_CLASS_NAME); 
     }
 
     private void ResetOnGameModeChange()
@@ -118,12 +124,12 @@ public class GameUIManager : MonoBehaviour
     }
 
     void OnBuildModeButtonClicked() {
+        HideSpecialBuildings();
         SetSelectedForGameModeSelectorButtons(false);
         selectedGameMode = GameMode.BuildMode;
         buildModeButton.AddToClassList(SELECTED_BUTTON_CLASS_NAME);
         buildingList.style.display = DisplayStyle.Flex;
-        InitializeBuildingsList();
-        HideSpecialBuildings();
+        InitializeBuildingsList();      
     }
 
     void OnNavigationModeButtonClicked() {
@@ -232,20 +238,11 @@ public class GameUIManager : MonoBehaviour
     }
 
     void LoadBuildings() {
-
         BuildingData[] loadedObjects = Resources.LoadAll<BuildingData>("Buildings");
-
-        Debug.Log(loadedObjects.Length);
         foreach (BuildingData obj in loadedObjects) {
             if (obj.BuyableBuilding) {
                 Button tempbutton = new Button();
                 tempbutton.text = obj.Name;
-                //tempbutton.clicked += () => buildModeManager.BuildingDataSelected(obj);
-                //tempbutton.clicked += () => buildModeManager.CreateBuildingFromBuildingData(obj);
-
-                //tempbutton.clicked += () => gridManager.ChangeSelection(obj.size, obj.buildingType, obj.prefab);
-
-
                 tempbutton.clicked += () => buildModeManager.BuildingDataSelected(obj);
                 tempbutton.clicked += () => gridManager.ChangeSelection(obj.size, obj.buildingType, obj.prefab);
                 buildingHud.Add(tempbutton);
@@ -274,5 +271,8 @@ public class GameUIManager : MonoBehaviour
     void updateBalanceText()
     {
         balanceLabel.text = PlayerBalance.Balance.ToString() + " $";
+        electricityLabel.text = PlayerBalance.Electricity.ToString();
+        coalLabel.text = PlayerBalance.Coal.ToString();
+        woodLabel.text = PlayerBalance.Wood.ToString();
     }
 }

@@ -486,7 +486,7 @@ public class GridManager : MonoBehaviour
     {
         foreach (var gridPosition in gridPositions)
         {
-            Debug.Log($"{gridPosition}, {buildingsMap.Keys}");
+            //Debug.Log($"{gridPosition}, {buildingsMap.Keys}");
             buildingsMap.Add(gridPosition, building);
         }
     }

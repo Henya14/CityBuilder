@@ -20,10 +20,83 @@ public class PlayerBalance : MonoBehaviour
     List<float> shopPopulation = new List<float> { 0, 0, 0 };
     List<float> factoryPopulation = new List<float> { 0, 0, 0 };
 
-    public static Action OnPlayerBalanceChanged;
+    public static Action OnPlayerStatsChanged;
 
-    [SerializeField] public static int Balance { get; private set; }
+    static int balance;
+    static int wood;
+    static int electricity;
+    static int coal;
 
+    [SerializeField] public static int Balance { 
+        get { return balance; } 
+        set {
+            if (value > 0)
+            {
+                balance += value;
+                OnPlayerStatsChanged?.Invoke();
+            }else if(value < 0 && ((balance - value) >= 0))
+            {
+                balance -= value;
+                OnPlayerStatsChanged?.Invoke();
+            }
+        } 
+    }
+    [SerializeField]
+    public static int Coal
+    {
+        get { return coal; }
+        set
+        {
+            if (value > 0)
+            {
+                coal += value;
+                OnPlayerStatsChanged?.Invoke();
+            }
+            else if (value < 0 && ((Coal - value) >= 0))
+            {
+                coal -= value;
+                OnPlayerStatsChanged?.Invoke();
+            }
+        }
+    }
+
+    [SerializeField]
+    public static int Electricity
+    {
+        get { return electricity; }
+        set
+        {
+            if (value > 0)
+            {
+                electricity += value;
+                OnPlayerStatsChanged?.Invoke();
+            }
+            else if (value < 0 && ((electricity - value) >= 0))
+            {
+                electricity -= value;
+                OnPlayerStatsChanged?.Invoke();
+            }
+        }
+    }
+
+    [SerializeField]
+    public static int Wood
+    {
+        get { return wood; }
+        set
+        {
+            if (value > 0)
+            {
+                wood += value;
+                OnPlayerStatsChanged?.Invoke();
+            }
+            else if (value < 0 && ((wood - value) >= 0))
+            {
+                wood -= value;
+                OnPlayerStatsChanged?.Invoke();
+            }
+        }
+    }
 
     void Start() {
         residentsTaxes = new List<float>();
@@ -68,23 +141,5 @@ public class PlayerBalance : MonoBehaviour
         residentsTaxes = loadedRTaxes;
         shopTaxes = loadedSTaxes;
         factoryTaxes = loadedFTaxes;
-    }
-
-    public void increaseBalance(int amount)
-    {
-        if(amount >= 0)
-        {
-            Balance += amount;
-            OnPlayerBalanceChanged?.Invoke();
-        }
-    }
-
-    public void decreaseBalance(int amount)
-    {
-        if (amount <= 0 && ((Balance - amount) >= 0))
-        {
-            Balance -= amount;
-            OnPlayerBalanceChanged?.Invoke();
-        }  
     }
 }

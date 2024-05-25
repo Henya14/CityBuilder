@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Mine : Building
+public class PowerPlant : MonoBehaviour
 {
     void Start()
     {
@@ -10,6 +10,10 @@ public class Mine : Building
     }
     public void processBuilding()
     {
-        PlayerBalance.Coal = 50;
+        if (PlayerBalance.Coal >= 22)
+        {
+            PlayerBalance.Coal = -22;
+            PlayerBalance.Electricity = -25;
+        }
     }
 }
