@@ -34,7 +34,6 @@ public abstract class AbstarctProperty : MonoBehaviour
     }
     public void IncreaseCapacity(int add)
     {
-        //Can be replaced with maxCapacity
         if(Capacity+add<MaxCapacity)
             Capacity += add;
     } 

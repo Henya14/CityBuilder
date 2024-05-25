@@ -74,7 +74,7 @@ public class GridManager : MonoBehaviour
         }
     }
     
-    public void LoadGrid(List<TileData> tileDatas)
+    public void LoadGrid(List<TileSaveData> tileDatas)
     {
         ClearGrid();
         
@@ -698,11 +698,13 @@ public class GridManager : MonoBehaviour
     public void Save()
     {
         saveLoadManager.SaveTiles(tileMap);
+        saveLoadManager.SaveBuildings(buildingsMap);
     }
 
     public void Load()
     {
         saveLoadManager.LoadTiles();
+        saveLoadManager.LoadBuildings();
     }
 
 }
