@@ -1,19 +1,102 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerBalance : MonoBehaviour
 {
-    [SerializeField] int balance = 0;
+    public static PlayerBalance instance;
+    private void Awake()
+    {
+        if (instance == null)
+            instance = this;
+    }
     
-    List<float> residentsTaxes;
-    List<float> shopTaxes;
-    List<float> factoryTaxes;
+    List<float> residentsTaxes = new List<float> { 0, 0, 0 };
+    List<float> shopTaxes = new List<float> { 0, 0, 0 };
+    List<float> factoryTaxes = new List<float> { 0, 0, 0 };
 
-    List<float> residentsPopulation;
-    List<float> shopPopulation;
-    List<float> factoryPopulation;
+    List<float> residentsPopulation = new List<float> { 0, 0, 0 };
+    List<float> shopPopulation = new List<float> { 0, 0, 0 };
+    List<float> factoryPopulation = new List<float> { 0, 0, 0 };
 
+    public static Action OnPlayerStatsChanged;
+
+    static int balance;
+    static int wood;
+    static int electricity;
+    static int coal;
+
+    [SerializeField] public static int Balance { 
+        get { return balance; } 
+        set {
+            if (value > 0)
+            {
+                balance += value;
+                OnPlayerStatsChanged?.Invoke();
+            }else if(value < 0 && ((balance - value) >= 0))
+            {
+                balance -= value;
+                OnPlayerStatsChanged?.Invoke();
+            }
+        } 
+    }
+    [SerializeField]
+    public static int Coal
+    {
+        get { return coal; }
+        set
+        {
+            if (value > 0)
+            {
+                coal += value;
+                OnPlayerStatsChanged?.Invoke();
+            }
+            else if (value < 0 && ((Coal - value) >= 0))
+            {
+                coal -= value;
+                OnPlayerStatsChanged?.Invoke();
+            }
+        }
+    }
+
+    [SerializeField]
+    public static int Electricity
+    {
+        get { return electricity; }
+        set
+        {
+            if (value > 0)
+            {
+                electricity += value;
+                OnPlayerStatsChanged?.Invoke();
+            }
+            else if (value < 0 && ((electricity - value) >= 0))
+            {
+                electricity -= value;
+                OnPlayerStatsChanged?.Invoke();
+            }
+        }
+    }
+
+    [SerializeField]
+    public static int Wood
+    {
+        get { return wood; }
+        set
+        {
+            if (value > 0)
+            {
+                wood += value;
+                OnPlayerStatsChanged?.Invoke();
+            }
+            else if (value < 0 && ((wood - value) >= 0))
+            {
+                wood -= value;
+                OnPlayerStatsChanged?.Invoke();
+            }
+        }
+    }
 
     void Start() {
         residentsTaxes = new List<float>();
@@ -21,6 +104,7 @@ public class PlayerBalance : MonoBehaviour
         factoryTaxes = new List<float>();
 
         TimeManager.OnHourChanged += calcTaxes;
+
     }
 
     private void calcTaxes() {
@@ -37,18 +121,18 @@ public class PlayerBalance : MonoBehaviour
         for (int i = 0; i < factoryTaxes.Count; i++)
             currTaxIncome += factoryTaxes[i] * factoryPopulation[i];
 
-        balance += (int)currTaxIncome;
+        Balance += (int)currTaxIncome;
     }
 
     private void updatePopulation() {
         //Get the population numbers from a gridManager here, now its a dummy data
-        for (int i = 0; residentsPopulation.Count > 0; i++)
+        for (int i = 0; i < residentsPopulation.Count; i++)
             residentsPopulation[i] += 1;
 
-        for (int i = 0; shopPopulation.Count > 0; i++)
+        for (int i = 0; i < shopPopulation.Count; i++)
             shopPopulation[i] += 1;
 
-        for (int i = 0; factoryPopulation.Count > 0; i++)
+        for (int i = 0; i <  factoryPopulation.Count; i++)
             factoryPopulation[i] += 1;
     }
 

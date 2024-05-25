@@ -34,6 +34,7 @@ public class BuildModeManager : MonoBehaviour
         gridPositions = gridPositions.Select(p => new Vector3Int(p.x, p.y + 1, p.z)).ToList();
 
         var selectedBuilding = CreateBuildingFromBuildingData(selectedBuildingData);
+        if (selectedBuilding == null) return;
         List<Vector3> placePositions = new List<Vector3>();
         Dictionary<Vector3, List<Vector3Int>> updatedPlacingPositionsWithGridPositions = new Dictionary<Vector3, List<Vector3Int>>();
         foreach (var prefabPlacePosition in placingPositionsWithGridPositions.Keys)
@@ -132,8 +133,8 @@ public class BuildModeManager : MonoBehaviour
         selectedBuildingData = buildingData;
     }
 
-    private AbstractBuildingType CreateBuildingFromBuildingData(BuildingData data) {
-        
+    public AbstractBuildingType CreateBuildingFromBuildingData(BuildingData data) {
+        if(data == null) return null;
         switch (data.buildingType) {
             case BuildingType.Road:
                 var createdRoad = gameObject.AddComponent<Road>();

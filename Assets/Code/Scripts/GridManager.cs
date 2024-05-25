@@ -327,6 +327,7 @@ public class GridManager : MonoBehaviour
             if (lastSelectedObjectPositions.Count > 0 && selectionMode == SelectionMode.Single && isSelectionValid)
             {
                 var selectedObject = GetSelectedObjectAtPosition(lastSelectedObjectPositions[0]);
+                if (selectedObject == null) return;
                 ManageObjectSelectionInSingleMode(selectedObject);
                 VisualizeNeighbours();
                 var selectedObjectGridPosition = selectedObject.GetGridPosition();
@@ -527,7 +528,7 @@ public class GridManager : MonoBehaviour
     {
         foreach (var gridPosition in gridPositions)
         {
-            Debug.Log($"{gridPosition}, {buildingsMap.Keys}");
+            //Debug.Log($"{gridPosition}, {buildingsMap.Keys}");
             buildingsMap.Add(gridPosition, building);
         }
     }
