@@ -21,4 +21,9 @@ public abstract class Quest : ScriptableObject
             
         return isQuestIsDone;
     }
+    //Use at loading quest
+    public void QuestAlreadyDone()
+    {
+        isQuestIsDone=true;
+    }
 }

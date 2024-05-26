@@ -218,6 +218,10 @@ public class SaveLoadManager : MonoBehaviour
         playerSaveData.FactoryTaxes.list = new List<float>();
         PlayerBalance.instance.GetFactoryTaxes().ForEach(tax => playerSaveData.FactoryTaxes.list.Add(tax));
 
+        playerSaveData.DoneQuestsTexts = new SerializableList<string>();
+        playerSaveData.DoneQuestsTexts.list = new List<string>();
+        PlayerBalance.instance.GetDoneQuests().ForEach(text => playerSaveData.DoneQuestsTexts.list.Add(text));
+
 
         string playerJson = JsonUtility.ToJson(playerSaveData);
         File.WriteAllText(saveFileName + "Player.json", playerJson);
@@ -397,6 +401,8 @@ public class PlayerSaveData
     public SerializableList<float> FactoryTaxes;
     //TODO: Popolation ?
 
+    //Quests: Only Done Quests save
+    public SerializableList<string> DoneQuestsTexts;
 }
 
 [Serializable]

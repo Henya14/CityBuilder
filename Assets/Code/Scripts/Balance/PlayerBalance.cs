@@ -106,16 +106,25 @@ public class PlayerBalance : MonoBehaviour
         coal = data.Coal;
         electricity = data.Eletricty;
         wood = data.Wood;
-        //LoadTaxes(data.RresidentsTaxes.list, data.ShopTaxes.list, data.FactoryTaxes.list);
+        LoadTaxes(data.RresidentsTaxes.list, data.ShopTaxes.list, data.FactoryTaxes.list);
+
+        //TODO: done quest search not with name
+        var dQuests = quests.FindAll(q => data.DoneQuestsTexts.list.Contains(q.name));
+        foreach (var quest in dQuests)
+        {
+            quest.QuestAlreadyDone();
+
+            doneQuests.Add(quest);
+            quests.Remove(quest);
+        }
     }
     public List<float> GetResidnetTaxes() { return residentsTaxes; }
     public List<float> GetShopTaxes() { return shopTaxes; }
     public List<float> GetFactoryTaxes() { return factoryTaxes; }
 
+    public List<string> GetDoneQuests() { return doneQuests.ConvertAll(x => x.name); }
+
     void Start() {
-        residentsTaxes = new List<float>();
-        shopTaxes = new List<float>();
-        factoryTaxes = new List<float>();
 
         TimeManager.OnHourChanged += CalcTaxes;
         TimeManager.OnHourChanged += CheckQuests;
