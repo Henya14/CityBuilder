@@ -57,7 +57,7 @@ public class MenuUIManager : MonoBehaviour
     }
     void LoadGameButton()
     {
+        GridManager.loadOnStart = true;
         StartButton();
-        //Oliver LoadGame
     }
 }

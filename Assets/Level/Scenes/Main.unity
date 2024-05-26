@@ -887,6 +887,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7a4523f1af0e9942832b6aa18e85a73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gridManager: {fileID: 158693460}
 --- !u!4 &1511013244
 Transform:
   m_ObjectHideFlags: 0
@@ -1078,14 +1079,27 @@ MonoBehaviour:
   buildModeManager: {fileID: 1511013243}
   gridManager: {fileID: 158693460}
   saveFileName: SaveTest
+  tilesToSaveOrLoad:
+    list: []
+  buildingsToSaveOrLoad:
+    list: []
+  propertyToSaveOrLoad:
+    list: []
+  playerSaveData:
+    Hour: 0
+    Minute: 0
+    Balance: 0
+    Wood: 0
+    Eletricty: 0
+    Coal: 0
+    RresidentsTaxes:
+      list: []
+    ShopTaxes:
+      list: []
+    FactoryTaxes:
+      list: []
   saved: 1
   TurnedOff: 1
-  tilesToSave:
-    list: []
-  buildingsToSave:
-    list: []
-  propertyToSave:
-    list: []
 --- !u!4 &1827308584
 Transform:
   m_ObjectHideFlags: 0
