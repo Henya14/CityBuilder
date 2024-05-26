@@ -47,6 +47,7 @@ public class GridManager : MonoBehaviour
     int offsetZ = 10;
 
     [SerializeField] SaveLoadManager saveLoadManager;
+    [SerializeField] public static bool loadOnStart = false;
 
     // Start is called before the first frame update
     void Start()
@@ -57,6 +58,8 @@ public class GridManager : MonoBehaviour
         offsetZ = gridWidth / 4;
         GenerateGrid();
 
+        if (loadOnStart) Invoke(nameof(Load), float.MinValue);
+        
     }
 
     private void GenerateGrid()

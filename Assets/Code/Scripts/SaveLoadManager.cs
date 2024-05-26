@@ -18,15 +18,15 @@ public class SaveLoadManager : MonoBehaviour
     [SerializeField] GridManager gridManager;
     [SerializeField] string saveFileName;
 
-    //used for testing
-    [SerializeField] bool saved=true;
-    [SerializeField] bool TurnedOff=true;
     //Suggestion: Move it to Function
     [SerializeField] SerializableList<TileSaveData> tilesToSaveOrLoad;
     [SerializeField] SerializableList<BuildingSaveData> buildingsToSaveOrLoad;
     [SerializeField] SerializableList<PropertySaveData> propertyToSaveOrLoad;
     [SerializeField] PlayerSaveData playerSaveData;
 
+    //used for testing
+    [SerializeField] bool saved = true;
+    [SerializeField] bool TurnedOff = true;
     // Start is called before the first frame update
     void Start()
     {
@@ -36,11 +36,7 @@ public class SaveLoadManager : MonoBehaviour
         TimeManager.OnHourChanged += DummySaveLoad;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    //Function for testing:
     void DummySaveLoad()
     {
         if (TurnedOff) return;
@@ -53,8 +49,9 @@ public class SaveLoadManager : MonoBehaviour
         {
             gridManager.Load();
         }
-        
+
     }
+    //Tiles part:
     private void ResetTilesList()
     {
         SerializableList<TileSaveData> serializableList = new SerializableList<TileSaveData>();
@@ -99,6 +96,10 @@ public class SaveLoadManager : MonoBehaviour
 
         gridManager.LoadGrid(tilesToSaveOrLoad.list);
     }
+
+
+    //Buildings Part:
+
     private void ResetBuildingsList()
     {
         SerializableList<BuildingSaveData> serializableList = new SerializableList<BuildingSaveData>();
@@ -121,15 +122,15 @@ public class SaveLoadManager : MonoBehaviour
 
             SerializableList<SVector3> list = new SerializableList<SVector3>();
             List<SVector3> sVector3s = new List<SVector3>();
-            list.list=sVector3s;
-            data.GridPositions= list;
+            list.list = sVector3s;
+            data.GridPositions = list;
 
-            foreach(var gridpos in VandB.Value.gridPositions)
+            foreach (var gridpos in VandB.Value.gridPositions)
             {
-                
+
                 data.GridPositions.list.Add(new SVector3(gridpos));
             }
-            
+
 
             data.ConvertBuildingData(VandB.Value.GetBuildingData());
 
@@ -139,7 +140,7 @@ public class SaveLoadManager : MonoBehaviour
         /*
         Debug.Log(buildingJson);
         */
-        File.WriteAllText(saveFileName+"Buildings.json", buildingJson);
+        File.WriteAllText(saveFileName + "Buildings.json", buildingJson);
 
     }
     public void LoadBuildings()
@@ -152,6 +153,11 @@ public class SaveLoadManager : MonoBehaviour
         buildModeManager.LoadBuildings(buildingsToSaveOrLoad.list);
     }
 
+
+
+
+    //Property part:
+
     private void ResetPropertiesList()
     {
         SerializableList<PropertySaveData> serializableList = new SerializableList<PropertySaveData>();
@@ -162,7 +168,7 @@ public class SaveLoadManager : MonoBehaviour
     {
         ResetPropertiesList();
 
-        foreach(var property in propertyMap)
+        foreach (var property in propertyMap)
         {
             PropertySaveData propertySaveData = new PropertySaveData();
             propertySaveData.Convert(property.Value);
@@ -183,14 +189,14 @@ public class SaveLoadManager : MonoBehaviour
         string propertyJson = File.ReadAllText(saveFileName + "Properties.json");
         propertyToSaveOrLoad = JsonUtility.FromJson<SerializableList<PropertySaveData>>(propertyJson);
 
-        foreach(var manager in FindObjectsOfType<PropertyManager>())
+        foreach (var manager in FindObjectsOfType<PropertyManager>())
         {
             manager.loadProperties(propertyToSaveOrLoad.list);
         }
 
     }
 
-    public void ResetRest() => playerSaveData=new PlayerSaveData();
+    public void ResetRest() => playerSaveData = new PlayerSaveData();
     public void SaveRest()
     {
         ResetRest();
@@ -198,16 +204,23 @@ public class SaveLoadManager : MonoBehaviour
         playerSaveData.Minute = TimeManager.Minute;
 
         playerSaveData.Balance = PlayerBalance.Balance;
-        playerSaveData.Coal=PlayerBalance.Coal;
-        playerSaveData.Eletricty=PlayerBalance.Electricity;
+        playerSaveData.Coal = PlayerBalance.Coal;
+        playerSaveData.Eletricty = PlayerBalance.Electricity;
         playerSaveData.Wood = PlayerBalance.Wood;
 
         playerSaveData.RresidentsTaxes = new SerializableList<float>();
-        playerSaveData.RresidentsTaxes.list = PlayerBalance.instance.GetResidnetTaxes();
+        playerSaveData.RresidentsTaxes.list = new List<float>();
+        PlayerBalance.instance.GetResidnetTaxes().ForEach(tax => playerSaveData.RresidentsTaxes.list.Add(tax));
         playerSaveData.ShopTaxes = new SerializableList<float>();
-        playerSaveData.ShopTaxes.list = PlayerBalance.instance.GetShopTaxes();
+        playerSaveData.ShopTaxes.list = new List<float>();
+        PlayerBalance.instance.GetShopTaxes().ForEach(tax => playerSaveData.ShopTaxes.list.Add(tax));
         playerSaveData.FactoryTaxes = new SerializableList<float>();
-        playerSaveData.FactoryTaxes.list = PlayerBalance.instance.GetFactoryTaxes();
+        playerSaveData.FactoryTaxes.list = new List<float>();
+        PlayerBalance.instance.GetFactoryTaxes().ForEach(tax => playerSaveData.FactoryTaxes.list.Add(tax));
+
+        playerSaveData.DoneQuestsTexts = new SerializableList<string>();
+        playerSaveData.DoneQuestsTexts.list = new List<string>();
+        PlayerBalance.instance.GetDoneQuests().ForEach(text => playerSaveData.DoneQuestsTexts.list.Add(text));
 
 
         string playerJson = JsonUtility.ToJson(playerSaveData);
@@ -232,6 +245,10 @@ public class SaveLoadManager : MonoBehaviour
         guiM.UpdateBalanceText();
     }
 }
+
+
+//Save Data Classes:
+
 [Serializable]
 public class TileSaveData
 {
@@ -271,7 +288,7 @@ public class BuildingSaveData
 
     public void ConvertBuildingData(BuildingData buildingData)
     {
-        Name= buildingData.name;
+        Name= buildingData.Name;
         Description=buildingData.Description;
         BuildingType=buildingData.buildingType;
         Price=buildingData.price;
@@ -321,7 +338,7 @@ public class BuildingSaveData
                 buildingData.prefab=obj.prefab;
             }
         }
-        Debug.Log(buildingData.prefab == null ? "Cant find prefab" : "Prefab found");
+        //Debug.Log(buildingData.prefab == null ? "Cant find prefab" : "Prefab found");
         return buildingData;
     }
 }
@@ -384,6 +401,8 @@ public class PlayerSaveData
     public SerializableList<float> FactoryTaxes;
     //TODO: Popolation ?
 
+    //Quests: Only Done Quests save
+    public SerializableList<string> DoneQuestsTexts;
 }
 
 [Serializable]
