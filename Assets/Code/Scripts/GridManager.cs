@@ -712,4 +712,13 @@ public class GridManager : MonoBehaviour
         saveLoadManager.LoadRest();
     }
 
+    public List<AbstarctProperty> GetProperties()
+    {
+        var ret= new List<AbstarctProperty>();
+        foreach (var item in propertyMap)
+        {
+            ret.Add(item.Value);
+        }
+        return ret;
+    }
 }
