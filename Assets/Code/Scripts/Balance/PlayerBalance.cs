@@ -223,7 +223,7 @@ public class PlayerBalance : MonoBehaviour
                     shopTaxes[level]--;
                 break;
             case "factory":
-                if (shopTaxes[level] >= 1)
+                if (factoryTaxes[level] >= 1)
                     factoryTaxes[level]--;
                 break;
             default: break;
