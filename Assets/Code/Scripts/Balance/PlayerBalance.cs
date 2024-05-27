@@ -20,6 +20,19 @@ public class PlayerBalance : MonoBehaviour
     List<float> shopPopulation = new List<float> { 0, 0, 0 };
     List<float> factoryPopulation = new List<float> { 0, 0, 0 };
 
+    public List<float> ResidentsTaxes
+    {
+        get { return residentsTaxes; }
+    }
+    public List<float> ShopTaxes
+    {
+        get { return shopTaxes; }
+    }
+    public List<float> FactoryTaxes
+    {
+        get { return factoryTaxes; }
+    }
+
     public static Action OnPlayerStatsChanged;
 
     static int balance; 
@@ -131,7 +144,7 @@ public class PlayerBalance : MonoBehaviour
     }
 
     private void CalcTaxes() {
-        updatePopulation();
+        UpdatePopulation();
 
         float currTaxIncome = 0;
 
@@ -147,7 +160,7 @@ public class PlayerBalance : MonoBehaviour
         Balance += (int)currTaxIncome;
     }
 
-    private void updatePopulation() {
+    private void UpdatePopulation() {
         //Get the population numbers from a gridManager here, now its a dummy data
         for (int i = 0; i < residentsPopulation.Count; i++)
             residentsPopulation[i] += 1;
@@ -157,6 +170,44 @@ public class PlayerBalance : MonoBehaviour
 
         for (int i = 0; i <  factoryPopulation.Count; i++)
             factoryPopulation[i] += 1;
+    }
+
+    public void IncreaseTaxes(string taxType, int level)
+    {
+        switch (taxType)
+        {
+            case "resident":
+                residentsTaxes[level]++;
+                break;
+            case "shop":
+                shopTaxes[level]++;
+                break;
+            case "factory":
+                factoryTaxes[level]++;
+                break;
+            default: break;
+        }
+    }
+
+    public void DecreaseTaxes(string taxType, int level)
+    {
+        switch (taxType)
+        {
+            case "resident":
+                if(residentsTaxes[level]>=1)
+                    residentsTaxes[level]--;
+                break;
+            case "shop":
+                if (shopTaxes[level] >= 1)
+                    shopTaxes[level]--;
+                break;
+            case "factory":
+                if (shopTaxes[level] >= 1)
+                    factoryTaxes[level]--;
+                break;
+            default: break;
+        }
+
     }
 
     //Only for load the game back from a savegame

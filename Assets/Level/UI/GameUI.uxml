@@ -2,18 +2,79 @@
     <ui:Template name="Minimap" src="project://database/Assets/Level/UI/Minimap.uxml?fileID=9197481963319205126&amp;guid=d7a0894d5d8ec814f9891d9281d6df48&amp;type=3#Minimap" />
     <Style src="project://database/Assets/Level/UI/GameUIStyle.uss?fileID=7433441132597879392&amp;guid=c573eb51f56e9f5408e4ece8d0f99e9b&amp;type=3#GameUIStyle" />
     <ui:VisualElement name="VisualElement" style="flex-grow: 1; justify-content: flex-end;">
-        <ui:VisualElement name="info-box-container" style="flex-grow: 1; width: auto; height: auto; align-self: auto; flex-direction: column; background-color: rgba(238, 0, 0, 0); justify-content: flex-start; align-items: stretch; overflow: visible;">
+        <ui:Label tabindex="-1" text="QuestText" parse-escape-sequences="true" display-tooltip-when-elided="true" name="quest-text" style="display: none; -unity-font-style: bold; font-size: 28px; position: absolute; left: 35%; top: 5%;" />
+        <ui:VisualElement name="info-box-container" style="flex-grow: 1; width: auto; height: auto; align-self: auto; flex-direction: column; background-color: rgba(206, 255, 186, 0.43); justify-content: flex-start; align-items: stretch; overflow: visible; position: absolute; left: 0; top: 0; max-width: none; max-height: none; font-size: 19px; min-width: 200px; -unity-font-style: bold; border-top-width: 5px; border-right-width: 5px; border-bottom-width: 5px; border-left-width: 5px; border-top-left-radius: 31px; border-top-right-radius: 31px; border-bottom-right-radius: 31px; border-bottom-left-radius: 31px; margin-top: 10px; margin-left: 10px; border-left-color: rgba(99, 99, 99, 0.68); border-right-color: rgba(99, 99, 99, 0.68); border-top-color: rgba(99, 99, 99, 0.68); border-bottom-color: rgba(99, 99, 99, 0.68); padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
             <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="balance-text" style="width: auto;" />
             <ui:Label tabindex="-1" text="Electricity:" parse-escape-sequences="true" display-tooltip-when-elided="true" name="eletricity-label">
-                <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="electricity-text" style="left: 13%;" />
+                <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="electricity-text" style="left: 125px; right: auto; position: relative;" />
             </ui:Label>
             <ui:Label tabindex="-1" text="Coal:" parse-escape-sequences="true" display-tooltip-when-elided="true" name="coal-label">
-                <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="coal-text" style="left: 13%;" />
+                <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="coal-text" style="left: 125px;" />
             </ui:Label>
             <ui:Label tabindex="-1" text="Wood:" parse-escape-sequences="true" display-tooltip-when-elided="true" name="wood-label">
-                <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="wood-text" style="left: 13%;" />
+                <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="wood-text" style="left: 125px;" />
             </ui:Label>
-            <ui:Label tabindex="-1" text="QuestText" parse-escape-sequences="true" display-tooltip-when-elided="true" name="quest-text" style="display: none; -unity-font-style: bold; font-size: 28px;" />
+        </ui:VisualElement>
+        <ui:VisualElement name="tax-box-container" style="flex-grow: 1; position: absolute; margin-top: 0; margin-left: 0; align-items: center; justify-content: center; margin-bottom: 0; margin-right: 0; left: 2.5%; top: 50%; display: flex;">
+            <ui:VisualElement name="row-label" style="flex-grow: initial; flex-direction: row; align-items: flex-start; justify-content: space-around; flex-shrink: initial; align-self: stretch;">
+                <ui:Label tabindex="-1" text="Level 1" parse-escape-sequences="true" display-tooltip-when-elided="true" name="level1-label" />
+                <ui:Label tabindex="-1" text="Level 2" parse-escape-sequences="true" display-tooltip-when-elided="true" name="level2-label" />
+                <ui:Label tabindex="-1" text="Level 3" parse-escape-sequences="true" display-tooltip-when-elided="true" name="level3-label" />
+            </ui:VisualElement>
+            <ui:VisualElement name="resident-container" style="flex-grow: 1; flex-direction: row; align-self: stretch;">
+                <ui:Label tabindex="-1" text="Citizens" parse-escape-sequences="true" display-tooltip-when-elided="true" name="resident-label" style="margin-right: 10px;" />
+                <ui:VisualElement name="level1-resident" style="flex-grow: 1; white-space: normal; text-overflow: clip; -unity-text-align: upper-center; flex-direction: row; height: auto; width: auto; align-items: center; justify-content: center;">
+                    <ui:Button class="tax-button" id="button-minus" text="-" parse-escape-sequences="true" display-tooltip-when-elided="true" name="1-resident-minus" style="border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px;" />
+                    <ui:Label class="tax-label" tabindex="-1" text="%" parse-escape-sequences="true" display-tooltip-when-elided="true" name="1-resident-tax" />
+                    <ui:Button class="tax-button" id="button-plus" text="+" parse-escape-sequences="true" display-tooltip-when-elided="true" name="1-resident-plus" style="border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="level2-resident" style="flex-grow: 1; white-space: normal; text-overflow: clip; -unity-text-align: upper-center; flex-direction: row; height: auto; width: auto; align-items: center; justify-content: center;">
+                    <ui:Button class="tax-button" id="button-minus" text="-" parse-escape-sequences="true" display-tooltip-when-elided="true" name="2-resident-minus" style="border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px;" />
+                    <ui:Label class="tax-label" tabindex="-1" text="%" parse-escape-sequences="true" display-tooltip-when-elided="true" name="2-resident-tax" />
+                    <ui:Button class="tax-button" id="button-plus" text="+" parse-escape-sequences="true" display-tooltip-when-elided="true" name="2-resident-plus" style="border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="level3-resident" style="flex-grow: 1; white-space: normal; text-overflow: clip; -unity-text-align: upper-center; flex-direction: row; height: auto; width: auto; align-items: center; justify-content: center;">
+                    <ui:Button class="tax-button" id="button-minus" text="-" parse-escape-sequences="true" display-tooltip-when-elided="true" name="3-resident-minus" style="border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px;" />
+                    <ui:Label class="tax-label" tabindex="-1" text="%" parse-escape-sequences="true" display-tooltip-when-elided="true" name="3-resident-tax" />
+                    <ui:Button class="tax-button" id="button-plus" text="+" parse-escape-sequences="true" display-tooltip-when-elided="true" name="3-resident-plus" style="border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="shop-container" style="flex-grow: 1; flex-direction: row; align-self: stretch;">
+                <ui:Label tabindex="-1" text="Shops" parse-escape-sequences="true" display-tooltip-when-elided="true" name="shop-label" style="margin-left: 7px; margin-right: 17px;" />
+                <ui:VisualElement name="level1-shop" style="flex-grow: 1; white-space: normal; text-overflow: clip; -unity-text-align: upper-center; flex-direction: row; height: auto; width: auto; align-items: center; justify-content: center;">
+                    <ui:Button class="tax-button" id="button-minus" text="-" parse-escape-sequences="true" display-tooltip-when-elided="true" name="1-shop-minus" style="border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px;" />
+                    <ui:Label class="tax-label" tabindex="-1" text="%" parse-escape-sequences="true" display-tooltip-when-elided="true" name="1-shop-tax" />
+                    <ui:Button class="tax-button" id="button-plus" text="+" parse-escape-sequences="true" display-tooltip-when-elided="true" name="1-shop-plus" style="border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="level2-shop" style="flex-grow: 1; white-space: normal; text-overflow: clip; -unity-text-align: upper-center; flex-direction: row; height: auto; width: auto; align-items: center; justify-content: center;">
+                    <ui:Button class="tax-button" id="button-minus" text="-" parse-escape-sequences="true" display-tooltip-when-elided="true" name="2-shop-minus" style="border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px;" />
+                    <ui:Label class="tax-label" tabindex="-1" text="%" parse-escape-sequences="true" display-tooltip-when-elided="true" name="2-shop-tax" />
+                    <ui:Button class="tax-button" id="button-plus" text="+" parse-escape-sequences="true" display-tooltip-when-elided="true" name="2-shop-plus" style="border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="level3-shop" style="flex-grow: 1; white-space: normal; text-overflow: clip; -unity-text-align: upper-center; flex-direction: row; height: auto; width: auto; align-items: center; justify-content: center;">
+                    <ui:Button class="tax-button" id="button-minus" text="-" parse-escape-sequences="true" display-tooltip-when-elided="true" name="3-shop-minus" style="border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px;" />
+                    <ui:Label class="tax-label" tabindex="-1" text="%" parse-escape-sequences="true" display-tooltip-when-elided="true" name="3-shop-tax" />
+                    <ui:Button class="tax-button" id="button-plus" text="+" parse-escape-sequences="true" display-tooltip-when-elided="true" name="3-shop-plus" style="border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="factory-container" style="flex-grow: 1; flex-direction: row; align-self: stretch;">
+                <ui:Label tabindex="-1" text="Factories" parse-escape-sequences="true" display-tooltip-when-elided="true" name="factory-label" style="margin-right: 0;" />
+                <ui:VisualElement name="level1-factory" style="flex-grow: 1; white-space: normal; text-overflow: clip; -unity-text-align: upper-center; flex-direction: row; height: auto; width: auto; align-items: center; justify-content: center;">
+                    <ui:Button class="tax-button" id="button-minus" text="-" parse-escape-sequences="true" display-tooltip-when-elided="true" name="1-factory-minus" style="border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px;" />
+                    <ui:Label class="tax-label" tabindex="-1" text="%" parse-escape-sequences="true" display-tooltip-when-elided="true" name="1-factory-tax" />
+                    <ui:Button class="tax-button" id="button-plus" text="+" parse-escape-sequences="true" display-tooltip-when-elided="true" name="1-factory-plus" style="border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="level2-factory" style="flex-grow: 1; white-space: normal; text-overflow: clip; -unity-text-align: upper-center; flex-direction: row; height: auto; width: auto; align-items: center; justify-content: center;">
+                    <ui:Button class="tax-button" id="button-minus" text="-" parse-escape-sequences="true" display-tooltip-when-elided="true" name="2-factory-minus" style="border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px;" />
+                    <ui:Label class="tax-label" tabindex="-1" text="%" parse-escape-sequences="true" display-tooltip-when-elided="true" name="2-factory-tax" />
+                    <ui:Button class="tax-button" id="button-plus" text="+" parse-escape-sequences="true" display-tooltip-when-elided="true" name="2-factory-plus" style="border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px;" />
+                </ui:VisualElement>
+                <ui:VisualElement name="level3-factory" style="flex-grow: 1; white-space: normal; text-overflow: clip; -unity-text-align: upper-center; flex-direction: row; height: auto; width: auto; align-items: center; justify-content: center;">
+                    <ui:Button class="tax-button" id="button-minus" text="-" parse-escape-sequences="true" display-tooltip-when-elided="true" name="3-factory-minus" style="border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px;" />
+                    <ui:Label class="tax-label" tabindex="-1" text="%" parse-escape-sequences="true" display-tooltip-when-elided="true" name="3-factory-tax" />
+                    <ui:Button class="tax-button" id="button-plus" text="+" parse-escape-sequences="true" display-tooltip-when-elided="true" name="3-factory-plus" style="border-top-left-radius: 15px; border-top-right-radius: 15px; border-bottom-right-radius: 15px; border-bottom-left-radius: 15px;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="info-text-container" style="flex-grow: 1; align-self: flex-end; width: 40%; justify-content: flex-start; align-items: center; position: absolute; top: 0; bottom: auto; height: 40%; background-color: rgba(49, 49, 49, 0.37); -unity-background-image-tint-color: rgb(255, 255, 255); border-top-width: 3px; border-right-width: 3px; border-bottom-width: 3px; border-left-width: 3px; border-left-color: rgb(64, 64, 64); border-right-color: rgb(64, 64, 64); border-top-color: rgb(64, 64, 64); border-bottom-color: rgb(64, 64, 64); border-top-left-radius: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; border-bottom-left-radius: 3px; margin-right: 30px; padding-right: 0; margin-top: 30px; right: 0; display: none; visibility: visible;">
             <ui:Label tabindex="-1" parse-escape-sequences="true" display-tooltip-when-elided="true" name="info-text-label" />
@@ -29,14 +90,17 @@
             </ui:VisualElement>
             <ui:VisualElement name="time-controller-container" style="align-self: flex-end; width: auto; align-items: center; height: auto; bottom: auto; position: relative; flex-direction: row; justify-content: flex-start; right: auto; -unity-background-scale-mode: stretch-to-fill; white-space: nowrap; -unity-text-align: middle-center; flex-grow: 0; flex-wrap: nowrap; flex-shrink: 1; display: flex;">
                 <ui:Label tabindex="-1" text="15:15:15" parse-escape-sequences="true" display-tooltip-when-elided="true" enable-rich-text="true" name="time-text-field" style="align-items: auto; justify-content: center; width: auto; -unity-text-align: middle-center; white-space: nowrap;" />
-                <ui:Button text="Start/Stop" parse-escape-sequences="true" display-tooltip-when-elided="true" name="time-start-stop-button" />
-                <ui:Button text="1x/2x/3x" parse-escape-sequences="true" display-tooltip-when-elided="true" name="time-forward-button" />
+                <ui:Button text="Start/Stop" parse-escape-sequences="true" display-tooltip-when-elided="true" name="time-start-stop-button" style="border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px;" />
+                <ui:Button text="1x/2x/3x" parse-escape-sequences="true" display-tooltip-when-elided="true" name="time-forward-button" style="border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px;" />
             </ui:VisualElement>
             <ui:VisualElement name="map-toggle-container" style="flex-grow: 0; height: auto; width: auto; transition-property: all, ignored, ignored; transition-duration: 0s, 0s, 0s; transition-timing-function: ease, ease, ease; transition-delay: 0s, 0s, 0s; display: flex; visibility: visible; align-self: flex-end; align-items: center; justify-content: space-between; flex-direction: row;">
-                <ui:Toggle name="morality-toggle" style="padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; -unity-text-align: middle-center; height: 100%; justify-content: flex-start; align-items: stretch; align-self: stretch;" />
+                <ui:Toggle name="morality-toggle" style="padding-top: 0; padding-right: 0; padding-bottom: 0; padding-left: 0; margin-top: 0; margin-right: 0; margin-bottom: 0; margin-left: 0; -unity-text-align: middle-center; height: 100%; justify-content: flex-start; align-items: stretch; align-self: stretch; border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px;" />
             </ui:VisualElement>
             <ui:VisualElement name="building-button-container" style="flex-grow: 0; align-items: center; justify-content: flex-start; height: auto; width: auto; flex-direction: row; align-self: flex-end;">
-                <ui:Button text="Special-Buildings" parse-escape-sequences="true" display-tooltip-when-elided="true" name="buildings-button" />
+                <ui:Button text="Special-Buildings" parse-escape-sequences="true" display-tooltip-when-elided="true" name="buildings-button" style="border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="taxes-button-container" style="flex-grow: 1;">
+                <ui:Button text="Taxes" parse-escape-sequences="true" display-tooltip-when-elided="true" name="taxes-button" style="border-top-left-radius: 10px; border-top-right-radius: 10px; border-bottom-right-radius: 10px; border-bottom-left-radius: 10px;" />
             </ui:VisualElement>
             <ui:Button text="Save" parse-escape-sequences="true" display-tooltip-when-elided="true" name="save-button" />
         </ui:VisualElement>
