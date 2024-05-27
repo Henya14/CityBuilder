@@ -157,7 +157,7 @@ public class PlayerBalance : MonoBehaviour
         for (int i = 0; i < factoryTaxes.Count; i++)
             currTaxIncome += factoryTaxes[i] * factoryPopulation[i];
 
-        Balance += (int)currTaxIncome;
+        Balance = (int)currTaxIncome;
 
         Debug.Log("Taxes: ");
         Debug.Log($"{residentsTaxes[0]} {residentsTaxes[1]} {residentsTaxes[2]}");
