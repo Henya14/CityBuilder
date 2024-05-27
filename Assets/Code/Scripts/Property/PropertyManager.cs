@@ -47,12 +47,12 @@ public class PropertyManager : MonoBehaviour
             var name = building.Value.buildingName;
             //only housing zones
             //serach word in zone building name
-            if (name.Contains(zoneNameSeacrhWord))
+            if (name.Contains(zoneNameSeacrhWord) || name.Contains(zoneNameSeacrhWord.Replace(" ","")))
             {
                 var position = building.Key + Vector3Int.zero;
 
                 //Check if next to road
-                bool nextToRoad=false;
+                bool nextToRoad = false;
                 Dictionary<Vector3Int, AbstractBuildingType> nhbs = gridManager.GetNeigbouringBuildingsForPosition(position);
                 Vector3Int nhbDir = Vector3Int.zero;
                 var neighbourDictionary = new Dictionary<SelectableObject, NeighbourWeights>();
@@ -63,7 +63,8 @@ public class PropertyManager : MonoBehaviour
                     if (nhb.Value is Road)
                     {
                         var adjacentRoad = nhb.Value as Road;
-                        neighbourDictionary.Add(adjacentRoad.GetSelectionManagerForGridPosition(nhb.Key), new NeighbourWeights {
+                        neighbourDictionary.Add(adjacentRoad.GetSelectionManagerForGridPosition(nhb.Key), new NeighbourWeights
+                        {
                             WeightFromNeighbour = 1,
                             WeightToNeighbour = 1
                         });
@@ -91,7 +92,7 @@ public class PropertyManager : MonoBehaviour
                                 case HouseLevel.None: break;
                                 default: property.AddPerson(); break;
                             }
-                               
+
                         }
                         else continue;
                     }
@@ -117,8 +118,8 @@ public class PropertyManager : MonoBehaviour
                                         property = propertyObject.AddComponent<IndustrialProperty>();
                                         description = "Industrial building";
                                         break;
-                                    case PropertyType.Shopping: 
-                                        property= propertyObject.AddComponent<ShoppingProperty>();
+                                    case PropertyType.Shopping:
+                                        property = propertyObject.AddComponent<ShoppingProperty>();
                                         description = "Shopping building";
                                         break;
                                 }
@@ -127,13 +128,13 @@ public class PropertyManager : MonoBehaviour
                                 selectionManager.Init(position, description, SelectableObjectType.ZoneBuilding);
                                 property.SelectionManager = selectionManager;
                                 var highlight = propertyObject.AddComponent<Highlight>();
-                                highlight.SetRenderers(new List<Renderer>{propertyObject.GetComponent<Renderer>()});
+                                highlight.SetRenderers(new List<Renderer> { propertyObject.GetComponent<Renderer>() });
                                 highlight.SetHighlightColor(Color.white);
                                 property.AddPerson();
                                 property.HouseLevel = hlvl;
                                 gridManager.AddProperty(position, property);
 
-                                
+
                                 navigationManager.AddBuilding(selectionManager, neighbourDictionary);
                                 //navigationManager.AddBuilding(selectedBuilding.GetSelectionManagerForGridPosition(neighboursForPosition.Key), weights);
                                 break;
