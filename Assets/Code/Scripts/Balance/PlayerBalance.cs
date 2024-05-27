@@ -158,18 +158,39 @@ public class PlayerBalance : MonoBehaviour
             currTaxIncome += factoryTaxes[i] * factoryPopulation[i];
 
         Balance += (int)currTaxIncome;
+
+        Debug.Log("Taxes: ");
+        Debug.Log($"{residentsTaxes[0]} {residentsTaxes[1]} {residentsTaxes[2]}");
+        Debug.Log($"{shopTaxes[0]} {shopTaxes[1]} {shopTaxes[2]}");
+        Debug.Log($"{factoryTaxes[0]} {factoryTaxes[1]}   {factoryTaxes[2]}");
     }
 
     private void UpdatePopulation() {
         //Get the population numbers from a gridManager here, now its a dummy data
-        for (int i = 0; i < residentsPopulation.Count; i++)
-            residentsPopulation[i] += 1;
 
-        for (int i = 0; i < shopPopulation.Count; i++)
-            shopPopulation[i] += 1;
-
-        for (int i = 0; i <  factoryPopulation.Count; i++)
-            factoryPopulation[i] += 1;
+        residentsPopulation = new List<float> { 0, 0, 0 };
+        shopPopulation = new List<float> { 0, 0, 0 };
+        factoryPopulation = new List<float> { 0, 0, 0 };
+        var gridManager= FindObjectOfType<GridManager>();
+        foreach(var property in gridManager.GetProperties())
+        {
+            switch(property.PropertyType)
+            {
+                case PropertyType.Residental:
+                    residentsPopulation[(int)property.HouseLevel - 1] += property.HeadCount;
+                    break;
+                case PropertyType.Shopping:
+                    shopPopulation[(int)property.HouseLevel - 1] += property.HeadCount;
+                    break;
+                case PropertyType.Industrial:
+                    factoryPopulation[(int)property.HouseLevel - 1] += property.HeadCount;
+                    break;
+            }
+        }
+        Debug.Log("Popolation: ");
+        Debug.Log($"{residentsPopulation[0]} {residentsPopulation[1]} {residentsPopulation[2]}");
+        Debug.Log($"{shopPopulation[0]} {shopPopulation[1]} {shopPopulation[2]}");
+        Debug.Log($"{factoryPopulation[0]} {factoryPopulation[1]} {factoryPopulation[2]}");
     }
 
     public void IncreaseTaxes(string taxType, int level)
