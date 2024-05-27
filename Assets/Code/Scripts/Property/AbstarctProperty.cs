@@ -9,6 +9,7 @@ public abstract class AbstarctProperty : MonoBehaviour
     [SerializeField] public PropertyType PropertyType { get; protected set; }
     public int MaxCapacity { get; protected set; } = 100;
 
+    public HouseLevel HouseLevel { get; set; }
     public GameObject PropertyGameObject { get; set; }
     public SelectionManager SelectionManager {get; set;}
 
@@ -23,6 +24,13 @@ public abstract class AbstarctProperty : MonoBehaviour
     {
         
     }
+    public void loadSaveData(PropertySaveData saveData)
+    {
+        Capacity = saveData.Capacity;
+        HeadCount = saveData.HeadCount;
+        MaxCapacity = saveData.MaxCapacity;
+        HouseLevel = saveData.HouseLevel;
+    }
 
 
     public void AddPerson()
@@ -34,7 +42,6 @@ public abstract class AbstarctProperty : MonoBehaviour
     }
     public void IncreaseCapacity(int add)
     {
-        //Can be replaced with maxCapacity
         if(Capacity+add<MaxCapacity)
             Capacity += add;
     } 

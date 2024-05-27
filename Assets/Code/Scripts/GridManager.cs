@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public enum SelectionMode
 {
@@ -45,15 +46,20 @@ public class GridManager : MonoBehaviour
     int offsetX = 10;
     int offsetZ = 10;
 
+    [SerializeField] SaveLoadManager saveLoadManager;
+    [SerializeField] public static bool loadOnStart = false;
 
     // Start is called before the first frame update
     void Start()
     {
         gameUIManager = FindObjectOfType<GameUIManager>();
+        saveLoadManager = FindObjectOfType<SaveLoadManager>();
         offsetX = gridHeight / 4;
         offsetZ = gridWidth / 4;
         GenerateGrid();
 
+        if (loadOnStart) Invoke(nameof(Load), float.MinValue);
+        
     }
 
     private void GenerateGrid()
@@ -63,31 +69,73 @@ public class GridManager : MonoBehaviour
         {
             for (int z = 0; z < gridWidth; z++)
             {
-                Tile tileToPlace;
-                if (previousTilePlaced)
-                {
-                    tileToPlace = UnityEngine.Random.Range(0.0f, 1.0f) <= chanceToSwitchTile ? tiles[UnityEngine.Random.Range(0, tiles.Length)] : previousTilePlaced;
-                }
-                else
-                {
-                    tileToPlace = tiles[UnityEngine.Random.Range(0, tiles.Length)];
-                }
-                previousTilePlaced = tileToPlace;
-                Tile newTile = Instantiate(tileToPlace, transform);
-                Morality newMorality = new Morality();
-                newMorality.moralityLevel = 0;
-                newTile.tileMorality = newMorality;
-                Vector3Int gridPosition = new Vector3Int(x, 0, z);
-                newTile.gridPosition = gridPosition;
-
-                Vector3 newPosition = GetGamePositionForGridPosition(gridPosition);
-
-                newTile.transform.position = newPosition;
-
-                tileMap[newTile.gridPosition] = newTile;
-                newTile.name = $"GamePosition: {newPosition.x}, {newPosition.z}, GridPosition: {gridPosition.x}, {gridPosition.z} ";
+                PlaceTile(null, new Vector3Int(x, 0, z), 0);
             }
         }
+    }
+    
+    public void LoadGrid(List<TileSaveData> tileDatas)
+    {
+        ClearGrid();
+        
+        foreach(var tileData in tileDatas)
+        {
+
+            PlaceTile(tileData.Description, new Vector3Int(tileData.PositionX, tileData.PositionY, tileData.PositionZ), tileData.moralityLevel);
+
+        }
+    }
+    private void PlaceTile(string tileObjectName, Vector3Int gridPosition, float moralityLevel)
+    {
+        
+        Tile tileToPlace = tiles[0];
+        if (tileObjectName != null)
+        {
+            for (int i = 0; i < tiles.Length; i++)
+            {
+                if (tiles[i].name.Equals(tileObjectName))
+                {
+                    tileToPlace = tiles[i];
+                }
+            }
+        }
+        else
+        {
+            if (previousTilePlaced)
+            {
+                tileToPlace = UnityEngine.Random.Range(0.0f, 1.0f) <= chanceToSwitchTile ? tiles[UnityEngine.Random.Range(0, tiles.Length)] : previousTilePlaced;
+            }
+            else
+            {
+                tileToPlace = tiles[UnityEngine.Random.Range(0, tiles.Length)];
+            }
+        }
+        previousTilePlaced = tileToPlace;
+
+        Tile newTile = Instantiate(tileToPlace, transform);
+
+        Morality newMorality = new Morality();
+
+        newMorality.moralityLevel = moralityLevel;
+        newTile.tileMorality = newMorality;
+
+        
+        newTile.gridPosition = gridPosition;
+        Vector3 newPosition = GetGamePositionForGridPosition(gridPosition);
+        newTile.transform.position = newPosition;
+
+        tileMap[newTile.gridPosition] = newTile;
+        newTile.name = $"GamePosition: {newPosition.x}, {newPosition.z}, GridPosition: {gridPosition.x}, {gridPosition.z} ";
+    }
+
+    private void ClearGrid()
+    {
+        
+        foreach (var tile in tileMap)
+        {
+            Destroy(tile.Value.gameObject);
+        }
+        tileMap = new Dictionary<Vector3Int, Tile>();
     }
 
     public void ObjectSelectedAtPosition(Vector3Int selectionPosition)
@@ -506,7 +554,7 @@ public class GridManager : MonoBehaviour
         Vector3Int gridPosition = new Vector3Int((int)Math.Ceiling(x), (int)Math.Ceiling(y), (int)Math.Ceiling(z));
         return gridPosition;
     }
-    private Vector3 GetSelectionCenter(List<Vector3Int> selectedPositions)
+    public Vector3 GetSelectionCenter(List<Vector3Int> selectedPositions)
     {
         var xMin = selectedPositions.Select(v => v.x).Min();
         var zMin = selectedPositions.Select(v => v.z).Min();
@@ -647,4 +695,21 @@ public class GridManager : MonoBehaviour
             //gameUIManager.AddEstate(position, property.PropertyType);
         }
     }
+
+    public void Save()
+    {
+        saveLoadManager.SaveTiles(tileMap);
+        saveLoadManager.SaveBuildings(buildingsMap);
+        saveLoadManager.SaveProperties(propertyMap);
+        saveLoadManager.SaveRest();
+    }
+
+    public void Load()
+    {
+        saveLoadManager.LoadTiles();
+        saveLoadManager.LoadBuildings();
+        saveLoadManager.LoadProperties();
+        saveLoadManager.LoadRest();
+    }
+
 }
