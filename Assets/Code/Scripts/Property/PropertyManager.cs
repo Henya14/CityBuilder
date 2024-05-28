@@ -263,7 +263,7 @@ public class PropertyManager : MonoBehaviour
 
 
 
-        return PlaceBuilding(key, house,roadDir);
+        return PlaceBuilding(key, house, roadDir);
        //return PlaceDummy(key);
     }
     GameObject PlaceBuilding(Vector3Int key,GameObject prefab, Vector3Int roadDir)
@@ -273,8 +273,8 @@ public class PropertyManager : MonoBehaviour
         dc.name = $"{propertyType.ToString()} Property  {(float)key.x / 2 - 5}, {(float)key.z / 2 - 5}";
         dc.transform.parent = this.transform;
         dc.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
-
-        dc.transform.localPosition = new Vector3((float)key.x / 2 - 5 - 0.25f, 0.5f, (float)key.z / 2 - 5 + 0.25f);
+        var pos = gridManager.GetGamePositionForGridPosition(key);
+        dc.transform.position = new Vector3(pos.x - 0.25f, 0.5f, pos.z  + 0.25f);
         // 1,0,0 rotate right 90
         if (roadDir.x == 1)
         {

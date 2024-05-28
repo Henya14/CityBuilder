@@ -47,7 +47,7 @@ public class DijkstraAlgorithm : ShortestPathStrategy
         }
         else 
         {
-            var shortestPath = new List<GraphSearchNode<SelectableObject>>{destinationSearchNode};
+            var shortestPath = new List<GraphSearchNode<SelectableObject>>();
             var node = destinationSearchNode;
             while (node.ShortestNodeToStart != null) 
             {

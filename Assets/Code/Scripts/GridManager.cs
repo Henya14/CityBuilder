@@ -18,7 +18,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] Tile[] tiles;
     [SerializeField] int gridHeight = 20;
     [SerializeField] int gridWidth = 20;
-    [SerializeField] float tileSize = 0.5f;
+    [SerializeField] public float tileSize = 0.5f;
     [SerializeField] float chanceToSwitchTile = 0.3f;
     [SerializeField] Tile previousTilePlaced = null;
     bool isMouseButtonDown = false;
@@ -332,15 +332,7 @@ public class GridManager : MonoBehaviour
                 var selectedObject = GetSelectedObjectAtPosition(lastSelectedObjectPositions[0]);
                 if (selectedObject == null) return;
                 ManageObjectSelectionInSingleMode(selectedObject);
-                VisualizeNeighbours();
-                var selectedObjectGridPosition = selectedObject.GetGridPosition();
-                var buildingGridPosition = new Vector3Int(selectedObjectGridPosition.x, 1, selectedObjectGridPosition.z);
-                AbstractBuildingType buildingAtPos;
-                buildingsMap.TryGetValue(buildingGridPosition, out buildingAtPos);
-                if (buildingAtPos is Road)
-                {
-                    PlaceCarAtSelectedObject(selectedObject);
-                }
+                //VisualizeNeighbours();
             }
         }
         else if (Input.GetMouseButtonUp(0))
@@ -355,7 +347,7 @@ public class GridManager : MonoBehaviour
                 var selectedObject = GetSelectedObjectAtPosition(lastSelectedObjectPositions[0]);
                 ManageObjectSelectionInRectangleAndLineMode(selectedObject);
                 ClearlastSelectedTilePositions();
-                VisualizeNeighbours();
+                //VisualizeNeighbours();
             }
         }
         else if (Input.GetKey(KeyCode.K) && cooldown < 0)

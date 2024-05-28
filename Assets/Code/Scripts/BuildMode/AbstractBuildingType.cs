@@ -41,6 +41,7 @@ public abstract class AbstractBuildingType : MonoBehaviour
                 buildings.Add(gridPosition, building);
                 selectionManager.SetGridPosition(gridPosition);
             }
+            selectionManager.SetGridPositions(gridPositions);
         }
 
         neighbourDatasForPositions = neigbours;
