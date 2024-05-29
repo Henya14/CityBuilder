@@ -869,6 +869,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7a4523f1af0e9942832b6aa18e85a73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  twoWayStraight: {fileID: 6515529762217398849, guid: a115091087a2c714aad07754c30a268d, type: 3}
+  twoWayCurvy: {fileID: 6515529762217398849, guid: df6a32d1296f0414ab77fd29fabef8a0, type: 3}
+  threeWay: {fileID: 6515529762217398849, guid: 1dfddc6bac1206944899f66104e085fe, type: 3}
+  fourWay: {fileID: 6515529762217398849, guid: 2a298a835cb3bfd45b424ec51f625c33, type: 3}
 --- !u!4 &1511013244
 Transform:
   m_ObjectHideFlags: 0

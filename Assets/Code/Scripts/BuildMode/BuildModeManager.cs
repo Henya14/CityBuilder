@@ -13,6 +13,12 @@ public class BuildModeManager : MonoBehaviour
     private BuildingData selectedBuildingData;
     private GridManager gridManager;
     private NavigationManager navigationManager;
+
+    public GameObject twoWayStraight;
+    public GameObject twoWayCurvy;
+    public GameObject threeWay;
+    public GameObject fourWay;
+
     void Start() {
         gridManager = FindObjectOfType<GridManager>();
         navigationManager = FindObjectOfType<NavigationManager>();
@@ -37,6 +43,10 @@ public class BuildModeManager : MonoBehaviour
 
         gridManager.AddBuildingToGrid(selectedBuilding, gridPositions);
         Dictionary<Vector3Int, NeighbourData> neigboursForBuildingPositions = GetNeighboursForGridPositions(gridPositions);
+        selectedBuilding.twoWayStraight = twoWayStraight;
+        selectedBuilding.twoWayCurvy = twoWayCurvy; 
+        selectedBuilding.threeWay = threeWay;
+        selectedBuilding.fourWay = fourWay;
         selectedBuilding.PlaceAtPosition(updatedPlacingPositionsWithGridPositions, neigboursForBuildingPositions);
         if (selectedBuilding is Building || selectedBuilding is Road) {
             AddBuildingToNavigationManager(selectedBuilding, neigboursForBuildingPositions);
@@ -76,7 +86,7 @@ public class BuildModeManager : MonoBehaviour
 
     private Dictionary<SelectableObject, NeighbourWeights> GetWeightsToNeighbour(AbstractBuildingType selectedBuilding, KeyValuePair<Vector3Int, NeighbourData> neighboursForPosition, Dictionary<SelectableObject, NeighbourWeights> weights)
     {
-        foreach (var neigbour in neighboursForPosition.Value.neighboursForGridPositions)
+        foreach (var neigbour in neighboursForPosition.Value.NeighboursForGridPositions)
         {
             if (selectedBuilding is not Road && (neigbour.Value == selectedBuilding || neigbour.Value == null))
             {

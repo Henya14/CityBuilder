@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.EventSystems;
 
 public enum SelectionMode
 {
@@ -331,6 +332,7 @@ public class GridManager : MonoBehaviour
                 var selectedObject = GetSelectedObjectAtPosition(lastSelectedObjectPositions[0]);
                 if (selectedObject == null) return;
                 ManageObjectSelectionInSingleMode(selectedObject);
+                isSelectionValid = false;
                 //VisualizeNeighbours();
             }
         }
@@ -346,6 +348,7 @@ public class GridManager : MonoBehaviour
                 var selectedObject = GetSelectedObjectAtPosition(lastSelectedObjectPositions[0]);
                 ManageObjectSelectionInRectangleAndLineMode(selectedObject);
                 ClearlastSelectedTilePositions();
+                isSelectionValid = false;
                 //VisualizeNeighbours();
             }
         }
@@ -423,7 +426,7 @@ public class GridManager : MonoBehaviour
         foreach (var positionAndBuilding in buildingsMap)
         {
             var cent = GetSelectionCenter(new List<Vector3Int> { positionAndBuilding.Key, positionAndBuilding.Key });
-            foreach (var dir in positionAndBuilding.Value.neighbourDatasForPositions[positionAndBuilding.Key].neighboursForGridPositions)
+            foreach (var dir in positionAndBuilding.Value.neighbourDatasForPositions[positionAndBuilding.Key].NeighboursForGridPositions)
             {
                 if (dir.Value == null)
                 {

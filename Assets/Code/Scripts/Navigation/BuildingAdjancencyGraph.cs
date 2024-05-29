@@ -93,7 +93,7 @@ public class BuildingAdjacencyGraph
     {
         return GraphNodes.Find(o => o.Value == selectableObject);
     }
-
+    
     public List<GraphSearchNode<SelectableObject>> GetGraphSearchNodes()
     {
         var searchNodes = new List<GraphSearchNode<SelectableObject>>();

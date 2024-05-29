@@ -45,18 +45,10 @@ public class NavigationManager : MonoBehaviour
             selectedObject.FreezeHighlight(true);
             if (selectedObjects.Count == 2)
             {
-
-                var algo = new DijkstraAlgorithm();
                 var start = adjacencyGraph.GetGraphNodeForSelectableObject(selectedObjects[0]);
                 var destination = adjacencyGraph.GetGraphNodeForSelectableObject(selectedObjects[1]);
-                var searchNodes = adjacencyGraph.GetGraphSearchNodes().Select(sn =>
-                {
-                    sn.StraightLineDistanceToDestination = (start.Value.GetGridPosition() - sn.GraphNode.Value.GetGridPosition()).magnitude;
-                    return sn;
-                }).ToList();
-                var route = algo.FindShortestPathToDestination(searchNodes,
-                start,
-                destination);
+                List<GraphSearchNode<SelectableObject>> route;
+                FindShortestPathBeetweenTwoPoints(start, destination, out route);
                 route?.ForEach(r =>
                 {
                     r.GraphNode.Value.FreezeHighlight(false);
@@ -66,36 +58,13 @@ public class NavigationManager : MonoBehaviour
                 });
                 if (route != null)
                 {
-                    var nodes = new List<GraphNode<SelectableObject>>{start};
-                    nodes.AddRange(route?.Select(r => r.GraphNode));
-                    var dirs = new List<Direction>();
-                    for (int i = 0; i < nodes.Count - 1; i++)
-                    {
-                        var startNodePosition =  nodes[i].Value.GetRelativeClosestGridPosition(nodes[i + 1].Value.GetGridPosition());
-                        var destinationNodePosition = nodes[i + 1].Value.GetRelativeClosestGridPosition(nodes[i].Value.GetGridPosition());
-                        var directionVector =  destinationNodePosition - startNodePosition;
-                        Direction direction;
-                        if (directionVector.z > 0)
-                        {
-                            direction = Direction.North;
-                        }
-                        else if (directionVector.z < 0)
-                        {
-                            direction = Direction.South;
-                        }
-                        else if (directionVector.x > 0)
-                        {
-                            direction = Direction.East;
-                        }
-                        else
-                        {
-                            direction = Direction.West;
-                        }
-
-                        dirs.Add(direction);
-                    }
+                    List<GraphNode<SelectableObject>> nodes;
+                    List<Direction> dirs;
+                    GetNodesForRoute(route, out nodes);
+                    GetDirectionsForNodes(nodes, out dirs);
                     PlaceCarAtPosition(nodes[0].Value.GetRelativeClosestGridPosition(nodes[1].Value.GetGridPosition()), dirs);
                     Debug.Log(string.Join(",", dirs.Select(d => d.ToString())));
+
                 }
 
 
@@ -104,18 +73,76 @@ public class NavigationManager : MonoBehaviour
         }
     }
 
-    private void PlaceCarAtPosition(Vector3Int gridPosition, List<Direction> directions)
+
+
+     private void GetDirectionsForRoute(List<GraphSearchNode<SelectableObject>> route, out List<Direction> dirs)  {
+            List<GraphNode<SelectableObject>> nodes;
+            GetNodesForRoute(route, out nodes);
+            GetDirectionsForNodes(nodes, out dirs);
+     }
+    private void GetDirectionsForNodes(List<GraphNode<SelectableObject>> nodes, out List<Direction> dirs) 
+    {
+       
+        dirs = new List<Direction>();
+        for (int i = 0; i < nodes.Count - 1; i++)
+        {
+            var startNodePosition = nodes[i].Value.GetRelativeClosestGridPosition(nodes[i + 1].Value.GetGridPosition());
+            var destinationNodePosition = nodes[i + 1].Value.GetRelativeClosestGridPosition(nodes[i].Value.GetGridPosition());
+            var directionVector = destinationNodePosition - startNodePosition;
+            Direction direction;
+            if (directionVector.z > 0)
+            {
+                direction = Direction.North;
+            }
+            else if (directionVector.z < 0)
+            {
+                direction = Direction.South;
+            }
+            else if (directionVector.x > 0)
+            {
+                direction = Direction.East;
+            }
+            else
+            {
+                direction = Direction.West;
+            }
+
+            dirs.Add(direction);
+        }
+    }
+    private void GetNodesForRoute( List<GraphSearchNode<SelectableObject>> route, out List<GraphNode<SelectableObject>> nodes)
+    {
+        nodes = new List<GraphNode<SelectableObject>>();
+        nodes.AddRange(route?.Select(r => r.GraphNode));
+    }
+
+    public void FindShortestPathBeetweenTwoPoints(GraphNode<SelectableObject> start, GraphNode<SelectableObject> destination, out List<GraphSearchNode<SelectableObject>> route)
+    {
+        var algo = new DijkstraAlgorithm();
+        var searchNodes = adjacencyGraph.GetGraphSearchNodes().Select(sn =>
+        {
+            sn.StraightLineDistanceToDestination = (start.Value.GetGridPosition() - sn.GraphNode.Value.GetGridPosition()).magnitude;
+            return sn;
+        }).ToList();
+        route = algo.FindShortestPathToDestination(searchNodes,
+        start,
+        destination);
+    }
+    public void StartCarOnRoute(List<GraphSearchNode<SelectableObject>> route) {
+        List<Direction> dirs;
+        GetDirectionsForRoute(route, out dirs);
+        PlaceCarAtPosition(route[0].GraphNode.Value.GetGridPosition(), dirs);
+    }
+    public void PlaceCarAtPosition(Vector3Int gridPosition, List<Direction> directions)
     {
         var car = Instantiate(carPrefab);
         
 
         var carGamePosition = gridManager.GetSelectionCenter(new List<Vector3Int> { gridPosition });
         carGamePosition.y = gridManager.GetGamePositionForGridPosition(new Vector3Int(0, 1, 0)).y;
-        carGamePosition.z += gridManager.tileSize / 4;
         car.transform.position = carGamePosition;
         car.GetComponent<CarNavigation>().CurrentGridPosition = gridPosition;
         car.GetComponent<CarNavigation>().SetDirections(directions);
-        car.GetComponent<CarNavigation>().Starta();
     }
 
     public void DeselectObjects()
@@ -132,6 +159,16 @@ public class NavigationManager : MonoBehaviour
     public void AddBuilding(SelectableObject building, Dictionary<SelectableObject, NeighbourWeights> weights)
     {
         adjacencyGraph.AddBuilding(building, weights);
+    }
+
+    public List<GraphNode<SelectableObject>> WhereBuildings(Func<GraphNode<SelectableObject>, bool> predicate) 
+    {
+        return adjacencyGraph.WhereGraphNodes(predicate).GraphNodes;
+    }
+
+    public GraphNode<SelectableObject> GetGraphNodeForSelectableObject(SelectableObject objectToSearch) 
+    {
+        return adjacencyGraph.GetGraphNodeForSelectableObject(objectToSearch);
     }
 
 }
