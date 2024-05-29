@@ -89,8 +89,11 @@ public class BuildModeManager : MonoBehaviour
                     WeightFromNeighbour = 1,
                     WeightToNeighbour = 1,
                 };
-                var selectableObject = neigbour.Value.GetSelectionManagerForGridPosition(neigbour.Key);
-                weights.Add(selectableObject, neighbourWeights);
+                var neighbourSelectableObject = neigbour.Value.GetSelectionManagerForGridPosition(neigbour.Key);
+                
+                if (neighbourSelectableObject.GetSelectableObjectType() == SelectableObjectType.Road || selectedBuilding is Road) {
+                    weights.TryAdd(neighbourSelectableObject, neighbourWeights);
+                }
             }
         }
 
