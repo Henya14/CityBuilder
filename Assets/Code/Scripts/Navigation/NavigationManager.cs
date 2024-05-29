@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -72,7 +71,7 @@ public class NavigationManager : MonoBehaviour
                     var dirs = new List<Direction>();
                     for (int i = 0; i < nodes.Count - 1; i++)
                     {
-                        var startNodePosition =  nodes[i].Value.GetGridPosition();
+                        var startNodePosition =  nodes[i].Value.GetRelativeClosestGridPosition(nodes[i + 1].Value.GetGridPosition());
                         var destinationNodePosition = nodes[i + 1].Value.GetRelativeClosestGridPosition(nodes[i].Value.GetGridPosition());
                         var directionVector =  destinationNodePosition - startNodePosition;
                         Direction direction;
@@ -111,7 +110,7 @@ public class NavigationManager : MonoBehaviour
         
 
         var carGamePosition = gridManager.GetSelectionCenter(new List<Vector3Int> { gridPosition });
-        carGamePosition.y = gridManager.GetGamePositionForGridPosition(gridPosition).y;
+        carGamePosition.y = gridManager.GetGamePositionForGridPosition(new Vector3Int(0, 1, 0)).y;
         carGamePosition.z += gridManager.tileSize / 4;
         car.transform.position = carGamePosition;
         car.GetComponent<CarNavigation>().CurrentGridPosition = gridPosition;
