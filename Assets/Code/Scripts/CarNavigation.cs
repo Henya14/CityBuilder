@@ -17,7 +17,7 @@ public class CarNavigation : MonoBehaviour
     float traveledDistance = 0.0f;
     private bool reachedPosition = false;
     bool firstPass = true;
-    public bool starteda = false;
+    public bool started = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -26,7 +26,7 @@ public class CarNavigation : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!this.starteda) {
+        if (!this.started) {
             return;
         }
 
@@ -96,12 +96,7 @@ public class CarNavigation : MonoBehaviour
             this.directions.Enqueue(direction);
         }
         reachedPosition = false;
-        starteda = true;
-        Debug.Log($"hee: {starteda}");
-    }
-
-    public void Starta() {
-        starteda = true;
+        started = true;
     }
 
     void Remove()
