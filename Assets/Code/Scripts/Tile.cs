@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -22,7 +19,7 @@ public class Tile : MonoBehaviour
     {
         baseMaterial = GetComponent<MeshRenderer>().material;
         test = new Material(destMaterial);
-        var selectionManager = this.AddComponent<SelectionManager>();
+        var selectionManager = gameObject.AddComponent<SelectionManager>();
         selectionManager.Init(gridPosition, Description, SelectableObjectType.Tile);
     }
 

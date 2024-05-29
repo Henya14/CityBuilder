@@ -27,7 +27,7 @@ public interface SelectableObject {
 public class SelectionManager : MonoBehaviour, SelectableObject
 {
     Vector3Int? gridPosition = null;
-    List<Vector3Int> gridPositions = null;
+    List<Vector3Int> gridPositions = new List<Vector3Int>();
     private string Description {get; set;} = "";
 
     

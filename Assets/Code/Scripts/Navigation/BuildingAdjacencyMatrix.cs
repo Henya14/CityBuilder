@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public struct NeighbourWeights { public int WeightFromNeighbour; public int WeightToNeighbour; };
@@ -47,7 +46,7 @@ public class BuildingAdjacencyMatrix
             int indexOfBuilding = buildings.IndexOf(building);
             if (indexOfNeighbour == -1)
             {
-                throw new Exception($"Neighbour not in the list of buildings for {building.GetGameObject().name} {building.Description()}");
+                throw new Exception($"Neighbour not in the list of buildings for {building.GetGameObject().name} {building.GetDescription()}");
             }
             weights[indexOfNeighbour][indexOfBuilding] = neighbour.Value.WeightFromNeighbour;
             weights[indexOfBuilding][indexOfNeighbour] = neighbour.Value.WeightToNeighbour;
