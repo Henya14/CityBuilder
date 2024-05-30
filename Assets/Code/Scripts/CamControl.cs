@@ -1,13 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class CamControl : MonoBehaviour
 {
-    private Vector3 originalParentRotation;
     private Vector3 originalRotation;
     private Vector3 originalPosition;
     private bool mainMode;
@@ -17,11 +15,11 @@ public class CamControl : MonoBehaviour
     public float secondaryCamMoveSpeed;
     public Vector3 maxSecondaryCamPosition;
     public Vector3 minSecondaryCamPosition;
+    [SerializeField] float zoomScale;
 
     // Start is called before the first frame update
     void Start()
     {
-        originalParentRotation = transform.parent.eulerAngles;
         originalPosition = transform.localPosition;
         originalRotation = transform.eulerAngles;
         originalFarClipPlane = Camera.main.farClipPlane;
@@ -56,28 +54,6 @@ public class CamControl : MonoBehaviour
 
 
 
-        if (mainMode)
-        {
-            //reset
-            if (Input.GetKeyDown(KeyCode.R))
-            {
-                Debug.Log("Camera reset");
-                CamReset();
-            }
-            //rotate
-            else if (Input.GetKey(KeyCode.E))
-            {
-                Debug.Log("Camera rotate right");
-                transform.parent.Rotate(0, -1, 0);
-            }
-            else if (Input.GetKey(KeyCode.Q))
-            {
-                Debug.Log("Camera rotate left");
-                transform.parent.Rotate(0, 1, 0);
-            }
-        }
-        else
-        {
             //reset
             if (Input.GetKeyDown(KeyCode.R))
             {
@@ -90,42 +66,39 @@ public class CamControl : MonoBehaviour
             //linear move
             if (Input.GetKey(KeyCode.W))
             {
-                Debug.Log("Camera secondary move forward");
                 Move(true,true);
             }else if (Input.GetKey(KeyCode.S))
             {
-                Debug.Log("Camera secondary move backword");
                 Move(true,false);
             }
             //sideway move
             if (Input.GetKey(KeyCode.D))
             {
-                Debug.Log("Camera secondary move right");
                 Move(false,true);
             }
             else if (Input.GetKey(KeyCode.A))
             {
-                Debug.Log("Camera secondary move left");
                 Move(false,false);
             }
             //rotation
             if (Input.GetKey(KeyCode.E))
             {
-                Debug.Log("Camera rotate right");
-                transform.Rotate(0, 1, 0);
+                transform.Rotate(0, -1, 0);
             }
             else if (Input.GetKey(KeyCode.Q))
             {
-                Debug.Log("Camera rotate left");
-                transform.Rotate(0, -1, 0);
+                transform.Rotate(0, 1, 0);
             }
 
-        }
+            if (!Mathf.Approximately(Input.mouseScrollDelta.y, 0.0f)) {
+                Zoom(Input.mouseScrollDelta.y);
+            }
+        
     }
     //Main mode reset
     void CamReset()
     {
-        transform.parent.eulerAngles = originalParentRotation;
+        transform.parent.eulerAngles = new Vector3(0,0,0);
         
         transform.localPosition = originalPosition;
         transform.eulerAngles = originalRotation;
@@ -135,12 +108,18 @@ public class CamControl : MonoBehaviour
     //secondary move reset
     void ResetToSecondary()
     {
-        transform.parent.eulerAngles = new Vector3(0, 0, 0);
 
         transform.localPosition = secondaryPosition;
         transform.eulerAngles = new Vector3(0, 0, 0);
 
         Camera.main.farClipPlane = secondaryFarClipPlane; //viewdistance reduce
+    }
+
+    void Zoom(float mouseScrollDelta) {
+        var pos = transform.localPosition;
+        pos.y += -Input.mouseScrollDelta.y * zoomScale * Time.deltaTime;
+        pos.y = Mathf.Clamp(pos.y, minSecondaryCamPosition.y, maxSecondaryCamPosition.y);
+        transform.position = pos;
     }
     //secondary movement function
     void Move(bool forOrBackWord, bool onward)
@@ -149,14 +128,11 @@ public class CamControl : MonoBehaviour
         Vector3 r = transform.right;
 
         var pos = transform.localPosition;
-        var newPos = pos + ((forOrBackWord ? fw : r) * secondaryCamMoveSpeed * (onward ? 1 : -1));
+        var newPos = pos + (forOrBackWord ? fw : r) * secondaryCamMoveSpeed * (onward ? 1 : -1) * Time.deltaTime;
         //Restrict area
-        if (
-            newPos.x < maxSecondaryCamPosition.x && newPos.x > minSecondaryCamPosition.x &&
-            newPos.y<maxSecondaryCamPosition.y && newPos.y>minSecondaryCamPosition.y &&
-            newPos.z < maxSecondaryCamPosition.z && newPos.z > minSecondaryCamPosition.z
-            )
-                transform.localPosition = newPos;
+        newPos.x = Mathf.Clamp(newPos.x, minSecondaryCamPosition.x, maxSecondaryCamPosition.x);
+        newPos.z = Mathf.Clamp(newPos.z, minSecondaryCamPosition.z, maxSecondaryCamPosition.z);
+        transform.position = newPos;
         
     }
 }
