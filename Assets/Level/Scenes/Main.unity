@@ -155,8 +155,8 @@ MonoBehaviour:
   tiles:
   - {fileID: 2005425898260501881, guid: 8260dadb88cda8843a22cfd7080baec9, type: 3}
   - {fileID: -1299313937827588491, guid: 0318ab1e0c743484a8479c5cd0525b9b, type: 3}
-  gridHeight: 100
-  gridWidth: 100
+  gridHeight: 20
+  gridWidth: 20
   tileSize: 0.5
   chanceToSwitchTile: 0.1
   previousTilePlaced: {fileID: 2005425898260501881, guid: 8260dadb88cda8843a22cfd7080baec9, type: 3}
