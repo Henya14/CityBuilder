@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.PlayerLoop;
 
 
@@ -19,6 +18,10 @@ public abstract class AbstractBuildingType : MonoBehaviour
     public Dictionary<Vector3Int, NeighbourData> neighbourDatasForPositions { get; private set; } = new Dictionary<Vector3Int, NeighbourData>();
     private Dictionary<Vector3Int, SelectionManager> selectionManagers  = new Dictionary<Vector3Int, SelectionManager>();
   
+    public GameObject twoWayStraight;
+    public GameObject twoWayCurvy;
+    public GameObject threeWay;
+    public GameObject fourWay;
 
     public virtual void Init(BuildingData buildingData)
     {
@@ -41,12 +44,13 @@ public abstract class AbstractBuildingType : MonoBehaviour
                 buildings.Add(gridPosition, building);
                 selectionManager.SetGridPosition(gridPosition);
             }
+            selectionManager.SetGridPositions(gridPositions);
         }
 
         neighbourDatasForPositions = neigbours;
         foreach (var neighbourDatasForPosition in neighbourDatasForPositions)
         {
-            foreach (var neighbourForGridPosition in neighbourDatasForPosition.Value.neighboursForGridPositions)
+            foreach (var neighbourForGridPosition in neighbourDatasForPosition.Value.NeighboursForGridPositions)
             {
                 var currentTilePosition = neighbourDatasForPosition.Key;
                 var neigbourPosition = neighbourForGridPosition.Key;
@@ -70,7 +74,7 @@ public abstract class AbstractBuildingType : MonoBehaviour
         buildings.Clear();
     }
 
-    public void SetNeighbourForPosition(Vector3Int position, Vector3Int neighbourPosition, AbstractBuildingType neighbour)
+    public virtual void SetNeighbourForPosition(Vector3Int position, Vector3Int neighbourPosition, AbstractBuildingType neighbour)
     {
         var neighbourDataForPosition = neighbourDatasForPositions[position];
         neighbourDataForPosition.SetNeighbour(neighbourPosition, neighbour);

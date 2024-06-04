@@ -379,6 +379,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97194277411c39e44b43a7ad3fc9e803, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  carPrefab: {fileID: 9168529152632990214, guid: e0c91f8d3194c9e4c87e1e6378a77c50, type: 3}
 --- !u!1 &889684980
 GameObject:
   m_ObjectHideFlags: 0
@@ -444,7 +445,6 @@ GameObject:
   - component: {fileID: 963194228}
   - component: {fileID: 963194227}
   - component: {fileID: 963194226}
-  - component: {fileID: 963194229}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -523,27 +523,9 @@ Transform:
   m_LocalPosition: {x: -0.5, y: 8, z: -7.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1040957732}
+  m_Children: []
   m_Father: {fileID: 1664904813}
   m_LocalEulerAnglesHint: {x: 50, y: 0, z: 0}
---- !u!114 &963194229
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 963194225}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 528a0d3378927224d827ba95da2ebfca, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  secondaryPosition: {x: 0, y: 2, z: -8}
-  secondaryFarClipPlane: 10
-  secondaryCamMoveSpeed: 0.05
-  maxSecondaryCamPosition: {x: 8, y: 10, z: 8}
-  minSecondaryCamPosition: {x: -8, y: 1, z: -8}
 --- !u!1 &1033488527
 GameObject:
   m_ObjectHideFlags: 0
@@ -677,12 +659,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1040957729}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.3420202, y: -0, z: -0, w: 0.9396926}
-  m_LocalPosition: {x: 0, y: 10, z: 0}
+  m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.70710677}
+  m_LocalPosition: {x: -0.5, y: 14.4278755, z: 0.16044569}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 963194228}
+  m_Father: {fileID: 1664904813}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!1 &1303800331
 GameObject:
@@ -851,12 +833,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1376691960}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -2.1, y: -5.45, z: 6.3719826}
-  m_LocalScale: {x: 5.69, y: 1, z: 6.17}
+  m_LocalScale: {x: 10, y: 1, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1664904813}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1511013242
 GameObject:
@@ -887,7 +869,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7a4523f1af0e9942832b6aa18e85a73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridManager: {fileID: 158693460}
+  twoWayStraight: {fileID: 6515529762217398849, guid: a115091087a2c714aad07754c30a268d, type: 3}
+  twoWayCurvy: {fileID: 6515529762217398849, guid: df6a32d1296f0414ab77fd29fabef8a0, type: 3}
+  threeWay: {fileID: 6515529762217398849, guid: 1dfddc6bac1206944899f66104e085fe, type: 3}
+  fourWay: {fileID: 6515529762217398849, guid: 2a298a835cb3bfd45b424ec51f625c33, type: 3}
 --- !u!4 &1511013244
 Transform:
   m_ObjectHideFlags: 0
@@ -1024,6 +1009,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1664904813}
+  - component: {fileID: 1664904814}
   m_Layer: 0
   m_Name: Camera Pivot
   m_TagString: Untagged
@@ -1045,8 +1031,28 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 963194228}
+  - {fileID: 1376691964}
+  - {fileID: 1040957732}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1664904814
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1664904812}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 528a0d3378927224d827ba95da2ebfca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  secondaryPosition: {x: 0, y: 2, z: -8}
+  secondaryFarClipPlane: 10
+  secondaryCamMoveSpeed: 5
+  maxSecondaryCamPosition: {x: 30, y: 5, z: 30}
+  minSecondaryCamPosition: {x: -25, y: -3, z: -25}
+  zoomScale: 10
 --- !u!1 &1827308582
 GameObject:
   m_ObjectHideFlags: 0
@@ -1097,6 +1103,8 @@ MonoBehaviour:
     ShopTaxes:
       list: []
     FactoryTaxes:
+      list: []
+    DoneQuestsTexts:
       list: []
   saved: 1
   TurnedOff: 1
@@ -1299,7 +1307,6 @@ SceneRoots:
   - {fileID: 1664904813}
   - {fileID: 158693461}
   - {fileID: 1987765550}
-  - {fileID: 1376691964}
   - {fileID: 1303800334}
   - {fileID: 522320333}
   - {fileID: 1511013244}

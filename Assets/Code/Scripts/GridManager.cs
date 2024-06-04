@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.EventSystems;
 
 public enum SelectionMode
 {
@@ -18,7 +18,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] Tile[] tiles;
     [SerializeField] int gridHeight = 20;
     [SerializeField] int gridWidth = 20;
-    [SerializeField] float tileSize = 0.5f;
+    [SerializeField] public float tileSize = 0.5f;
     [SerializeField] float chanceToSwitchTile = 0.3f;
     [SerializeField] Tile previousTilePlaced = null;
     bool isMouseButtonDown = false;
@@ -332,15 +332,8 @@ public class GridManager : MonoBehaviour
                 var selectedObject = GetSelectedObjectAtPosition(lastSelectedObjectPositions[0]);
                 if (selectedObject == null) return;
                 ManageObjectSelectionInSingleMode(selectedObject);
-                VisualizeNeighbours();
-                var selectedObjectGridPosition = selectedObject.GetGridPosition();
-                var buildingGridPosition = new Vector3Int(selectedObjectGridPosition.x, 1, selectedObjectGridPosition.z);
-                AbstractBuildingType buildingAtPos;
-                buildingsMap.TryGetValue(buildingGridPosition, out buildingAtPos);
-                if (buildingAtPos is Road)
-                {
-                    PlaceCarAtSelectedObject(selectedObject);
-                }
+                isSelectionValid = false;
+                //VisualizeNeighbours();
             }
         }
         else if (Input.GetMouseButtonUp(0))
@@ -355,7 +348,8 @@ public class GridManager : MonoBehaviour
                 var selectedObject = GetSelectedObjectAtPosition(lastSelectedObjectPositions[0]);
                 ManageObjectSelectionInRectangleAndLineMode(selectedObject);
                 ClearlastSelectedTilePositions();
-                VisualizeNeighbours();
+                isSelectionValid = false;
+                //VisualizeNeighbours();
             }
         }
         else if (Input.GetKey(KeyCode.K) && cooldown < 0)
@@ -432,7 +426,7 @@ public class GridManager : MonoBehaviour
         foreach (var positionAndBuilding in buildingsMap)
         {
             var cent = GetSelectionCenter(new List<Vector3Int> { positionAndBuilding.Key, positionAndBuilding.Key });
-            foreach (var dir in positionAndBuilding.Value.neighbourDatasForPositions[positionAndBuilding.Key].neighboursForGridPositions)
+            foreach (var dir in positionAndBuilding.Value.neighbourDatasForPositions[positionAndBuilding.Key].NeighboursForGridPositions)
             {
                 if (dir.Value == null)
                 {

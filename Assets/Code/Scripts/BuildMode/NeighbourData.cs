@@ -7,20 +7,20 @@ using UnityEngine;
 public class NeighbourData
 {
 
-    public Dictionary<Vector3Int, AbstractBuildingType> neighboursForGridPositions {get;} = new Dictionary<Vector3Int, AbstractBuildingType>();
+    public Dictionary<Vector3Int, AbstractBuildingType> NeighboursForGridPositions {get;} = new Dictionary<Vector3Int, AbstractBuildingType>();
 
     public NeighbourData(Dictionary<Vector3Int, AbstractBuildingType> neighboursForGridPositions)
     {
-        this.neighboursForGridPositions = neighboursForGridPositions;
+        this.NeighboursForGridPositions = neighboursForGridPositions;
     }
 
     public void SetNeighbour(Vector3Int gridPosition, AbstractBuildingType neighbour)
     {
-        neighboursForGridPositions[gridPosition] = neighbour;
+        NeighboursForGridPositions[gridPosition] = neighbour;
     }
 
     public AbstractBuildingType GetNeighbourForGridPosition(Vector3Int direction)
     {
-        return neighboursForGridPositions.GetValueOrDefault(direction, null);
+        return NeighboursForGridPositions.GetValueOrDefault(direction, null);
     }
 }

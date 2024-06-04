@@ -7,7 +7,7 @@ public class DijkstraAlgorithm : ShortestPathStrategy
     {
         var sourceSearchNode = graphSearchNodes.Find(sn => sn.GraphNode == source);
         sourceSearchNode.CostToStart = 0;
-        var destinationSearchNode =  graphSearchNodes.Find(sn => sn.GraphNode == destination);
+        var destinationSearchNode =  graphSearchNodes.Find(sn => sn.GraphNode.Value == destination.Value);
         var nodeList = new List<GraphSearchNode<SelectableObject>> {
             sourceSearchNode
         };
@@ -47,9 +47,9 @@ public class DijkstraAlgorithm : ShortestPathStrategy
         }
         else 
         {
-            var shortestPath = new List<GraphSearchNode<SelectableObject>>{destinationSearchNode};
+            var shortestPath = new List<GraphSearchNode<SelectableObject>>();
             var node = destinationSearchNode;
-            while (node.ShortestNodeToStart != null) 
+            while (node != null) 
             {
                 shortestPath.Add(node);
                 node = node.ShortestNodeToStart;

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public enum SelectableObjectType {
@@ -12,7 +13,9 @@ public enum SelectableObjectType {
 public interface SelectableObject {
    
     Vector3Int GetGridPosition();
+    Vector3Int GetRelativeClosestGridPosition(Vector3Int reference);
     void SetGridPosition(Vector3Int gridPosition);
+    void SetGridPositions(List<Vector3Int> gridPositions);
     void ToggleHighlight(bool on);
     void FreezeHighlight(bool shouldFreeze);
     GameObject GetGameObject();
@@ -24,6 +27,7 @@ public interface SelectableObject {
 public class SelectionManager : MonoBehaviour, SelectableObject
 {
     Vector3Int? gridPosition = null;
+    List<Vector3Int> gridPositions = new List<Vector3Int>();
     private string Description {get; set;} = "";
 
     
@@ -47,8 +51,25 @@ public class SelectionManager : MonoBehaviour, SelectableObject
         return gridPosition;
     }
 
+    public Vector3Int GetRelativeClosestGridPosition(Vector3Int reference) {
+        float minDistance = int.MaxValue;
+        Vector3Int minDistancePosition = gridPosition ?? new Vector3Int();
+        foreach (var position in gridPositions) {
+            var distance = (position - reference).magnitude;
+            if(distance < minDistance) {
+                minDistance = distance;
+                minDistancePosition = position;
+            }
+        }
+        return minDistancePosition;
+    }
+
     public void SetGridPosition(Vector3Int gridPosition) {
         this.gridPosition = gridPosition;
+    }
+
+    public void SetGridPositions(List<Vector3Int> gridPositions) {
+        this.gridPositions = gridPositions;
     }
  
     private Highlight GetHighlight()
