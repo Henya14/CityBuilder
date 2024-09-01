@@ -5,18 +5,21 @@ using UnityEngine.UIElements;
 
 public static class MashGenerator
 {
-    public static MeshData GenerateTerrainMesh(float[,] heightMap, float heightMultiplier, AnimationCurve meshHeightCurve)
+    public static MeshData GenerateTerrainMesh(float[,] heightMap, float heightMultiplier, AnimationCurve meshHeightCurve, int levelOfDetail)
     {
         int width = heightMap.GetLength(0);
         int height = heightMap.GetLength(1);
         float topLeftXCoordinate = -(width - 1) / 2f;
         float topLeftZCoordinate = (height - 1) / 2f;
-        MeshData meshData = new MeshData(width, height);
+        
         int vertexIndex = 0;
 
-        for (int y = 0; y < height; y++)
+        int meshSimplificationIncrement = levelOfDetail==0? 1 : levelOfDetail * 2;
+        int verticesPerLine = (width - 1) / meshSimplificationIncrement + 1;
+        MeshData meshData = new MeshData(verticesPerLine, verticesPerLine);
+        for (int y = 0; y < height; y += meshSimplificationIncrement)
         {
-            for (int x = 0; x < width; x++)
+            for (int x = 0; x < width; x += meshSimplificationIncrement)
             {
                 float vertexYCoordinate = meshHeightCurve.Evaluate(heightMap[x, y]) * heightMultiplier;
                 meshData.vertices[vertexIndex] = new Vector3(topLeftXCoordinate + x, vertexYCoordinate, topLeftZCoordinate - y);
@@ -29,8 +32,8 @@ public static class MashGenerator
                         B    C
                     */
                     int a = vertexIndex;
-                    int b = vertexIndex + width;
-                    int c = vertexIndex + width + 1;
+                    int b = vertexIndex + verticesPerLine;
+                    int c = vertexIndex + verticesPerLine + 1;
                     int d = vertexIndex + 1;
                     meshData.AddTriangle(a, c, b);
                     meshData.AddTriangle(c, a, d);
