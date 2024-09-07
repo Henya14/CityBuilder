@@ -11,6 +11,8 @@ public class MapDisplay : MonoBehaviour
     public MeshFilter meshFilter;
     public MeshRenderer meshRenderer;
   
+    private MeshCollider meshCollider;
+    private Highlight highlight;
 
     public void DrawTexture(Texture2D texture)
     {
@@ -22,9 +24,14 @@ public class MapDisplay : MonoBehaviour
     {
        meshFilter.sharedMesh = meshData.CreateMesh();
        meshRenderer.sharedMaterial.mainTexture = texture;
-       meshRenderer.gameObject.GetOrAddComponent<Highlight>();
-       Destroy(meshRenderer.gameObject.GetComponent<MeshCollider>());
-       meshRenderer.gameObject.AddComponent<Highlight>();
-       meshRenderer.gameObject.AddComponent<MeshCollider>();
+       foreach (var component in meshRenderer.gameObject.GetComponents<Component>()) {
+        if (component is MeshCollider) {
+            DestroyImmediate(component);
+        } else if(component is Highlight) {
+            DestroyImmediate(component);
+        }
+       }
+       highlight = meshRenderer.gameObject.GetOrAddComponent<Highlight>();
+       meshCollider = meshRenderer.gameObject.AddComponent<MeshCollider>();
     }
 }
