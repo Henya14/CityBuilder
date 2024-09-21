@@ -7,6 +7,7 @@ using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Splines;
+using UnityEngine.UIElements;
 
 public enum SplinePointType
 {
@@ -26,14 +27,23 @@ public struct RoadPointData
     public SplinePointType middleRoadPointType;
     public float splineValue;
 }
+enum RoadSide
+{
+    Left,
+    Right
+}
 
 public class PointDrawer : MonoBehaviour
 {
     public Material roadNaterial;
     public Camera playerCamera;
     public GameObject point;
-
+    public GameObject emptyShit;
     private GameObject pointInstance;
+    private List<GameObject> emptyTileList = new List<GameObject>();
+    public float emptyTileOffset = 1.0f;
+    public float emptyTileGutter = 1.0f;
+    public float angleShit = 20.0f;
     private List<GameObject> splineGuidingPointInstances = new List<GameObject>();
     private List<GameObject> splinePointInstances = new List<GameObject>();
     private List<Spline> splines = new List<Spline>();
@@ -50,6 +60,7 @@ public class PointDrawer : MonoBehaviour
     public int resolution = 5;
     [Range(0, 50)]
     public float roadWidth = 1.0f;
+    public int tilesToPlace = 3;
     public bool autoUpdateEnabled = true;
     public float pointClosenessDelta = 0.0001f;
     private int raycastLayerMask;
@@ -89,7 +100,7 @@ public class PointDrawer : MonoBehaviour
                 splineGuidingPointInstances.RemoveAt(splineGuidingPointInstances.Count - 1);
             }
         }
-        if (roadShit && Input.GetMouseButtonDown(0) )
+        if (roadShit && Input.GetMouseButtonDown(0))
         {
             splineGuidingPointInstances.Add(pointInstance);
             pointInstance = null;
@@ -97,7 +108,7 @@ public class PointDrawer : MonoBehaviour
         if (Input.GetMouseButtonDown(1))
         {
             Debug.Log("Nyasgem");
-            
+
             //DrawRoadMesh();
             roadShit = !roadShit;
             splineGuidingPointInstances.RemoveAt(splineGuidingPointInstances.Count - 1);
@@ -113,7 +124,7 @@ public class PointDrawer : MonoBehaviour
         var mesh = road.AddComponent<RoadMesh>();
 
         mesh.DrawMesh(MeshGenerator.GenerateRoadMesh(splineRoadPoints), roadNaterial);
-        
+
     }
 
     private void RemoveSplinePoints()
@@ -140,6 +151,8 @@ public class PointDrawer : MonoBehaviour
             splineContainer.RemoveSplineAt(i);
         }
         splines.Clear();
+        emptyTileList.ForEach(et => Destroy(et));
+        emptyTileList.Clear();
         Spline leftSpline = splineContainer.AddSpline();
         Spline rightSpline = splineContainer.AddSpline();
         Spline middleSpline = splineContainer.AddSpline();
@@ -151,6 +164,10 @@ public class PointDrawer : MonoBehaviour
         splines.Add(leftSpline);
         splines.Add(rightSpline);
         splines.Add(leftSpline);
+        Vector3 previousLeftForward = default;
+        Vector3 previousRightForward = default;
+        Vector3 previousRightRoadDirectionVector = default;
+        Vector3 previousLeftRoadDirectionVector = default;
         for (int i = 0; i < splineRoadPoints.Count; i++)
         {
 
@@ -158,8 +175,54 @@ public class PointDrawer : MonoBehaviour
             //leftSpline.Add(new BezierKnot(roadPointData.leftRoadPoint), TangentMode.AutoSmooth);
             //rightSpline.Add(new BezierKnot(roadPointData.rightRoadPoint), TangentMode.AutoSmooth);
             //middleSpline.Add(new BezierKnot(roadPointData.middleRoadPoint), TangentMode.AutoSmooth);
-
+            if (i < splineRoadPoints.Count - 1)
+            {
+                (previousRightForward, previousRightRoadDirectionVector) = AddEmptyTiles(splineRoadPoints[i], splineRoadPoints[i + 1], RoadSide.Right, previousRightForward, previousRightRoadDirectionVector);
+                (previousLeftForward, previousLeftRoadDirectionVector) = AddEmptyTiles(splineRoadPoints[i], splineRoadPoints[i + 1], RoadSide.Left, previousLeftForward, previousLeftRoadDirectionVector);
+            }
         }
+
+    }
+
+    private Tuple<Vector3, Vector3> AddEmptyTiles(RoadPointData roadPointData1, RoadPointData roadPointData2, RoadSide side, Vector3 previousForward, Vector3 previousRoadDirectionVector)
+    {
+        var point1 = side == RoadSide.Right ? roadPointData1.rightRoadPoint : roadPointData1.leftRoadPoint;
+        var point2 = side == RoadSide.Right ? roadPointData2.rightRoadPoint : roadPointData2.leftRoadPoint;
+        var roadDirectionVector = point1 - point2;
+        previousRoadDirectionVector = previousRoadDirectionVector == default ? roadDirectionVector : previousRoadDirectionVector;
+        var forward = Vector3.Cross(roadDirectionVector, side == RoadSide.Right ? Vector3.up : Vector3.down).normalized;
+        previousForward = previousForward == default ? forward : previousForward;
+        var angle = Vector3.Angle(forward, previousForward);
+        Debug.Log(angle);
+        if (angle < angleShit)
+        {
+            forward = previousForward; 
+            roadDirectionVector = previousRoadDirectionVector;
+        }
+
+
+        var roadHalfVector = roadDirectionVector / 2;
+        var roadHalfPoint = point1 + roadHalfVector;
+
+
+
+      
+        
+
+        for (int i = 0; i < tilesToPlace; i++)
+        {
+            var shit = Instantiate(emptyShit);
+            var rotation = Quaternion.LookRotation(forward);
+
+            var postition = roadHalfPoint + (forward * emptyTileOffset) + (forward * i * emptyTileGutter);
+            postition.y = postition.y + 0.1f;
+
+            shit.transform.position = postition;
+            shit.transform.rotation = rotation;
+            emptyTileList.Add(shit);
+        }
+
+        return new Tuple<Vector3, Vector3>(previousForward, previousRoadDirectionVector);
 
     }
 
@@ -226,10 +289,11 @@ public class PointDrawer : MonoBehaviour
         {
 
             SplineUtility.Evaluate(tempSpline, i, out float3 splineEvalResult, out float3 forward, out float3 upVector);
-            if (splineEvalResult.y < 0) {
-                splineEvalResult.y = splinePointDatas[splinePointDatas.Count -1].splinePoint.y;
+            if (splineEvalResult.y < 0)
+            {
+                splineEvalResult.y = splinePointDatas[splinePointDatas.Count - 1].splinePoint.y;
             }
-            
+
             var pointOnCurve = new Vector3(splineEvalResult.x, splineEvalResult.y + heightDelta < 0 ? heightDelta : splineEvalResult.y + heightDelta, splineEvalResult.z);
 
             var splinePointData = GetSplinePointDataForSplinePoint(pointOnCurve, i);
