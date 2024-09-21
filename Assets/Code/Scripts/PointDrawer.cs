@@ -29,8 +29,10 @@ public struct RoadPointData
 
 public class PointDrawer : MonoBehaviour
 {
+    public Material roadNaterial;
     public Camera playerCamera;
     public GameObject point;
+
     private GameObject pointInstance;
     private List<GameObject> splineGuidingPointInstances = new List<GameObject>();
     private List<GameObject> splinePointInstances = new List<GameObject>();
@@ -50,10 +52,19 @@ public class PointDrawer : MonoBehaviour
     public float roadWidth = 1.0f;
     public bool autoUpdateEnabled = true;
     public float pointClosenessDelta = 0.0001f;
+    private int raycastLayerMask;
+    public float raycastDistance = 20.0f;
+    List<RoadPointData> splineRoadPoints = new List<RoadPointData>();
+
+    private int roadIndex = 0;
+    bool roadShit = true;
+    private List<GameObject> roadMeshes = new List<GameObject>();
     // Start is called before the first frame update
     void Start()
     {
         splineContainer = gameObject.AddComponent<SplineContainer>();
+        raycastLayerMask = LayerMask.GetMask("Ground");
+
     }
 
     // Update is called once per frame
@@ -62,9 +73,9 @@ public class PointDrawer : MonoBehaviour
         LastMousePosition = Input.mousePosition;
         Ray ray = playerCamera.ScreenPointToRay(LastMousePosition);
 
-        if (Physics.Raycast(ray, out RaycastHit rayHit))
+        if (roadShit && Physics.Raycast(ray, out RaycastHit rayHit))
         {
-            if (rayHit.collider.gameObject.GetComponent<Highlight>() != null)
+            if (rayHit.collider.gameObject.GetComponent<TimeManager>() != null)
             {
                 Destroy(pointInstance);
                 var tempPoint = Instantiate(point);
@@ -73,18 +84,36 @@ public class PointDrawer : MonoBehaviour
                 splineGuidingPointInstances.Add(pointInstance);
                 if (splineGuidingPointInstances.Count > 1)
                 {
-                    RemoveSplinePoints();
-                    CreateCurveBetweenPoints(splineGuidingPointInstances.Select(sp => sp.transform.position).ToList());
+                    DrawRoadCurve();
                 }
                 splineGuidingPointInstances.RemoveAt(splineGuidingPointInstances.Count - 1);
             }
         }
-        if (Input.GetMouseButtonDown(0))
+        if (roadShit && Input.GetMouseButtonDown(0) )
         {
             splineGuidingPointInstances.Add(pointInstance);
             pointInstance = null;
         }
+        if (Input.GetMouseButtonDown(1))
+        {
+            Debug.Log("Nyasgem");
+            
+            //DrawRoadMesh();
+            roadShit = !roadShit;
+            splineGuidingPointInstances.RemoveAt(splineGuidingPointInstances.Count - 1);
+            DrawRoadCurve();
+        }
 
+    }
+
+    private void DrawRoadMesh()
+    {
+        var road = new GameObject($"road {++roadIndex}");
+        roadMeshes.Add(road);
+        var mesh = road.AddComponent<RoadMesh>();
+
+        mesh.DrawMesh(MeshGenerator.GenerateRoadMesh(splineRoadPoints), roadNaterial);
+        
     }
 
     private void RemoveSplinePoints()
@@ -106,43 +135,54 @@ public class PointDrawer : MonoBehaviour
         {
             return;
         }
-        for (int i = 0; i < splines.Count; i++) {
+        for (int i = 0; i < splines.Count; i++)
+        {
             splineContainer.RemoveSplineAt(i);
         }
         splines.Clear();
         Spline leftSpline = splineContainer.AddSpline();
         Spline rightSpline = splineContainer.AddSpline();
         Spline middleSpline = splineContainer.AddSpline();
-        List<RoadPointData> splineRoadPoints;
+        splineRoadPoints.Clear();
         GetSplineForTerrainBetweenPoints(points, out splineRoadPoints);
+        roadMeshes.ForEach(rm => Destroy(rm));
+        roadMeshes.Clear();
+        DrawRoadMesh();
         splines.Add(leftSpline);
         splines.Add(rightSpline);
         splines.Add(leftSpline);
-        foreach (RoadPointData roadPointData in splineRoadPoints)
+        for (int i = 0; i < splineRoadPoints.Count; i++)
         {
 
-            var leftPointInstance = Instantiate(point);
-            var rightPointInstance = Instantiate(point);
-            var middlePointInstance = Instantiate(point);
-            leftPointInstance.transform.position = roadPointData.leftRoadPoint;
-            rightPointInstance.transform.position = roadPointData.rightRoadPoint;
-            middlePointInstance.transform.position = roadPointData.middleRoadPoint;
-            var leftHighlight = leftPointInstance.GetComponent<Highlight>();
-            var rightHighlight = rightPointInstance.GetComponent<Highlight>();
-            var middleHighlight = middlePointInstance.GetComponent<Highlight>();
-            SetHighlightColor(roadPointData.leftRoadPointType, leftHighlight);
-            SetHighlightColor(roadPointData.rightRoadPointType, rightHighlight);
-            SetHighlightColor(roadPointData.middleRoadPointType, middleHighlight);            
-            leftSpline.Add(new BezierKnot(roadPointData.leftRoadPoint), TangentMode.AutoSmooth);
-            rightSpline.Add(new BezierKnot(roadPointData.rightRoadPoint), TangentMode.AutoSmooth);
-            middleSpline.Add(new BezierKnot(roadPointData.middleRoadPoint), TangentMode.AutoSmooth);
-            leftHighlight.ToggleHighlight(true);
-            rightHighlight.ToggleHighlight(true);
-            middleHighlight.ToggleHighlight(true);
-            splinePointInstances.Add(rightPointInstance);
-            splinePointInstances.Add(leftPointInstance);
-            splinePointInstances.Add(middlePointInstance);
+            DrawRoadGuidingPoints(splineRoadPoints[i]);
+            //leftSpline.Add(new BezierKnot(roadPointData.leftRoadPoint), TangentMode.AutoSmooth);
+            //rightSpline.Add(new BezierKnot(roadPointData.rightRoadPoint), TangentMode.AutoSmooth);
+            //middleSpline.Add(new BezierKnot(roadPointData.middleRoadPoint), TangentMode.AutoSmooth);
+
         }
+
+    }
+
+    private void DrawRoadGuidingPoints(RoadPointData roadPointData)
+    {
+        var leftPointInstance = Instantiate(point);
+        var rightPointInstance = Instantiate(point);
+        var middlePointInstance = Instantiate(point);
+        leftPointInstance.transform.position = roadPointData.leftRoadPoint;
+        rightPointInstance.transform.position = roadPointData.rightRoadPoint;
+        middlePointInstance.transform.position = roadPointData.middleRoadPoint;
+        var leftHighlight = leftPointInstance.GetComponent<Highlight>();
+        var rightHighlight = rightPointInstance.GetComponent<Highlight>();
+        var middleHighlight = middlePointInstance.GetComponent<Highlight>();
+        SetHighlightColor(roadPointData.leftRoadPointType, leftHighlight);
+        SetHighlightColor(roadPointData.rightRoadPointType, rightHighlight);
+        SetHighlightColor(roadPointData.middleRoadPointType, middleHighlight);
+        leftHighlight.ToggleHighlight(true);
+        rightHighlight.ToggleHighlight(true);
+        middleHighlight.ToggleHighlight(true);
+        splinePointInstances.Add(rightPointInstance);
+        splinePointInstances.Add(leftPointInstance);
+        splinePointInstances.Add(middlePointInstance);
 
     }
 
@@ -170,11 +210,12 @@ public class PointDrawer : MonoBehaviour
         Spline tempSpline = splineContainer.AddSpline();
         Spline splineMiddle = splineContainer.AddSpline();
 
+
         var splinePointDatas = new List<SplinePointData>();
         splineRoadPoints = new List<RoadPointData>();
         foreach (var point in splinePoints)
         {
-            tempSpline.Add(new BezierKnot(point), TangentMode.Broken);
+            tempSpline.Add(new BezierKnot(point), TangentMode.AutoSmooth);
         }
 
         splinePointDatas.Add(GetSplinePointDataForSplinePoint(splinePoints[0], 0.0f));
@@ -185,89 +226,101 @@ public class PointDrawer : MonoBehaviour
         {
 
             SplineUtility.Evaluate(tempSpline, i, out float3 splineEvalResult, out float3 forward, out float3 upVector);
-            var pointOnCurve = new Vector3(splineEvalResult.x, splineEvalResult.y, splineEvalResult.z);
+            if (splineEvalResult.y < 0) {
+                splineEvalResult.y = splinePointDatas[splinePointDatas.Count -1].splinePoint.y;
+            }
             
+            var pointOnCurve = new Vector3(splineEvalResult.x, splineEvalResult.y + heightDelta < 0 ? heightDelta : splineEvalResult.y + heightDelta, splineEvalResult.z);
+
             var splinePointData = GetSplinePointDataForSplinePoint(pointOnCurve, i);
             splinePointDatas.Add(splinePointData);
-            splineMiddle.Add(new BezierKnot(splinePointData.splinePoint), TangentMode.AutoSmooth);
+            splineMiddle.Add(new BezierKnot(splineEvalResult), TangentMode.AutoSmooth);
         }
         splinePointDatas.Add(GetSplinePointDataForSplinePoint(splinePoints[splinePoints.Count - 1], 1.0f));
         splineMiddle.Add(new BezierKnot(splinePoints[splinePoints.Count - 1]), TangentMode.AutoSmooth);
 
-        for(int i = 0; i < splinePointDatas.Count; i++) {
+        for (int i = 0; i < splinePointDatas.Count; i++)
+        {
             var splinePointData = splinePointDatas[i];
-            SplinePointData nextSplinePointData = i < splinePointDatas.Count - 1? splinePointDatas[i+1] : default;
+            SplinePointData nextSplinePointData = i < splinePointDatas.Count - 1 ? splinePointDatas[i + 1] : default;
 
             SplineUtility.Evaluate(splineMiddle, splinePointData.splineValue, out float3 splineEvalResult, out float3 forward, out float3 upVector);
-            Vector3 forwardVector = nextSplinePointData.Equals(default(SplinePointData))? forward : splinePointData.splinePoint - nextSplinePointData.splinePoint;
-            splineRoadPoints.Add(GetRoadPointDataForPoint(splinePointData.splinePoint, splinePointData.splineValue, forwardVector, Vector3.up));
+            Vector3 forwardVector = nextSplinePointData.Equals(default(SplinePointData)) ? forward : splinePointData.splinePoint - nextSplinePointData.splinePoint;
+            splineRoadPoints.Add(GetRoadPointDataForPoint(splinePointData, splinePointData.splineValue, forwardVector, Vector3.up));
+
         }
 
         splineContainer.RemoveSpline(tempSpline);
         splineContainer.RemoveSpline(splineMiddle);
     }
 
-    SplinePointData GetSplinePointDataForSplinePoint(Vector3 pointOnCurve, float splineValue) {
-        var clippedPointOnCurve = new Vector3(pointOnCurve.x, pointOnCurve.y + heightDelta < heightDelta ? heightDelta : pointOnCurve.y + heightDelta, pointOnCurve.z);
-        Ray rayDowm = new Ray(clippedPointOnCurve, Vector3.down);
+    SplinePointData GetSplinePointDataForSplinePoint(Vector3 pointOnCurve, float splineValue)
+    {
+        Ray rayDowm = new Ray(pointOnCurve, Vector3.down);
 
         RaycastHit rayHit;
-        Physics.Raycast(rayDowm, out rayHit);
-        return GetSplinePointDataForHit(rayHit, clippedPointOnCurve, splineValue);
+        var res = Physics.Raycast(rayDowm, out rayHit, raycastDistance, raycastLayerMask);
+        if (res == false)
+        {
+            Debug.Log("Ayuda");
+        }
+        return GetSplinePointDataForHit(rayHit, pointOnCurve, splineValue);
     }
 
-    RoadPointData GetRoadPointDataForPoint(Vector3 roadMiddlePoint, float splineValue, float3 forward, float3 upVector)
+    RoadPointData GetRoadPointDataForPoint(SplinePointData roadMiddlePointData, float splineValue, float3 forward, float3 upVector)
     {
+        var roadMiddlePoint = roadMiddlePointData.splinePoint;
+        var roadMiddlePointCapped = new Vector3(roadMiddlePoint.x, roadMiddlePoint.y + heightDelta < 0 ? heightDelta : roadMiddlePoint.y + heightDelta, roadMiddlePoint.z);
         var roadRight = Vector3.Cross(forward, upVector).normalized;
 
-        var rayCastPoint1 = roadMiddlePoint + (roadRight * this.roadWidth);
-        var rayCastPoint2 = roadMiddlePoint - (roadRight * this.roadWidth);
+        var rayCastPoint1 = roadMiddlePointCapped + (roadRight * this.roadWidth);
+        var rayCastPoint2 = roadMiddlePointCapped - (roadRight * this.roadWidth);
 
         Ray ray1Down = new Ray(rayCastPoint1, Vector3.down);
         Ray ray2Down = new Ray(rayCastPoint2, Vector3.down);
 
         RaycastHit hit1Down;
         RaycastHit hit2Down;
-        Physics.Raycast(ray1Down, out hit1Down);
-        Physics.Raycast(ray2Down, out hit2Down);
-        Debug.Log(hit1Down);
+        Physics.Raycast(ray1Down, out hit1Down, raycastDistance, raycastLayerMask);
+        Physics.Raycast(ray2Down, out hit2Down, raycastDistance, raycastLayerMask);
+        Debug.Log($"{roadMiddlePoint} ${hit1Down.point}");
         var rightPoint = GetSplinePointDataForHit(hit1Down, rayCastPoint1, splineValue);
         var leftPoint = GetSplinePointDataForHit(hit2Down, rayCastPoint2, splineValue);
         return new RoadPointData
         {
-            leftRoadPoint = leftPoint.splinePoint,
+            leftRoadPoint = leftPoint.hitOnMesh.Equals(default) ? leftPoint.splinePoint : leftPoint.hitOnMesh,
             leftRoadPointType = leftPoint.splinePointType,
-            rightRoadPoint = rightPoint.splinePoint,
+            rightRoadPoint = rightPoint.hitOnMesh.Equals(default) ? rightPoint.splinePoint : rightPoint.hitOnMesh,
             rightRoadPointType = rightPoint.splinePointType,
-            middleRoadPoint = roadMiddlePoint,
+            middleRoadPoint = roadMiddlePointData.hitOnMesh.Equals(default) ? roadMiddlePointData.splinePoint : roadMiddlePointData.hitOnMesh,
+            middleRoadPointType = roadMiddlePointData.splinePointType,
             splineValue = splineValue
         };
-
-
     }
 
 
-    SplinePointData GetSplinePointDataForHit(RaycastHit hit, Vector3 rayCastPoint, float splineValue)
+    SplinePointData GetSplinePointDataForHit(RaycastHit hit, Vector3 pointOnCurve, float splineValue)
     {
 
-        if (!hit.Equals(default(RaycastHit)) && hit.collider.GetComponent<Highlight>())
+        if (!hit.Equals(default(RaycastHit)) && hit.collider.GetComponent<TimeManager>())
         {
             var type = SplinePointType.FollowMeshCurve;
-            var distanceBetweenMeshPointAndStraightLinePoint = rayCastPoint.y - hit.point.y;
-            if (distanceBetweenMeshPointAndStraightLinePoint > bridgeDistanceDelta)
-            {
-                type = SplinePointType.Bridge;
-            }
-            else if (distanceBetweenMeshPointAndStraightLinePoint > levelTerrainDistanceDelta)
-            {
-                type = SplinePointType.LevelTerrain;
-            }
+            //var distanceBetweenMeshPointAndStraightLinePoint = pointOnCurve.y - hit.point.y;
+            // if (distanceBetweenMeshPointAndStraightLinePoint > bridgeDistanceDelta)
+            // {
+            //     type = SplinePointType.Bridge;
+            // }
+            // else if (distanceBetweenMeshPointAndStraightLinePoint > levelTerrainDistanceDelta)
+            // {
+            //     type = SplinePointType.LevelTerrain;
+            // }
 
             return new SplinePointData
             {
-                splinePoint = type == SplinePointType.FollowMeshCurve ? hit.point : rayCastPoint,
+                splinePoint = pointOnCurve,
                 hitOnMesh = hit.point,
                 splinePointType = type,
+                splineValue = splineValue
 
             };
 
@@ -277,8 +330,8 @@ public class PointDrawer : MonoBehaviour
 
             return new SplinePointData
             {
-                splinePoint = rayCastPoint,
-                hitOnMesh = Vector3.zero,
+                splinePoint = pointOnCurve,
+                hitOnMesh = default,
                 splinePointType = SplinePointType.Tunnel,
                 splineValue = splineValue
             };
