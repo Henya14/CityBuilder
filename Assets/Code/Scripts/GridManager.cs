@@ -56,7 +56,7 @@ public class GridManager : MonoBehaviour
         saveLoadManager = FindObjectOfType<SaveLoadManager>();
         offsetX = gridHeight / 4;
         offsetZ = gridWidth / 4;
-        GenerateGrid();
+        //GenerateGrid();
 
         if (loadOnStart) Invoke(nameof(Load), float.MinValue);
         

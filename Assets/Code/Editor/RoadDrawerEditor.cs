@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(PointDrawer))]
+[CustomEditor(typeof(RoadDrawer))]
 public class RoadDrawerEditor : Editor
 {
     public override void OnInspectorGUI()
     {
-        PointDrawer pd = (PointDrawer)target;
+        RoadDrawer pd = (RoadDrawer)target;
 
         if (DrawDefaultInspector())
         {

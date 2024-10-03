@@ -48,6 +48,7 @@ public class GameUIManager : MonoBehaviour
     private BuildModeManager buildModeManager;
     private GridManager gridManager;
     private NavigationManager navigationManager;
+    private RoadDrawer roadDrawer;
     //New common manager: PropertyManager
     //private ResidentManager residentManager;
     [SerializeField] VisualTreeAsset buildingListElementTemplate;
@@ -107,6 +108,7 @@ public class GameUIManager : MonoBehaviour
         buildModeManager = FindObjectOfType<BuildModeManager>();
         gridManager = FindObjectOfType<GridManager>();
         navigationManager = FindObjectOfType<NavigationManager>();
+        roadDrawer = FindObjectOfType<RoadDrawer>();
         //residentManager = FindObjectOfType<ResidentManager>();
 
         timeStartStopButton.clicked += OnTimeStartStopButtonClicked;
@@ -159,6 +161,7 @@ public class GameUIManager : MonoBehaviour
         gridManager.ResetSelection();
         buildingList.SetSelection(-1);
         buildingList.style.display = DisplayStyle.None;
+        roadDrawer.DisableDrawing();
     }
 
     void OnBuildModeButtonClicked()
@@ -205,6 +208,14 @@ public class GameUIManager : MonoBehaviour
     void OnBuildingSelected(IEnumerable<object> selectedItems)
     {
         var selectedBuilding = buildingList.selectedItem as BuildingData;
+        if (selectedBuilding == default) {
+            return;
+        }
+        if(selectedBuilding.buildingType == BuildingType.Road) {
+            roadDrawer.EnableDrawing();
+        } else {
+            roadDrawer.DisableDrawing();
+        }
         if (selectedBuilding == null)
         {
             gridManager.ChangeSelection(new Vector2Int(1, 1), null, null);
