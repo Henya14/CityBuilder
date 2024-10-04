@@ -109,6 +109,10 @@ public class GameUIManager : MonoBehaviour
         gridManager = FindObjectOfType<GridManager>();
         navigationManager = FindObjectOfType<NavigationManager>();
         roadDrawer = FindObjectOfType<RoadDrawer>();
+
+        if (roadDrawer == default) {
+            gridManager.GenerateGrid();
+        }
         //residentManager = FindObjectOfType<ResidentManager>();
 
         timeStartStopButton.clicked += OnTimeStartStopButtonClicked;
@@ -161,7 +165,7 @@ public class GameUIManager : MonoBehaviour
         gridManager.ResetSelection();
         buildingList.SetSelection(-1);
         buildingList.style.display = DisplayStyle.None;
-        roadDrawer.DisableDrawing();
+        roadDrawer?.DisableDrawing();
     }
 
     void OnBuildModeButtonClicked()
@@ -212,9 +216,9 @@ public class GameUIManager : MonoBehaviour
             return;
         }
         if(selectedBuilding.buildingType == BuildingType.Road) {
-            roadDrawer.EnableDrawing();
+            roadDrawer?.EnableDrawing(selectedBuilding.size.x);
         } else {
-            roadDrawer.DisableDrawing();
+            roadDrawer?.DisableDrawing();
         }
         if (selectedBuilding == null)
         {

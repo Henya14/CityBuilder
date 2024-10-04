@@ -52,18 +52,23 @@ public class EmptyTileData
 public struct BatchData
 {
     public List<List<EmptyTileData>> emptyTileDatas;
+    public List<GameObject> tileObjects;
     public int batchIndex;
 }
 
 public struct RoadData
 {
-    List<RoadPointData> roadPoints;
-    List<List<BatchData>> batchesOnRight;
-    List<List<BatchData>> batchesOnLeft;
+    public GameObject roadMesh;
+    public  List<RoadPointData> roadPoints;
+    public List<List<BatchData>> batchesOnRight;
+    public List<List<BatchData>> batchesOnLeft;
 }
+
+public delegate void RoadCreation(RoadData roadData);
 
 public class RoadDrawer : MonoBehaviour
 {
+    public event RoadCreation RoadCreated;
     public Material roadNaterial;
     public Camera playerCamera;
     public GameObject point;
@@ -110,9 +115,10 @@ public class RoadDrawer : MonoBehaviour
         raycastLayerMask = LayerMask.GetMask("Ground");
     }
 
-    public void EnableDrawing()
+    public void EnableDrawing(int roadWidth)
     {
         isDrawingRoad = true;
+        this.roadWidth = roadWidth;
     }
 
     public void DisableDrawing()
@@ -149,7 +155,8 @@ public class RoadDrawer : MonoBehaviour
                         splineGuidingPointInstances.Add(pointInstance);
                         if (splineGuidingPointInstances.Count > 1)
                         {
-                            DrawRoadCurve();
+                            var (splineRoadPoints, batchesOnRight, batchesOnLeft) = GetCurveBetweenPoints(splineGuidingPointInstances.Select(sp => sp.transform.position).ToList());
+                            DrawRoadCurve(splineRoadPoints, batchesOnRight, batchesOnLeft);
                         }
                         splineGuidingPointInstances.RemoveAt(splineGuidingPointInstances.Count - 1);
                     }
@@ -165,10 +172,15 @@ public class RoadDrawer : MonoBehaviour
                     splineGuidingPointInstances.Add(pointInstance);
                     pointInstance = null;
                 }
-                else
+                else if (splineGuidingPointInstances.Count > 1)
                 {
-                    isDrawingRoad = false;
-                    DrawRoadCurve();
+                    var (splineRoadPoints, batchesOnRight, batchesOnLeft) = GetCurveBetweenPoints(splineGuidingPointInstances.Select(sp => sp.transform.position).ToList());
+                    StartCoroutine(FireRoadCreatedEvent(roadMeshes[0], splineRoadPoints, batchesOnRight, batchesOnLeft));
+                    roadMeshes.RemoveAt(0);
+                    ClearRoads();
+                    //DrawRoadCurve(splineRoadPoints, batchesOnRight, batchesOnLeft);
+                    
+
                 }
 
             }
@@ -181,6 +193,23 @@ public class RoadDrawer : MonoBehaviour
             ClearRoads();
         }
 
+    }
+
+    IEnumerator FireRoadCreatedEvent(GameObject roadMesh, List<RoadPointData> splineRoadPoints, List<List<BatchData>> batchesOnRight, List<List<BatchData>> batchesOnLeft) {
+         var emptyTilesOnRight = new List<GameObject>();
+         yield return DrawBathces(batchesOnRight, emptyTilesOnRight, roadMesh);
+         var emptyTilesOnLeft = new List<GameObject>();
+         yield return DrawBathces(batchesOnLeft, emptyTilesOnLeft, roadMesh);
+
+
+         
+         RoadCreated?.Invoke(new RoadData {
+                        roadMesh = roadMesh,
+                        batchesOnLeft = batchesOnLeft,
+                        batchesOnRight = batchesOnRight,
+                        roadPoints = splineRoadPoints,
+                    });
+        yield return null;
     }
     private void RemoveRoadMeshes()
     {
@@ -224,10 +253,14 @@ public class RoadDrawer : MonoBehaviour
         RemoveSplinePoints();
         RemoveRoadMeshes();
     }
-    public void DrawRoadCurve()
+
+    
+    public void DrawRoadCurve(List<RoadPointData> splineRoadPoints = default, List<List<BatchData>> batchesOnRight = default, List<List<BatchData>> batchesOnLeft = default)
     {
         RemoveSplinePoints();
-        var (splineRoadPoints, batchesOnRight, batchesOnLeft) = GetCurveBetweenPoints(splineGuidingPointInstances.Select(sp => sp.transform.position).ToList());
+        if(splineRoadPoints == default) {
+            (splineRoadPoints, batchesOnRight, batchesOnLeft) = GetCurveBetweenPoints(splineGuidingPointInstances.Select(sp => sp.transform.position).ToList());
+        }
         if (splineRoadPoints != default)
         {
             DrawRoadWithEmptyTiles(splineRoadPoints, batchesOnRight, batchesOnLeft);
@@ -247,8 +280,8 @@ public class RoadDrawer : MonoBehaviour
         {
             StopCoroutine(leftBatchDrawerCorutine);
         }
-        rightBatchDrawerCorutine = StartCoroutine(DrawBathces(batchesOnRight));
-        leftBatchDrawerCorutine = StartCoroutine(DrawBathces(batchesOnLeft));
+        rightBatchDrawerCorutine = StartCoroutine(DrawBathces(batchesOnRight, emptyTileList, roadMeshes[0]));
+        leftBatchDrawerCorutine = StartCoroutine(DrawBathces(batchesOnLeft, emptyTileList, roadMeshes[0]));
 
     }
 
@@ -318,7 +351,7 @@ public class RoadDrawer : MonoBehaviour
 
     }
 
-    IEnumerator DrawBathces(List<List<BatchData>> listOfBatchDatas)
+    IEnumerator DrawBathces(List<List<BatchData>> listOfBatchDatas, List<GameObject> emptyTileList, GameObject roadMesh)
     {
         yield return new WaitForSeconds(0.1f);
         var colors = new List<Color> { Color.red, Color.blue, Color.black, Color.white, Color.grey, Color.green, Color.yellow };
@@ -326,8 +359,9 @@ public class RoadDrawer : MonoBehaviour
         foreach (var batchDatas in listOfBatchDatas)
         {
 
-            foreach (var batch in batchDatas)
+            for (int i = 0; i < batchDatas.Count; i++)
             {
+                var batch = batchDatas[i];
                 Color color = colors.ElementAt(random.NextInt(0, colors.Count));
                 foreach (var emptyTileDatas in batch.emptyTileDatas)
                 {
@@ -335,12 +369,16 @@ public class RoadDrawer : MonoBehaviour
                     foreach (var emptyTileData in emptyTileDatas)
                     {
 
-                        var emptyTileInstance = Instantiate(emptyTilePrefab, roadMeshes[0].transform);
+                        var emptyTileInstance = Instantiate(emptyTilePrefab, roadMesh.transform);
                         //emptyTileInstance.par
                         emptyTileInstance.transform.position = emptyTileData.position;
                         emptyTileInstance.transform.rotation = emptyTileData.rotation;
                         emptyTileInstance.GetComponentInChildren<Highlight>().SetHighlightColor(color);
                         emptyTileInstance.GetComponentInChildren<Highlight>().ToggleHighlight(true);
+                        if (batch.tileObjects == default) {
+                            batch.tileObjects = new List<GameObject>();
+                        }
+                        batch.tileObjects.Add(emptyTileInstance);
                         emptyTileList.Add(emptyTileInstance);
                     }
 
@@ -365,7 +403,8 @@ public class RoadDrawer : MonoBehaviour
                 batchToTake[j] = new BatchData
                 {
                     emptyTileDatas = batchToTake[j].emptyTileDatas,
-                    batchIndex = batchIndex++
+                    batchIndex = batchIndex++,
+                    tileObjects = new List<GameObject>()
                 };
             }
 
@@ -422,9 +461,9 @@ public class RoadDrawer : MonoBehaviour
     private (List<List<BatchData>>, List<List<BatchData>>) BatchEmptyTiles(List<List<EmptyTileData>> emptyTiles, int numberOfSections)
     {
         List<BatchData>[] forwardBatches = new List<BatchData>[numberOfSections];
-        forwardBatches[0] = new List<BatchData>() { new BatchData { emptyTileDatas = new List<List<EmptyTileData>> { emptyTiles[0] }, batchIndex = 0 } };
+        forwardBatches[0] = new List<BatchData>() { new BatchData { emptyTileDatas = new List<List<EmptyTileData>> { emptyTiles[0] }, batchIndex = 0, tileObjects = new List<GameObject>() } };
         List<BatchData>[] backwardBatches = new List<BatchData>[numberOfSections];
-        backwardBatches[numberOfSections - 1] = new List<BatchData>() { new BatchData { emptyTileDatas = new List<List<EmptyTileData>> { emptyTiles[emptyTiles.Count - 1] }, batchIndex = 0 } };
+        backwardBatches[numberOfSections - 1] = new List<BatchData>() { new BatchData { emptyTileDatas = new List<List<EmptyTileData>> { emptyTiles[emptyTiles.Count - 1] }, batchIndex = 0, tileObjects = new List<GameObject>()} };
         if (emptyTiles.Count < 2)
         {
             return (forwardBatches.ToList(), backwardBatches.ToList());
@@ -468,7 +507,7 @@ public class RoadDrawer : MonoBehaviour
         if (previousSectionIndex != currentSectionIndex)
         {
             batchIndex++;
-            batches[currentSectionIndex] = new List<BatchData>() { new BatchData { emptyTileDatas = new List<List<EmptyTileData>> { currentEmptyTiles }, batchIndex = batchIndex } };
+            batches[currentSectionIndex] = new List<BatchData>() { new BatchData { emptyTileDatas = new List<List<EmptyTileData>> { currentEmptyTiles }, batchIndex = batchIndex, tileObjects = new List<GameObject>() } };
             return (batchIndex, currentSectionIndex);
         }
         var angle = Vector3.Angle(previousPerpendicularToRoadVector, perpendicularToRoadVector);
@@ -497,7 +536,7 @@ public class RoadDrawer : MonoBehaviour
             {
                 batches[currentSectionIndex] = new List<BatchData>();
             }
-            batches[currentSectionIndex].Add(new BatchData { emptyTileDatas = new List<List<EmptyTileData>> { currentEmptyTiles }, batchIndex = batchIndex });
+            batches[currentSectionIndex].Add(new BatchData { emptyTileDatas = new List<List<EmptyTileData>> { currentEmptyTiles }, batchIndex = batchIndex, tileObjects = new List<GameObject>() });
             return (batchIndex, currentSectionIndex);
         }
 
