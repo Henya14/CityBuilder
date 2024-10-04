@@ -23,6 +23,9 @@ public class MapGenarator : MonoBehaviour
    public float meshHeightMultiplier;
    public AnimationCurve meshHeightCurve;
 
+   void Start() {
+      GenerateMap();
+   }
    public void GenerateMap()
    {
       float[,] noiseMap = NoiseGenerator.GenerateNoiseMap(mapChunkSize, mapChunkSize, seed, noiseScale, iterations, amplitudeChangeFactor, frequencyChangeFactor, noiseOffset);

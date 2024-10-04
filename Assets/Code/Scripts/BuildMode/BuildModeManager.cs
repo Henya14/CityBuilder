@@ -13,6 +13,7 @@ public class BuildModeManager : MonoBehaviour
     private BuildingData selectedBuildingData;
     private GridManager gridManager;
     private NavigationManager navigationManager;
+    
 
     public GameObject twoWayStraight;
     public GameObject twoWayCurvy;
@@ -22,6 +23,7 @@ public class BuildModeManager : MonoBehaviour
     void Start() {
         gridManager = FindObjectOfType<GridManager>();
         navigationManager = FindObjectOfType<NavigationManager>();
+        
     }
     public void ObjectSelected(Dictionary<Vector3, List<Vector3Int>> placingPositionsWithGridPositions)
     {
