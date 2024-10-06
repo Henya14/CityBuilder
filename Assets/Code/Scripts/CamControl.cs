@@ -11,6 +11,7 @@ public class CamControl : MonoBehaviour
     private bool mainMode;
     private float originalFarClipPlane; //near 0,3 -> 2,6 if something wrong switch it back
     public Vector3 secondaryPosition;
+    public Vector3 secondaryRotation;
     public float secondaryFarClipPlane;
     public float secondaryCamMoveSpeed;
     public Vector3 maxSecondaryCamPosition;
@@ -57,8 +58,16 @@ public class CamControl : MonoBehaviour
             //reset
             if (Input.GetKeyDown(KeyCode.R))
             {
-                Debug.Log("Camera secondary reset");
-                ResetToSecondary();
+                if (mainMode)
+                {
+                    Debug.Log("Camera main reset");
+                    CamReset();
+                }
+                else
+                {
+                    Debug.Log("Camera secondary reset");
+                    ResetToSecondary();
+                }
             }
 
             //Maybe better with switch but then no diagonal movement
@@ -98,7 +107,7 @@ public class CamControl : MonoBehaviour
     //Main mode reset
     void CamReset()
     {
-        transform.parent.eulerAngles = new Vector3(0,0,0);
+        //transform.parent.eulerAngles = new Vector3(0,0,0);
         
         transform.localPosition = originalPosition;
         transform.eulerAngles = originalRotation;
@@ -110,9 +119,10 @@ public class CamControl : MonoBehaviour
     {
 
         transform.localPosition = secondaryPosition;
-        transform.eulerAngles = new Vector3(0, 0, 0);
+        transform.eulerAngles = secondaryRotation;
 
         Camera.main.farClipPlane = secondaryFarClipPlane; //viewdistance reduce
+        
     }
 
     void Zoom(float mouseScrollDelta) {

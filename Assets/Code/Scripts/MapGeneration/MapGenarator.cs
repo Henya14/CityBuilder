@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class MapGenarator : MonoBehaviour
@@ -20,11 +21,14 @@ public class MapGenarator : MonoBehaviour
    [SerializeField] Vector2 noiseOffset;
    [SerializeField] public bool autoUpdateEnabled;
    public TerrainType[] terrainTypes;
+   public List<RawMaterialWithRearity> rawMaterials;
    public float meshHeightMultiplier;
    public AnimationCurve meshHeightCurve;
 
    void Start() {
-      GenerateMap();
+        rawMaterials = new List<RawMaterialWithRearity> ();
+        rawMaterials.AddRange(RawMaterialManager.GetRawMaterials());
+        GenerateMap();
    }
    public void GenerateMap()
    {
@@ -42,6 +46,18 @@ public class MapGenarator : MonoBehaviour
             if (height > maxHeight){
                maxHeight = height;
             }
+            bool egy=false;
+            foreach(var rm in rawMaterials)
+            {
+                var temp = y * mapChunkSize + x;
+                if(0==temp%(rm.Rearity*1000)){
+                    colorMap[y * mapChunkSize + x] = rm.Color;
+                    egy = true;
+                        Debug.Log($"{y * mapChunkSize + x}, {rm.Type}");
+                    break;
+                }
+            }
+            if (egy) { continue; }
             for (int i = 0; i < terrainTypes.Length; i++)
             {
                if (height <= terrainTypes[i].height)
