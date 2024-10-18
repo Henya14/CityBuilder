@@ -1,0 +1,15 @@
+{
+    "list": [
+        {
+            "name": "Iron",
+            "description": "iron desc...",
+            "amount_per_hour": 1.5,
+            "recipe": [
+                {
+                    "key": "pelda",
+                    "value": 1.0
+                }
+            ]
+        }
+    ]
+}

@@ -21,6 +21,11 @@ public class MapGenarator : MonoBehaviour
    [SerializeField] Vector2 noiseOffset;
    [SerializeField] public bool autoUpdateEnabled;
    public TerrainType[] terrainTypes;
+
+   [Range(0, 1)]
+   [SerializeField] float rawMaterialLowestAltitude;
+   [Range(0, 1)]
+   [SerializeField] float rawMaterialHighestAltitude;
    public List<RawMaterialWithRearity> rawMaterials;
    public float meshHeightMultiplier;
    public AnimationCurve meshHeightCurve;
@@ -32,6 +37,11 @@ public class MapGenarator : MonoBehaviour
    }
    public void GenerateMap()
    {
+      if(rawMaterialLowestAltitude > rawMaterialHighestAltitude)
+      {
+          rawMaterialLowestAltitude = 0;
+          rawMaterialHighestAltitude = 1;
+      }
       float[,] noiseMap = NoiseGenerator.GenerateNoiseMap(mapChunkSize, mapChunkSize, seed, noiseScale, iterations, amplitudeChangeFactor, frequencyChangeFactor, noiseOffset);
 
       Color[] colorMap = new Color[mapChunkSize * mapChunkSize];
@@ -46,18 +56,19 @@ public class MapGenarator : MonoBehaviour
             if (height > maxHeight){
                maxHeight = height;
             }
-            bool egy=false;
+            bool thereIsMaterial=false;
+            if(rawMaterialLowestAltitude <= height && height <= rawMaterialHighestAltitude)
             foreach(var rm in rawMaterials)
             {
                 var temp = y * mapChunkSize + x;
-                if(0==temp%(rm.Rearity*1000)){
+                if(0==(temp%(int)(rm.Rearity*1000))){
                     colorMap[y * mapChunkSize + x] = rm.Color;
-                    egy = true;
-                        Debug.Log($"{y * mapChunkSize + x}, {rm.Type}");
+                    thereIsMaterial = true;
+                    //Debug.Log($"-----------{y * mapChunkSize + x}, {rm.Type}");
                     break;
                 }
             }
-            if (egy) { continue; }
+            if (thereIsMaterial) { continue; }
             for (int i = 0; i < terrainTypes.Length; i++)
             {
                if (height <= terrainTypes[i].height)

@@ -27,11 +27,13 @@ public class RawMaterialManager : MonoBehaviour
     public static void LoadRawMaterials()
     {
         //Beolvasas
-        rawMaterials = new List<RawMaterialWithRearity>{
-             new RawMaterialWithRearity("Iron", 0.01F, new Color(140,140,140)),
-             new RawMaterialWithRearity("Copper", 0.005F, new Color(234,114,32)),
-             new RawMaterialWithRearity("Wood", 0.1F, new Color(121,70,36,152))
-        };
+        rawMaterials = new List<RawMaterialWithRearity>();
+        rawMaterials = ResourceImporter.GetRawMaterials();
+        /*rawMaterials = new List<RawMaterialWithRearity>{
+             new RawMaterialWithRearity("Iron", 0.1F,new Color(0.5490196F,0.5490196F,0.5490196F)),
+             new RawMaterialWithRearity("Copper", 0.093F, new Color(0.9176471F,0.4470588F,0.1254902F)),
+             new RawMaterialWithRearity("Wood", 0.01F, new Color(0.4745098F,0.2745098F,0.1411765F,0.5960785F))
+        };*/
         
     }
 }
