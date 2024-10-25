@@ -1,12 +1,12 @@
 {
     "list": [
         {
-            "name": "Iron",
-            "description": "iron desc...",
+            "name": "Plank",
+            "description": "plank desc...",
             "amount_per_hour": 1.5,
             "recipe": [
                 {
-                    "key": "pelda",
+                    "key": "Wood",
                     "value": 1.0
                 }
             ]

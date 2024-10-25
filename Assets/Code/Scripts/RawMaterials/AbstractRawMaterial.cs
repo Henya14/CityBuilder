@@ -23,12 +23,14 @@ public struct RawMaterialWithRearity
 {
     public string Type;
     public float Rearity;
+    public float GatheredAmountPerHour;
     public Color Color;
 
-    public RawMaterialWithRearity(string type, float rearity, Color color) : this()
+    public RawMaterialWithRearity(string type, float rearity, float gatheredAmountPerHour, Color color) : this()
     {
         this.Type = type;
         this.Rearity = rearity;
+        this.GatheredAmountPerHour = gatheredAmountPerHour;
         this.Color = color;
     }
 }

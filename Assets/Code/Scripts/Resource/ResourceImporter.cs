@@ -10,6 +10,7 @@ using UnityEngine.UIElements;
 
 public static class ResourceImporter
 {
+    [SerializeField]
     public static string resourceFolderPath = "MaterialDatas/";
     public static List<RawMaterialWithRearity> GetRawMaterials()
     {
@@ -35,7 +36,8 @@ public static class ResourceImporter
         {
             
             var o = new GameObject(r.name);
-            o.AddComponent<Resource>();
+            o.transform.parent = component.transform;
+            Resource.CreateComponent(o, r.name,r.description,r.amount_per_hour,r.GetRecipe());
             //o.GetComponent<Resource>.Change(r.name, r.description, r.amount_per_hour, r.GetRecipe());
         }
     }
@@ -54,7 +56,7 @@ public static class ResourceImporter
     public static void Save()
     {
         var listR = new List<ResourceRecipe>() {
-            new("Iron", "iron desc...", 1.5F, new Dictionary<string, double>{{"példa",1.0}})
+            new("Iron", "iron desc...", 1.5F, new Dictionary<string, float>{{"példa",1.0F}})
         };
         SerializableList<ResourceRecipe> serializableList = new SerializableList<ResourceRecipe>();
         serializableList.list = listR;
@@ -93,10 +95,10 @@ public static class ResourceImporter
     {
         public string name;
         public string description;
-        public double amount_per_hour;
+        public float amount_per_hour;
         public List<MyKeyNValue> recipe;
 
-        public ResourceRecipe(string v1, string v2, float v3, Dictionary<string, double> dictionary)
+        public ResourceRecipe(string v1, string v2, float v3, Dictionary<string, float> dictionary)
         {
             name = v1;
             description = v2;
@@ -105,18 +107,18 @@ public static class ResourceImporter
             recipe = Transcribe(dictionary);
 
         }
-        private List<MyKeyNValue> Transcribe(Dictionary<string, double> dictionary)
+        private List<MyKeyNValue> Transcribe(Dictionary<string, float> dictionary)
         {
             var list = new List<MyKeyNValue>();
-            foreach(KeyValuePair<string, double> kvp in dictionary)
+            foreach(KeyValuePair<string, float> kvp in dictionary)
             {
                 list.Add(new MyKeyNValue(kvp.Key, kvp.Value));
             }
             return list;
         }
-        public Dictionary<string, double> GetRecipe()
+        public Dictionary<string, float> GetRecipe()
         {
-            var dict = new Dictionary<string, double>();
+            var dict = new Dictionary<string, float>();
             foreach(var item in recipe)
             {
                 dict.Add(item.key, item.value);
@@ -128,9 +130,9 @@ public static class ResourceImporter
     private class MyKeyNValue
     {
         public string key;
-        public double value;
+        public float value;
 
-        public MyKeyNValue(string key, double value)
+        public MyKeyNValue(string key, float value)
         {
             this.key = key;
             this.value = value;

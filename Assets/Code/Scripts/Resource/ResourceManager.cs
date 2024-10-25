@@ -20,4 +20,12 @@ public class ResourceManager : MonoBehaviour
     {
         
     }
+    public Resource FindResourceByName(string name)
+    {
+        foreach(var res in GetComponentsInChildren<Resource>())
+        {
+            if (res.ResourceName == name) return res;
+        }
+        return null;
+    }
 }

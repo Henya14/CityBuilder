@@ -3,6 +3,7 @@
         {
             "Type": "Iron",
             "Rearity": 0.1,
+            "GatheredAmountPerHour": 1.5,
             "Color": {
                 "r": 0.5490195751190186,
                 "g": 0.5490195751190186,
@@ -13,6 +14,7 @@
         {
             "Type": "Copper",
             "Rearity": 0.077,
+            "GatheredAmountPerHour": 1.0,
             "Color": {
                 "r": 0.917647123336792,
                 "g": 0.4470587968826294,
@@ -23,6 +25,7 @@
         {
             "Type": "Wood",
             "Rearity": 0.085,
+            "GatheredAmountPerHour": 3.0,
             "Color": {
                 "r": 0.4745098054409027,
                 "g": 0.2745097875595093,
