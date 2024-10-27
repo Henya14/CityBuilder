@@ -37,12 +37,12 @@ public class BuildingAdjacencyGraph
             }
             if (neighbour.Value.WeightFromNeighbour != GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT)
             {
-                neighbourNode.AddConnection(node, neighbour.Value.WeightFromNeighbour);
+                node.AddConnection(neighbourNode, neighbour.Value.WeightFromNeighbour);
             }
 
             if (neighbour.Value.WeightToNeighbour != GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT)
             {
-                node.AddConnection(neighbourNode, neighbour.Value.WeightToNeighbour);
+                neighbourNode.AddConnection(node, neighbour.Value.WeightToNeighbour);
             }
         }
     }

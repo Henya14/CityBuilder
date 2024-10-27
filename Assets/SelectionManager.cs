@@ -77,6 +77,11 @@ public class SelectionManager : MonoBehaviour, SelectableObject
        return gameObject.GetComponent<Highlight>();
     }
 
+    public void SetHighlightColor(Color color)
+    {
+       gameObject.GetComponent<Highlight>().SetHighlightColor(color);
+    }
+
     public void ToggleHighlight(bool on)
     {
         GetHighlight().ToggleHighlight(on);

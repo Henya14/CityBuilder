@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Unity.Mathematics;
 using UnityEditor.PackageManager;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 
 
@@ -13,17 +15,18 @@ public class BuildModeManager : MonoBehaviour
     private BuildingData selectedBuildingData;
     private GridManager gridManager;
     private NavigationManager navigationManager;
-    
 
+    public GameObject debugSpherePrefab;
     public GameObject twoWayStraight;
     public GameObject twoWayCurvy;
     public GameObject threeWay;
     public GameObject fourWay;
 
-    void Start() {
+    void Start()
+    {
         gridManager = FindObjectOfType<GridManager>();
         navigationManager = FindObjectOfType<NavigationManager>();
-        
+
     }
     public void ObjectSelected(Dictionary<Vector3, List<Vector3Int>> placingPositionsWithGridPositions)
     {
@@ -46,16 +49,17 @@ public class BuildModeManager : MonoBehaviour
         gridManager.AddBuildingToGrid(selectedBuilding, gridPositions);
         Dictionary<Vector3Int, NeighbourData> neigboursForBuildingPositions = GetNeighboursForGridPositions(gridPositions);
         selectedBuilding.twoWayStraight = twoWayStraight;
-        selectedBuilding.twoWayCurvy = twoWayCurvy; 
+        selectedBuilding.twoWayCurvy = twoWayCurvy;
         selectedBuilding.threeWay = threeWay;
         selectedBuilding.fourWay = fourWay;
         selectedBuilding.PlaceAtPosition(updatedPlacingPositionsWithGridPositions, neigboursForBuildingPositions);
-        if (selectedBuilding is Building || selectedBuilding is Road) {
+        if (selectedBuilding is Building || selectedBuilding is Road)
+        {
             AddBuildingToNavigationManager(selectedBuilding, neigboursForBuildingPositions);
         }
 
     }
-    public void LoadBuildings(List<BuildingSaveData> buildings) 
+    public void LoadBuildings(List<BuildingSaveData> buildings)
     {
         foreach (var BSD in buildings)
         {
@@ -63,6 +67,8 @@ public class BuildModeManager : MonoBehaviour
             ObjectSelected(BSD.GetDictionary(gridManager));
         }
     }
+
+
 
     private void AddBuildingToNavigationManager(AbstractBuildingType selectedBuilding, Dictionary<Vector3Int, NeighbourData> neigboursForBuildingPositions)
     {
@@ -74,7 +80,7 @@ public class BuildModeManager : MonoBehaviour
                 weights = new Dictionary<SelectableObject, NeighbourWeights>();
             }
             weights = GetWeightsToNeighbour(selectedBuilding, neighboursForPosition, weights);
-            if (selectedBuilding is Road)
+            if (selectedBuilding is Road) 
             {
                 navigationManager.AddBuilding(selectedBuilding.GetSelectionManagerForGridPosition(neighboursForPosition.Key), weights);
             }
@@ -102,8 +108,9 @@ public class BuildModeManager : MonoBehaviour
                     WeightToNeighbour = 1,
                 };
                 var neighbourSelectableObject = neigbour.Value.GetSelectionManagerForGridPosition(neigbour.Key);
-                
-                if (neighbourSelectableObject.GetSelectableObjectType() == SelectableObjectType.Road || selectedBuilding is Road) {
+
+                if (neighbourSelectableObject.GetSelectableObjectType() == SelectableObjectType.Road || selectedBuilding is Road)
+                {
                     weights.TryAdd(neighbourSelectableObject, neighbourWeights);
                 }
             }
@@ -125,60 +132,138 @@ public class BuildModeManager : MonoBehaviour
         return neigbours;
     }
 
-    public List<BuildingData> GetBuildingDatas() {
-        List<BuildingData> buildingDatas = Resources.LoadAll<BuildingData>("Buildings").ToList(); 
-        buildingDatas = buildingDatas.Select(bd => {
-            bd.isAvailable = UnityEngine.Random.Range(0, 2) == 1? true: false;
+    public List<BuildingData> GetBuildingDatas()
+    {
+        List<BuildingData> buildingDatas = Resources.LoadAll<BuildingData>("Buildings").ToList();
+        buildingDatas = buildingDatas.Select(bd =>
+        {
+            bd.isAvailable = UnityEngine.Random.Range(0, 2) == 1 ? true : false;
             return bd;
         }).Where(bd => !bd.BuyableBuilding).ToList();
         return buildingDatas;
     }
 
-    public void BuildingDataSelected(BuildingData buildingData) {
+    public void BuildingDataSelected(BuildingData buildingData)
+    {
         selectedBuildingData = buildingData;
     }
 
-    public AbstractBuildingType CreateBuildingFromBuildingData(BuildingData data) {
-        if(data == null) return null;
-        switch (data.buildingType) {
+    public AbstractBuildingType CreateBuildingFromBuildingData(BuildingData data)
+    {
+        if (data == null) return null;
+        switch (data.buildingType)
+        {
             case BuildingType.Road:
                 var createdRoad = gameObject.AddComponent<Road>();
                 createdRoad.Init(data);
-                return createdRoad; 
+                return createdRoad;
             case BuildingType.IndividualBuilding:
                 var createdBuilding = gameObject.AddComponent<Building>();
                 createdBuilding.Init(data);
-                return createdBuilding; 
+                return createdBuilding;
             case BuildingType.Zone:
                 var createdZone = gameObject.AddComponent<Zone>();
                 createdZone.Init(data);
-                return createdZone; 
-            default: 
+                return createdZone;
+            default:
                 throw new Exception("Unknown Building Type");
         }
 
     }
+
+    public void RoadCreated(RoadData roadData)
+    {
+        CreateRoadNavigationPoints(roadData);
+
+        foreach (var roadPoint in roadData.roadPoints)
+        {
+            int pointsToCreate = (int)roadPoint.roadWidth + 1;
+            bool shouldUseMiddlePointOfRoad = pointsToCreate % 2 == 1;
+
+
+            Debug.Log(pointsToCreate);
+        }
+    }
+
+    private void CreateRoadNavigationPoints(RoadData roadData)
+    {
+        for (int i = 0; i < roadData.roadPoints.Count; i++)
+        {
+            var roadPoint = roadData.roadPoints[i];
+            int pointsToCreate = (int)roadPoint.roadWidth + 1;
+            bool shouldUseMiddlePointOfRoad = pointsToCreate % 2 == 1;
+            int pointsToCreateOnLeft = (int)Math.Floor((double)pointsToCreate / 2);
+            int pointsToCreateOnRight = pointsToCreateOnLeft;
+            
+            var point2 = Instantiate(debugSpherePrefab);
+            point2.transform.position = roadPoint.leftRoadPoint;
+                
+            var selectionManager2 = point2.AddComponent<SelectionManager>();
+            selectionManager2.SetHighlightColor(Color.red);
+            selectionManager2.ToggleHighlight(true);
+
+            point2 = Instantiate(debugSpherePrefab);
+            point2.transform.position = roadPoint.middleRoadPoint;
+                
+            selectionManager2 = point2.AddComponent<SelectionManager>();
+            selectionManager2.SetHighlightColor(Color.white);
+            selectionManager2.ToggleHighlight(true);
+
+            point2 = Instantiate(debugSpherePrefab);
+            point2.transform.position = roadPoint.rightRoadPoint;
+                
+            selectionManager2 = point2.AddComponent<SelectionManager>();
+            selectionManager2.SetHighlightColor(Color.yellow);
+            selectionManager2.ToggleHighlight(true);
+
+            for (int j = 1; j <= pointsToCreateOnLeft; j++) {
+                var vectorFromLeftToMiddleOfRoad = roadPoint.middleRoadPoint  - roadPoint.leftRoadPoint;
+                var position = roadPoint.leftRoadPoint + vectorFromLeftToMiddleOfRoad / (pointsToCreateOnLeft + 1.0f) * j;
+                CreatePointAtPositionWithColor(position, Color.red);
+            }
+            if (shouldUseMiddlePointOfRoad) {
+                var position = roadPoint.middleRoadPoint;
+                CreatePointAtPositionWithColor(position, Color.yellow);
+            }
+            for (int j = 1; j <= pointsToCreateOnRight; j++) {
+                var vectorFromMiddleToRightOfRoad = roadPoint.rightRoadPoint  - roadPoint.middleRoadPoint;
+                var position = roadPoint.middleRoadPoint + vectorFromMiddleToRightOfRoad / (pointsToCreateOnRight + 1.0f) * j;
+                CreatePointAtPositionWithColor(position, Color.yellow);
+            }
+        }
+    }
+
+    private GameObject CreatePointAtPositionWithColor(Vector3 position, Color color) {
+        var point = Instantiate(debugSpherePrefab);
+        point.transform.position = position;
+        var selectionManager = point.AddComponent<SelectionManager>();
+        selectionManager.SetHighlightColor(color);
+        selectionManager.ToggleHighlight(true);
+
+        return point;
+    }
+
     /*Not used currently
-    public void ConstructEstate(Vector3Int position,PropertyType pType)
-    {
-        var dc = selectPropertyObject(pType);
-        //TODO: GameObject placement
-        Vector3Int key = position;
-        var manager= FindObjectOfType<GridManager>();
-        dc.name = $"TEST Construction {(float)key.x / 2 - 5}, {(float)key.z / 2 - 5}";
-        dc.transform.parent = manager.transform;
-        dc.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+public void ConstructEstate(Vector3Int position,PropertyType pType)
+{
+   var dc = selectPropertyObject(pType);
+   //TODO: GameObject placement
+   Vector3Int key = position;
+   var manager= FindObjectOfType<GridManager>();
+   dc.name = $"TEST Construction {(float)key.x / 2 - 5}, {(float)key.z / 2 - 5}";
+   dc.transform.parent = manager.transform;
+   dc.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
 
-        dc.transform.localPosition = new Vector3((float)key.x / 2 - 5 - 0.25f, 0.75f, (float)key.z / 2 - 5 + 0.25f);
-        
-    }
+   dc.transform.localPosition = new Vector3((float)key.x / 2 - 5 - 0.25f, 0.75f, (float)key.z / 2 - 5 + 0.25f);
 
-    private GameObject selectPropertyObject(PropertyType pType)
-    {
-        //Random object select according to it's function
-        //Dummy:
-        return GameObject.CreatePrimitive(PrimitiveType.Cube);
-       
-    }
-    */
+}
+
+private GameObject selectPropertyObject(PropertyType pType)
+{
+   //Random object select according to it's function
+   //Dummy:
+   return GameObject.CreatePrimitive(PrimitiveType.Cube);
+
+}
+*/
 }

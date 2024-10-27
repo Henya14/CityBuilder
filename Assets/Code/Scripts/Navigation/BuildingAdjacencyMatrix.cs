@@ -48,8 +48,8 @@ public class BuildingAdjacencyMatrix
             {
                 throw new Exception($"Neighbour not in the list of buildings for {building.GetGameObject().name} {building.GetDescription()}");
             }
-            weights[indexOfNeighbour][indexOfBuilding] = neighbour.Value.WeightFromNeighbour;
-            weights[indexOfBuilding][indexOfNeighbour] = neighbour.Value.WeightToNeighbour;
+            weights[indexOfNeighbour][indexOfBuilding] = neighbour.Value.WeightToNeighbour;
+            weights[indexOfBuilding][indexOfNeighbour] = neighbour.Value.WeightFromNeighbour;
         }
     }
 

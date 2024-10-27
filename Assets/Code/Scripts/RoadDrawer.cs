@@ -174,7 +174,8 @@ public class RoadDrawer : MonoBehaviour
 
                             var rightClosestPoint = roadDatas.Select(roadPointData =>
                             {
-                                return (roadPointData, roadPointData.rightRoadPoint, (roadPointData.rightRoadPoint - tempPointPosition).magnitude);
+                                var magnitude = (roadPointData.rightRoadPoint - tempPointPosition).magnitude;
+                                return (roadPointData, roadPointData.rightRoadPoint, magnitude);
                             })
                             .Where((roadPointData) => roadPointData.magnitude <= roadPointClosenessDelta)
                             .OrderBy((rd) => rd.magnitude)
@@ -236,19 +237,16 @@ public class RoadDrawer : MonoBehaviour
             {
 
                 var distanceBetweenLastPointAndMousePoint = splineGuidingPointInstances.Count > 1 ? (splineGuidingPointInstances[splineGuidingPointInstances.Count - 2].transform.position - pointInstance.transform.position).magnitude : float.MaxValue;
-                if (lastRoadPointData != default)
-                {
-                    Debug.Log("Yee haw");
-                }
                 if (distanceBetweenLastPointAndMousePoint > 1.0f && lastRoadPointData == default)
                 {
                     splineGuidingPointInstances.Add(pointInstance);
-                    pointInstance = null;
+                    pointInstance = default;
                 }
-                else if (splineGuidingPointInstances.Count > 1)
+                else if (splineGuidingPointInstances.Count > 2)
                 {
-
+                    
                     var splinePoints = splineGuidingPointInstances.Select(sp => sp.transform.position).ToList();
+                    splinePoints.RemoveAt(splinePoints.Count - 1);
                     if (lastRoadPointData != default)
                     {
                         splinePoints.Add(lastRoadPointData.middleRoadPoint);
@@ -744,7 +742,7 @@ public class RoadDrawer : MonoBehaviour
             SplinePointData nextSplinePointData = i < splinePointDatas.Count - 1 ? splinePointDatas[i + 1] : default;
 
             SplineUtility.Evaluate(splineMiddle, splinePointData.splineValue, out float3 splineEvalResult, out float3 forward, out float3 upVector);
-            Vector3 forwardVector = nextSplinePointData.Equals(default(SplinePointData)) ? forward : splinePointData.splinePoint - nextSplinePointData.splinePoint;
+            Vector3 forwardVector = nextSplinePointData.Equals(default(SplinePointData)) ? splinePointDatas[i - 1].splinePoint - splinePointData.splinePoint : splinePointData.splinePoint - nextSplinePointData.splinePoint;
             splineRoadPoints.Add(GetRoadPointDataForPoint(splinePointData, splinePointData.splineValue, forwardVector, Vector3.up, splinePointData.sectionIndex, roadWidth));
 
         }

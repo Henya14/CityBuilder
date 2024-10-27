@@ -109,6 +109,7 @@ public class GameUIManager : MonoBehaviour
         gridManager = FindObjectOfType<GridManager>();
         navigationManager = FindObjectOfType<NavigationManager>();
         roadDrawer = FindObjectOfType<RoadDrawer>();
+        roadDrawer.RoadCreated += RoadCreated;
 
         if (roadDrawer == default) {
             gridManager.GenerateGrid();
@@ -150,6 +151,9 @@ public class GameUIManager : MonoBehaviour
         }
     }
 
+    private void RoadCreated(RoadData roadData) {
+        buildModeManager.RoadCreated(roadData);
+    }
     void OnSelectionModeButtonClicked()
     {
         HideSpecialBuildings();
