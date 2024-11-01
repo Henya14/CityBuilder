@@ -38,7 +38,7 @@ public class NavigationManager : MonoBehaviour
         {
             DeselectObjects();
         }
-        if (adjacencyGraph.GetGraphNodeAtGridPosition(selectedObject.GetGridPosition()) != null)
+        if (adjacencyGraph.GetGraphNodeForSelectableObject(selectedObject) != null)
         {
             selectedObjects.Add(selectedObject);
             selectedObject.ToggleHighlight(true);

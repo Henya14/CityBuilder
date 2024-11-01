@@ -171,7 +171,6 @@ public class RoadDrawer : MonoBehaviour
 
                         foreach (var roadDatas in roadPointDatasForRoads.Values)
                         {
-
                             var rightClosestPoint = roadDatas.Select(roadPointData =>
                             {
                                 var magnitude = (roadPointData.rightRoadPoint - tempPointPosition).magnitude;
@@ -233,11 +232,11 @@ public class RoadDrawer : MonoBehaviour
 
             }
 
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonDown(0) && pointInstance != default)
             {
 
                 var distanceBetweenLastPointAndMousePoint = splineGuidingPointInstances.Count > 1 ? (splineGuidingPointInstances[splineGuidingPointInstances.Count - 2].transform.position - pointInstance.transform.position).magnitude : float.MaxValue;
-                if (distanceBetweenLastPointAndMousePoint > 1.0f && lastRoadPointData == default)
+                if (distanceBetweenLastPointAndMousePoint > 5.0f && lastRoadPointData == default)
                 {
                     splineGuidingPointInstances.Add(pointInstance);
                     pointInstance = default;

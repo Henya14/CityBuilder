@@ -97,14 +97,16 @@ public class SelectionManager : MonoBehaviour, SelectableObject
     }
     void OnMouseEnter()
     {
-        var manager = FindObjectOfType<GridManager>();   
-        manager.ObjectSelectedAtPosition(GetGridPosition());
+        var manager = FindObjectOfType<NavigationManager>();   
+        manager.ObjectSelected(this);
+        //var manager = FindObjectOfType<GridManager>();   
+        //manager.ObjectSelectedAtPosition(GetGridPosition());
     }
 
     void OnMouseExit()
     {
-        var manager = FindObjectOfType<GridManager>();   
-        manager.ObjectDeselectedAtPosition(GetGridPosition());
+        var manager = FindObjectOfType<NavigationManager>();   
+        //manager.ObjectSelected(this);
     }
     // Start is called before the first frame update
     void Start()

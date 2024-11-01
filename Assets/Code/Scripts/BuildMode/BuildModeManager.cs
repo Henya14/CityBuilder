@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Xml.Schema;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -80,7 +82,7 @@ public class BuildModeManager : MonoBehaviour
                 weights = new Dictionary<SelectableObject, NeighbourWeights>();
             }
             weights = GetWeightsToNeighbour(selectedBuilding, neighboursForPosition, weights);
-            if (selectedBuilding is Road) 
+            if (selectedBuilding is Road)
             {
                 navigationManager.AddBuilding(selectedBuilding.GetSelectionManagerForGridPosition(neighboursForPosition.Key), weights);
             }
@@ -187,6 +189,7 @@ public class BuildModeManager : MonoBehaviour
 
     private void CreateRoadNavigationPoints(RoadData roadData)
     {
+        List<List<SelectableObject>> roadPoints = new List<List<SelectableObject>>(roadData.roadPoints.Count);
         for (int i = 0; i < roadData.roadPoints.Count; i++)
         {
             var roadPoint = roadData.roadPoints[i];
@@ -194,53 +197,131 @@ public class BuildModeManager : MonoBehaviour
             bool shouldUseMiddlePointOfRoad = pointsToCreate % 2 == 1;
             int pointsToCreateOnLeft = (int)Math.Floor((double)pointsToCreate / 2);
             int pointsToCreateOnRight = pointsToCreateOnLeft;
-            
-            var point2 = Instantiate(debugSpherePrefab);
-            point2.transform.position = roadPoint.leftRoadPoint;
-                
-            var selectionManager2 = point2.AddComponent<SelectionManager>();
-            selectionManager2.SetHighlightColor(Color.red);
-            selectionManager2.ToggleHighlight(true);
 
-            point2 = Instantiate(debugSpherePrefab);
-            point2.transform.position = roadPoint.middleRoadPoint;
-                
-            selectionManager2 = point2.AddComponent<SelectionManager>();
-            selectionManager2.SetHighlightColor(Color.white);
-            selectionManager2.ToggleHighlight(true);
+            // var point2 = Instantiate(debugSpherePrefab);
+            // point2.transform.position = roadPoint.leftRoadPoint;
 
-            point2 = Instantiate(debugSpherePrefab);
-            point2.transform.position = roadPoint.rightRoadPoint;
-                
-            selectionManager2 = point2.AddComponent<SelectionManager>();
-            selectionManager2.SetHighlightColor(Color.yellow);
-            selectionManager2.ToggleHighlight(true);
+            // var selectionManager2 = point2.AddComponent<SelectionManager>();
+            // selectionManager2.SetHighlightColor(Color.red);
+            // selectionManager2.ToggleHighlight(false);
 
-            for (int j = 1; j <= pointsToCreateOnLeft; j++) {
-                var vectorFromLeftToMiddleOfRoad = roadPoint.middleRoadPoint  - roadPoint.leftRoadPoint;
-                var position = roadPoint.leftRoadPoint + vectorFromLeftToMiddleOfRoad / (pointsToCreateOnLeft + 1.0f) * j;
-                CreatePointAtPositionWithColor(position, Color.red);
+            // point2 = Instantiate(debugSpherePrefab);
+            // point2.transform.position = roadPoint.middleRoadPoint;
+
+            // selectionManager2 = point2.AddComponent<SelectionManager>();
+            // selectionManager2.SetHighlightColor(Color.white);
+            // selectionManager2.ToggleHighlight(false);
+
+            // point2 = Instantiate(debugSpherePrefab);
+            // point2.transform.position = roadPoint.rightRoadPoint;
+
+            // selectionManager2 = point2.AddComponent<SelectionManager>();
+            // selectionManager2.SetHighlightColor(Color.yellow);
+            // selectionManager2.ToggleHighlight(false);
+            if (roadPoints.ElementAtOrDefault(i) == default)
+            {
+                roadPoints.Add(new List<SelectableObject>());
             }
-            if (shouldUseMiddlePointOfRoad) {
+            for (int j = 0; j < pointsToCreateOnLeft; j++)
+            {
+
+
+                var vectorFromLeftToMiddleOfRoad = roadPoint.middleRoadPoint - roadPoint.leftRoadPoint;
+                var position = roadPoint.leftRoadPoint + vectorFromLeftToMiddleOfRoad / (pointsToCreateOnLeft + 1.0f) * (j + 1);
+                var (point, selectionManager) = CreatePointAtPositionWithColor(position, Color.red);
+                var weights = new Dictionary<SelectableObject, NeighbourWeights>();
+                if (i > 0)
+                {
+                    weights.Add(roadPoints[i - 1][j], new NeighbourWeights
+                    {
+                        WeightFromNeighbour = 1,
+                        WeightToNeighbour = GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT
+                    });
+                }
+                navigationManager.AddBuilding(selectionManager, weights);
+                roadPoints[i].Add(selectionManager);
+
+            }
+            if (shouldUseMiddlePointOfRoad)
+            {
                 var position = roadPoint.middleRoadPoint;
-                CreatePointAtPositionWithColor(position, Color.yellow);
+                var (point, selectionManager) = CreatePointAtPositionWithColor(position, Color.white);
+                var weights = new Dictionary<SelectableObject, NeighbourWeights>();
+                if (i > 0)
+                {
+                    weights.Add(roadPoints[i - 1][pointsToCreateOnLeft], new NeighbourWeights
+                    {
+                        WeightFromNeighbour = GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT,
+                        WeightToNeighbour = 1
+                    });
+                    if (i == roadData.roadPoints.Count - 1)
+                    {
+                        weights.Add(roadPoints[i][pointsToCreateOnLeft - 1], new NeighbourWeights
+                        {
+                            WeightFromNeighbour = 1,
+                            WeightToNeighbour = GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT,
+                        });
+                    }
+                }
+                else if (i == 0)
+                {
+                    weights.Add(roadPoints[0][pointsToCreateOnLeft - 1], new NeighbourWeights
+                    {
+                        WeightFromNeighbour = GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT,
+                        WeightToNeighbour = 1
+                    });
+                }
+
+                navigationManager.AddBuilding(selectionManager, weights);
+                roadPoints[i].Add(selectionManager);
             }
-            for (int j = 1; j <= pointsToCreateOnRight; j++) {
-                var vectorFromMiddleToRightOfRoad = roadPoint.rightRoadPoint  - roadPoint.middleRoadPoint;
-                var position = roadPoint.middleRoadPoint + vectorFromMiddleToRightOfRoad / (pointsToCreateOnRight + 1.0f) * j;
-                CreatePointAtPositionWithColor(position, Color.yellow);
+            for (int j = 0; j < pointsToCreateOnRight; j++)
+            {
+                var vectorFromMiddleToRightOfRoad = roadPoint.rightRoadPoint - roadPoint.middleRoadPoint;
+                var position = roadPoint.middleRoadPoint + vectorFromMiddleToRightOfRoad / (pointsToCreateOnRight + 1.0f) * (j + 1);
+                var (point, selectionManager) = CreatePointAtPositionWithColor(position, Color.yellow);
+                var weights = new Dictionary<SelectableObject, NeighbourWeights>();
+                if (i > 0)
+                {
+                    weights.Add(roadPoints[i - 1][pointsToCreateOnLeft + j + 1], new NeighbourWeights
+                    {
+                        WeightFromNeighbour = GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT,
+                        WeightToNeighbour = 1
+                    });
+
+                    if (i == roadData.roadPoints.Count - 1)
+                    {
+                        weights.Add(roadPoints[i][pointsToCreateOnLeft - 1 - j], new NeighbourWeights
+                        {
+                            WeightFromNeighbour = 1,
+                            WeightToNeighbour = GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT,
+                        });
+                    }
+                }
+                else if (i == 0)
+                {
+                    weights.Add(roadPoints[0][pointsToCreateOnLeft - 1 - j], new NeighbourWeights
+                    {
+                        WeightFromNeighbour = GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT,
+                        WeightToNeighbour = 1
+                    });
+                }
+
+                navigationManager.AddBuilding(selectionManager, weights);
+                roadPoints[i].Add(selectionManager);
             }
         }
     }
 
-    private GameObject CreatePointAtPositionWithColor(Vector3 position, Color color) {
+    private (GameObject, SelectableObject) CreatePointAtPositionWithColor(Vector3 position, Color color)
+    {
         var point = Instantiate(debugSpherePrefab);
         point.transform.position = position;
         var selectionManager = point.AddComponent<SelectionManager>();
         selectionManager.SetHighlightColor(color);
-        selectionManager.ToggleHighlight(true);
+        selectionManager.ToggleHighlight(false);
 
-        return point;
+        return (point, selectionManager);
     }
 
     /*Not used currently
