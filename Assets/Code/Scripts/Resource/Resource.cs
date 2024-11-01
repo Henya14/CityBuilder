@@ -68,4 +68,8 @@ public class Resource : MonoBehaviour
     {
         return Storages.Remove(storage);
     }
+    public Dictionary<string, float> GetRecipe()
+    {
+        return m_recipe;
+    }
 }

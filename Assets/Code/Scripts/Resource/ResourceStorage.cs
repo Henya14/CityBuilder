@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class ResourceStorage : MonoBehaviour
@@ -75,5 +76,19 @@ public class ResourceStorage : MonoBehaviour
         }
         m_amount -= amount;
         return true;
+    }
+    private void OnDestroy()
+    {
+        if (Resource != null)
+        {
+            if (Resource.RemoveStorage(this))
+                Debug.Log($"{this.name} storage is destroyed and SUCCESSFULLY removed from {Resource.name}");
+            else
+                Debug.Log($"{this.name} storage is destroyed but FAILED to remove from {Resource.name}");
+        }
+        else
+        {
+            Debug.Log($"{this.name} storage is destroyed but FAILED to find Resource");
+        }
     }
 }
