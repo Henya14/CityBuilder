@@ -56,7 +56,7 @@ public class SaveLoadManager : MonoBehaviour
         serializableList.list = new List<TileSaveData>();
         tilesToSaveOrLoad = serializableList;
     }
-    public void SaveTiles(Dictionary<Vector3Int, Tile> tileMap)
+    public void SaveTiles(Dictionary<Vector3Int, GameObject> tileMap)
     {
         ResetTilesList();
 
@@ -68,7 +68,7 @@ public class SaveLoadManager : MonoBehaviour
                 PositionY = VandB.Key.y,
                 PositionZ = VandB.Key.z
             };
-            data.ConvertTile(VandB.Value);
+            data.ConvertTile(VandB.Value.GetComponent<Tile>());
             tilesToSaveOrLoad.list.Add(data);
         }
         string tileJson = JsonUtility.ToJson(tilesToSaveOrLoad);
@@ -148,7 +148,7 @@ public class SaveLoadManager : MonoBehaviour
         string buildingJson = File.ReadAllText(saveFileName + "Buildings.json");
         buildingsToSaveOrLoad = JsonUtility.FromJson<SerializableList<BuildingSaveData>>(buildingJson);
 
-        buildModeManager.LoadBuildings(buildingsToSaveOrLoad.list);
+        //buildModeManager.LoadBuildings(buildingsToSaveOrLoad.list);
     }
 
 

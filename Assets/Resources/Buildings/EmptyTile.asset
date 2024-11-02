@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a54e024e6921ac14f9b018b85c295968, type: 3}
-  m_Name: 4WideRoad
+  m_Name: EmptyTile
   m_EditorClassIdentifier: 
-  Name: Basic Road
-  Description: Basic Road Tile
-  buildingType: 0
-  price: 100
-  size: {x: 4, y: 1}
-  isAvailable: 1
-  prefab: {fileID: 8964427670939829494, guid: defa4935887e3bc469e8cf79e52fb69e, type: 3}
+  Name: Empty Tile
+  Description: An empty tile
+  buildingType: 2
+  price: 0
+  size: {x: 0, y: 0}
+  isAvailable: 0
+  prefab: {fileID: 6515529762217398849, guid: 946ba66ec4f894644900c5a1618bf994, type: 3}
   buildingPicture: {fileID: 0}
   scales: {x: 0, y: 0, z: 0}
-  buyableBuilding: 0
+  buyableBuilding: 1

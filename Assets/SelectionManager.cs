@@ -22,6 +22,8 @@ public interface SelectableObject {
     string GetDescription();
     void SetDescription(string description);
     SelectableObjectType GetSelectableObjectType();
+    void SetGridManager(GridManager gridManager);
+    GridManager GetGridManager();
 }
 
 public class SelectionManager : MonoBehaviour, SelectableObject
@@ -29,16 +31,27 @@ public class SelectionManager : MonoBehaviour, SelectableObject
     Vector3Int? gridPosition = null;
     List<Vector3Int> gridPositions = new List<Vector3Int>();
     private string Description {get; set;} = "";
+    GridManager gridManager = default;
 
     
     SelectableObjectType type;
 
-    public void Init(Vector3Int gridPosition, string description, SelectableObjectType type) 
+    public void Init(Vector3Int gridPosition, string description, SelectableObjectType type, GridManager gridManager = default) 
     {
         this.gridPosition = gridPosition;
         Description = description;
         this.type = type;
+        this.gridManager = gridManager;
     }
+
+    public void SetGridManager(GridManager gridManager) {
+        this.gridManager = gridManager;
+    } 
+
+    public GridManager GetGridManager() {
+        return gridManager;
+    } 
+
 
 
     public Vector3Int GetGridPosition()
@@ -74,7 +87,8 @@ public class SelectionManager : MonoBehaviour, SelectableObject
  
     private Highlight GetHighlight()
     {
-       return gameObject.GetComponent<Highlight>();
+       Highlight highlight = gameObject.GetComponent<Highlight>() ?? gameObject.GetComponentInChildren<Highlight>();
+       return highlight;
     }
 
     public void SetHighlightColor(Color color)
@@ -97,14 +111,21 @@ public class SelectionManager : MonoBehaviour, SelectableObject
     }
     void OnMouseEnter()
     {
+        GetGridManager()?.ObjectSelectedAtPosition(GetGridPosition());
+        //FindObjectOfType<GridManager>().ObjectSelectedAtPosition(GetGridPosition());
+        //GetHighlight().ToggleHighlight(true);
         var manager = FindObjectOfType<NavigationManager>();   
         manager.ObjectSelected(this);
+        
         //var manager = FindObjectOfType<GridManager>();   
         //manager.ObjectSelectedAtPosition(GetGridPosition());
     }
 
     void OnMouseExit()
     {
+         GetGridManager()?.ObjectDeselectedAtPosition(GetGridPosition());
+        //FindObjectOfType<GridManager>().ObjectDeselectedAtPosition(GetGridPosition());
+        GetHighlight().ToggleHighlight(false);
         var manager = FindObjectOfType<NavigationManager>();   
         //manager.ObjectSelected(this);
     }

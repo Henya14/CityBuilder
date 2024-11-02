@@ -15,12 +15,12 @@ public enum SelectionMode
 public class GridManager : MonoBehaviour
 {
 
-    [SerializeField] Tile[] tiles;
+    [SerializeField] GameObject[] tiles;
     [SerializeField] int gridHeight = 20;
     [SerializeField] int gridWidth = 20;
-    [SerializeField] public float tileSize = 0.5f;
+    [SerializeField] public float tileSize = 0.1f;
     [SerializeField] float chanceToSwitchTile = 0.3f;
-    [SerializeField] Tile previousTilePlaced = null;
+    [SerializeField] GameObject previousTilePlaced = null;
     bool isMouseButtonDown = false;
     SelectionMode selectionMode = SelectionMode.Single;
     public Vector2Int selectionSize { get; set; } = new Vector2Int(1, 1);
@@ -30,6 +30,7 @@ public class GridManager : MonoBehaviour
     bool isSelectionValid = false;
     GameUIManager gameUIManager;
     float cooldown;
+    public int number;
 
     bool notOnMap = true;
     [SerializeField] GameObject debugCube;
@@ -40,7 +41,7 @@ public class GridManager : MonoBehaviour
     List<GameObject> arrows = new List<GameObject>();
 
 
-    Dictionary<Vector3Int, Tile> tileMap = new Dictionary<Vector3Int, Tile>();
+    Dictionary<Vector3Int, GameObject> tileMap = new Dictionary<Vector3Int, GameObject>();
     Dictionary<Vector3Int, AbstractBuildingType> buildingsMap = new Dictionary<Vector3Int, AbstractBuildingType>();
     Dictionary<Vector3Int, AbstarctProperty> propertyMap = new Dictionary<Vector3Int, AbstarctProperty>();
     int offsetX = 10;
@@ -88,7 +89,7 @@ public class GridManager : MonoBehaviour
     private void PlaceTile(string tileObjectName, Vector3Int gridPosition, float moralityLevel)
     {
         
-        Tile tileToPlace = tiles[0];
+        GameObject tileToPlace = tiles[0];
         if (tileObjectName != null)
         {
             for (int i = 0; i < tiles.Length; i++)
@@ -112,20 +113,24 @@ public class GridManager : MonoBehaviour
         }
         previousTilePlaced = tileToPlace;
 
-        Tile newTile = Instantiate(tileToPlace, transform);
+        GameObject newTile = Instantiate(tileToPlace, transform);
 
         Morality newMorality = new Morality();
 
         newMorality.moralityLevel = moralityLevel;
-        newTile.tileMorality = newMorality;
+        newTile.GetComponent<Tile>().tileMorality = newMorality;
 
         
-        newTile.gridPosition = gridPosition;
-        Vector3 newPosition = GetGamePositionForGridPosition(gridPosition);
+        newTile.GetComponent<Tile>().gridPosition = gridPosition;
+        Vector3 newPosition = GetGamePositionAndRotationForGridPosition(gridPosition).Item1;
         newTile.transform.position = newPosition;
 
-        tileMap[newTile.gridPosition] = newTile;
+        tileMap[newTile.GetComponent<Tile>().gridPosition] = newTile;
         newTile.name = $"GamePosition: {newPosition.x}, {newPosition.z}, GridPosition: {gridPosition.x}, {gridPosition.z} ";
+    }
+
+    public void AddTile(Vector3Int gridPosition, GameObject tile) {
+        tileMap[gridPosition] = tile;
     }
 
     private void ClearGrid()
@@ -135,7 +140,7 @@ public class GridManager : MonoBehaviour
         {
             Destroy(tile.Value.gameObject);
         }
-        tileMap = new Dictionary<Vector3Int, Tile>();
+        tileMap = new Dictionary<Vector3Int, GameObject>();
     }
 
     public void ObjectSelectedAtPosition(Vector3Int selectionPosition)
@@ -296,7 +301,7 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    public Tile GetTileAtPosition(Vector3Int position)
+    public GameObject GetTileAtPosition(Vector3Int position)
     {
         return tileMap.GetValueOrDefault(position, null);
     }
@@ -404,7 +409,7 @@ public class GridManager : MonoBehaviour
         carPrefab.GetComponent<CarNavigation>().CurrentGridPosition = carGridPosition;
 
         var carGamePosition = GetSelectionCenter(new List<Vector3Int> { carGridPosition });
-        carGamePosition.y = GetGamePositionForGridPosition(carGridPosition).y;
+        carGamePosition.y = GetGamePositionAndRotationForGridPosition(carGridPosition).Item1.y;
         carGamePosition.z += tileSize / 4;
         car.transform.position = carGamePosition;
     }
@@ -426,63 +431,63 @@ public class GridManager : MonoBehaviour
         foreach (var positionAndBuilding in buildingsMap)
         {
             var cent = GetSelectionCenter(new List<Vector3Int> { positionAndBuilding.Key, positionAndBuilding.Key });
-            foreach (var dir in positionAndBuilding.Value.neighbourDatasForPositions[positionAndBuilding.Key].NeighboursForGridPositions)
-            {
-                if (dir.Value == null)
-                {
-                    continue;
-                }
-                var arr = Instantiate(debugArrow);
-                cent.y = tileSize;
+            // foreach (var dir in positionAndBuilding.Value.neighbourDatasForPositions[positionAndBuilding.Key].NeighboursForGridPositions)
+            // {
+            //     if (dir.Value == null)
+            //     {
+            //         continue;
+            //     }
+            //     var arr = Instantiate(debugArrow);
+            //     cent.y = tileSize;
 
-                var rotation = 0.0f;
-                var highlight = arr.GetComponent<Highlight>();
-                var directionVector = dir.Key - positionAndBuilding.Key;
+            //     var rotation = 0.0f;
+            //     var highlight = arr.GetComponent<Highlight>();
+            //     var directionVector = dir.Key - positionAndBuilding.Key;
 
-                var direction = Direction.North;
+            //     var direction = Direction.North;
 
-                if (directionVector.z > 0)
-                {
-                    direction = Direction.North;
-                }
-                else if (directionVector.z < 0)
-                {
-                    direction = Direction.South;
-                }
-                else if (directionVector.x > 0)
-                {
-                    direction = Direction.East;
-                }
-                else
-                {
-                    direction = Direction.West;
-                }
+            //     if (directionVector.z > 0)
+            //     {
+            //         direction = Direction.North;
+            //     }
+            //     else if (directionVector.z < 0)
+            //     {
+            //         direction = Direction.South;
+            //     }
+            //     else if (directionVector.x > 0)
+            //     {
+            //         direction = Direction.East;
+            //     }
+            //     else
+            //     {
+            //         direction = Direction.West;
+            //     }
 
-                switch (direction)
-                {
-                    case Direction.North:
-                        rotation = 90.0f;
-                        highlight.SetHighlightColor(Color.blue);
-                        break;
-                    case Direction.South:
-                        rotation = -90.0f;
-                        highlight.SetHighlightColor(Color.red);
-                        break;
-                    case Direction.East:
-                        rotation = 0.0f;
-                        highlight.SetHighlightColor(Color.green);
-                        break;
-                    case Direction.West:
-                        rotation = 180.0f;
-                        highlight.SetHighlightColor(Color.yellow);
-                        break;
-                }
-                highlight.ToggleHighlight(true);
-                arr.transform.position = cent;
-                arr.transform.Rotate(Vector3.forward, rotation);
-                arrows.Add(arr);
+            //     switch (direction)
+            //     {
+            //         case Direction.North:
+            //             rotation = 90.0f;
+            //             highlight.SetHighlightColor(Color.blue);
+            //             break;
+            //         case Direction.South:
+            //             rotation = -90.0f;
+            //             highlight.SetHighlightColor(Color.red);
+            //             break;
+            //         case Direction.East:
+            //             rotation = 0.0f;
+            //             highlight.SetHighlightColor(Color.green);
+            //             break;
+            //         case Direction.West:
+            //             rotation = 180.0f;
+            //             highlight.SetHighlightColor(Color.yellow);
+            //             break;
+            //     }
+            //     highlight.ToggleHighlight(true);
+            //     arr.transform.position = cent;
+            //     arr.transform.Rotate(Vector3.forward, rotation);
+            //     arrows.Add(arr);
 
-            }
+            // }
 
         }
 
@@ -531,13 +536,16 @@ public class GridManager : MonoBehaviour
     }
 
 
-    public Vector3 GetGamePositionForGridPosition(Vector3Int gridPosition)
+    public (Vector3, Quaternion) GetGamePositionAndRotationForGridPosition(Vector3Int gridPosition)
     {
-        float x = gridPosition.x * tileSize - offsetX;
+        var tilePositionIndex = new Vector3Int(gridPosition.x, 0, gridPosition.z);
+        var tilePosition = tileMap[tilePositionIndex].gameObject.transform.position;
+        var tileRotation = tileMap[tilePositionIndex].gameObject.transform.rotation;
+        float x = tilePosition.x;
         float y = gridPosition.y * tileSize;
-        float z = gridPosition.z * tileSize - offsetZ;
+        float z = tilePosition.z;
         Vector3 gamePosition = new Vector3(x, y, z);
-        return gamePosition;
+        return (gamePosition, tileRotation);
     }
 
     public Vector3Int GetGridPositionForGamePosition(Vector3 gamePosition)
@@ -556,8 +564,8 @@ public class GridManager : MonoBehaviour
         var xMax = selectedPositions.Select(v => v.x).Max();
         var zMax = selectedPositions.Select(v => v.z).Max();
 
-        var selectionStart = GetGamePositionForGridPosition(new Vector3Int(xMin - 1, 0, zMin));
-        var selectionEnd = GetGamePositionForGridPosition(new Vector3Int(xMax, 0, zMax + 1));
+        var (selectionStart, _) = GetGamePositionAndRotationForGridPosition(new Vector3Int(xMin, 0, zMin));
+        var (selectionEnd, _) = GetGamePositionAndRotationForGridPosition(new Vector3Int(xMax, 0, zMax));
 
         Vector3 selectionVector = (selectionEnd - selectionStart) / 2;
         Vector3 selectionCenter = selectionVector + selectionStart;
@@ -571,26 +579,28 @@ public class GridManager : MonoBehaviour
             for (int j = 0; j < gridWidth; j++)
             {
                 Vector3Int element = new Vector3Int(i, 0, j);
-                int distance = (int)Vector3Int.Distance(tileMap[element].gridPosition, selectedTile.gridPosition);
+                Tile tile = tileMap[element].GetComponent<Tile>();
+
+                int distance = (int)Vector3Int.Distance(tile.gridPosition, selectedTile.gridPosition);
                 switch (distance)
                 {
                     case 5:
-                        tileMap[element].tileMorality.moralityLevel += 0.1f;
+                        tile.tileMorality.moralityLevel += 0.1f;
                         break;
                     case 4:
-                        tileMap[element].tileMorality.moralityLevel += 0.2f;
+                        tile.tileMorality.moralityLevel += 0.2f;
                         break;
                     case 3:
-                        tileMap[element].tileMorality.moralityLevel += 0.3f;
+                        tile.tileMorality.moralityLevel += 0.3f;
                         break;
                     case 2:
-                        tileMap[element].tileMorality.moralityLevel += 0.4f;
+                        tile.tileMorality.moralityLevel += 0.4f;
                         break;
                     case 1:
-                        tileMap[element].tileMorality.moralityLevel += 0.5f;
+                        tile.tileMorality.moralityLevel += 0.5f;
                         break;
                     case 0:
-                        tileMap[element].tileMorality.moralityLevel += 0.75f;
+                        tile.tileMorality.moralityLevel += 0.75f;
                         break;
                     default: break;
                 }
@@ -611,7 +621,7 @@ public class GridManager : MonoBehaviour
             for (int j = 0; j < gridWidth; j++)
             {
                 Vector3Int element = new Vector3Int(i, 0, j);
-                tileMap[element].changeMaterial();
+                tileMap[element].GetComponent<Tile>().changeMaterial();
             }
         }
     }
@@ -624,7 +634,7 @@ public class GridManager : MonoBehaviour
             for (int j = 0; j < gridWidth; j++)
             {
                 Vector3Int element = new Vector3Int(i, 0, j);
-                tileMap[element].resetMaterial();
+                tileMap[element].GetComponent<Tile>().resetMaterial();
             }
         }
     }

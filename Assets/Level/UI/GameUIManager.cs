@@ -46,7 +46,7 @@ public class GameUIManager : MonoBehaviour
     public GameMode selectedGameMode { get; set; } = GameMode.SelectionMode;
 
     private BuildModeManager buildModeManager;
-    private GridManager gridManager;
+    private List<GridManager> gridManagers = new List<GridManager>();
     private NavigationManager navigationManager;
     private RoadDrawer roadDrawer;
     //New common manager: PropertyManager
@@ -106,36 +106,34 @@ public class GameUIManager : MonoBehaviour
         gameModeSelectorButtons.Add(navigationModeButton);
 
         buildModeManager = FindObjectOfType<BuildModeManager>();
-        gridManager = FindObjectOfType<GridManager>();
         navigationManager = FindObjectOfType<NavigationManager>();
         roadDrawer = FindObjectOfType<RoadDrawer>();
-        roadDrawer.RoadCreated += RoadCreated;
+       
 
-        if (roadDrawer == default) {
-            gridManager.GenerateGrid();
-        }
+        roadDrawer.RoadCreated += RoadCreated;
+        
         //residentManager = FindObjectOfType<ResidentManager>();
 
         timeStartStopButton.clicked += OnTimeStartStopButtonClicked;
         timeForwardButton.clicked += OnTimeForwardButtonClicked;
         TimeManager.OnMinuteChanged += UpdateTimer;
 
-        moralityViewToggle.RegisterValueChangedCallback(evt =>
-        {
-            if (evt.newValue)
-            {
-                gridManager.ChangeMaterialsToMorality();
-            }
-            else
-            {
-                gridManager.ResetMaterialsOnFields();
-            }
-        });
+        // moralityViewToggle.RegisterValueChangedCallback(evt =>
+        // {
+        //     if (evt.newValue)
+        //     {
+        //         gridManager.ChangeMaterialsToMorality();
+        //     }
+        //     else
+        //     {
+        //         gridManager.ResetMaterialsOnFields();
+        //     }
+        // });
 
         LoadBuildings();
         buildingsButton.clicked += ChangeVisibleOnBuildingHud;
 
-        saveButton.clicked += gridManager.Save;
+        //saveButton.clicked += gridManager.Save;
 
         PlayerBalance.OnPlayerStatsChanged += UpdateBalanceText;
         taxesButton.clicked += TaxesMenu;
@@ -166,7 +164,7 @@ public class GameUIManager : MonoBehaviour
     {
         SetSelectedForGameModeSelectorButtons(false);
         navigationManager.DeselectObjects();
-        gridManager.ResetSelection();
+        gridManagers.ForEach(gm => gm.ResetSelection());
         buildingList.SetSelection(-1);
         buildingList.style.display = DisplayStyle.None;
         roadDrawer?.DisableDrawing();
@@ -190,7 +188,7 @@ public class GameUIManager : MonoBehaviour
     }
     void InitializeBuildingsList()
     {
-        var buildings = buildModeManager.GetBuildingDatas();
+        var buildings = buildModeManager.LoadBuildingDatasAndReturnAvailable();
 
         buildingList.makeItem = () =>
         {
@@ -226,13 +224,13 @@ public class GameUIManager : MonoBehaviour
         }
         if (selectedBuilding == null)
         {
-            gridManager.ChangeSelection(new Vector2Int(1, 1), null, null);
+            gridManagers.ForEach(gm => gm.ChangeSelection(new Vector2Int(1, 1), null, null));
             buildModeManager.BuildingDataSelected(null);
         }
         else
         {
             buildModeManager.BuildingDataSelected(selectedBuilding);
-            gridManager.ChangeSelection(selectedBuilding.size, selectedBuilding.buildingType, selectedBuilding.prefab);
+            gridManagers.ForEach(gm => gm.ChangeSelection(selectedBuilding.size, selectedBuilding.buildingType, selectedBuilding.prefab));
         }
     }
 
@@ -295,7 +293,7 @@ public class GameUIManager : MonoBehaviour
     {
         if (selectedObject != null)
         {
-            buildModeManager.ObjectSelected(placingPositionsWithGridPositions);
+            buildModeManager.ObjectSelected(placingPositionsWithGridPositions, selectedObject);
         }
     }
 
@@ -331,7 +329,7 @@ public class GameUIManager : MonoBehaviour
                 Button tempbutton = new Button();
                 tempbutton.text = obj.Name;
                 tempbutton.clicked += () => buildModeManager.BuildingDataSelected(obj);
-                tempbutton.clicked += () => gridManager.ChangeSelection(obj.size, obj.buildingType, obj.prefab);
+                tempbutton.clicked += () => gridManagers.ForEach(gm => gm.ChangeSelection(obj.size, obj.buildingType, obj.prefab));
                 buildingHud.Add(tempbutton);
             }
         }
@@ -419,6 +417,14 @@ public class GameUIManager : MonoBehaviour
             labels[i].text = selectedValue + " %";
         }
 
+    }
+
+    public void AddGridManager(GridManager gridManager) {
+        gridManagers.Add(gridManager);
+    }
+
+    public void RemoveGridManager(GridManager gridManager) {
+        gridManagers.Remove(gridManager);
     }
 
 }

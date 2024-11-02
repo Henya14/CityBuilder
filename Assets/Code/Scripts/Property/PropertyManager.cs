@@ -216,7 +216,7 @@ public class PropertyManager : MonoBehaviour
         //TODO: use moral
         Vector3Int tilePos = position+Vector3Int.zero;
         tilePos.y = 0;
-        Tile tile = gridManager.GetTileAtPosition(tilePos);
+        Tile tile = gridManager.GetTileAtPosition(tilePos).GetComponent<Tile>();
         float moral=tile.tileMorality.moralityLevel;
         HouseLevel houselevel=HouseLevel.None;
 
@@ -270,7 +270,7 @@ public class PropertyManager : MonoBehaviour
         dc.name = $"{propertyType.ToString()} Property  {(float)key.x / 2 - 5}, {(float)key.z / 2 - 5}";
         dc.transform.parent = this.transform;
         dc.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
-        var pos = gridManager.GetGamePositionForGridPosition(key);
+        var pos = gridManager.GetGamePositionAndRotationForGridPosition(key).Item1;
         dc.transform.position = new Vector3(pos.x - 0.25f, 0.5f, pos.z  + 0.25f);
         // 1,0,0 rotate right 90
         if (roadDir.x == 1)

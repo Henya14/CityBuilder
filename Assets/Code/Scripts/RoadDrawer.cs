@@ -50,6 +50,8 @@ public class EmptyTileData
     public Vector3 roadStartPoint;
     public Vector3 position;
     public Quaternion rotation;
+    public RoadPointData closestRoadPointData;
+    public GameObject gameObject;
 }
 
 public struct BatchData
@@ -461,13 +463,14 @@ public class RoadDrawer : MonoBehaviour
                         //emptyTileInstance.par
                         emptyTileInstance.transform.position = emptyTileData.position;
                         emptyTileInstance.transform.rotation = emptyTileData.rotation;
-                        emptyTileInstance.GetComponentInChildren<Highlight>().SetHighlightColor(color);
-                        emptyTileInstance.GetComponentInChildren<Highlight>().ToggleHighlight(true);
+                        //emptyTileInstance.GetComponentInChildren<Highlight>().SetHighlightColor(color);
+                        //emptyTileInstance.GetComponentInChildren<Highlight>().ToggleHighlight(true);
                         if (batch.tileObjects == default)
                         {
                             batch.tileObjects = new List<GameObject>();
                         }
                         batch.tileObjects.Add(emptyTileInstance);
+                        emptyTileData.gameObject = emptyTileInstance;
                         emptyTileList.Add(emptyTileInstance);
                     }
 
@@ -522,7 +525,8 @@ public class RoadDrawer : MonoBehaviour
                 roadDirectionVector = roadDirectionVector,
                 roadMiddlePoint = roadHalfPoint,
                 roadSectionIndex = roadSectionIndex,
-                roadStartPoint = point1
+                roadStartPoint = point1,
+                closestRoadPointData =  roadPointData1
             });
 
         }

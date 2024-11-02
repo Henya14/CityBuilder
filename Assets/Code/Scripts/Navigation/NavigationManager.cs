@@ -62,7 +62,7 @@ public class NavigationManager : MonoBehaviour
                     List<Direction> dirs;
                     GetNodesForRoute(route, out nodes);
                     GetDirectionsForNodes(nodes, out dirs);
-                    PlaceCarAtPosition(nodes[0].Value.GetRelativeClosestGridPosition(nodes[1].Value.GetGridPosition()), dirs);
+                    //PlaceCarAtPosition(nodes[0].Value.GetRelativeClosestGridPosition(nodes[1].Value.GetGridPosition()), dirs);
                     Debug.Log(string.Join(",", dirs.Select(d => d.ToString())));
 
                 }
@@ -139,7 +139,7 @@ public class NavigationManager : MonoBehaviour
         
 
         var carGamePosition = gridManager.GetSelectionCenter(new List<Vector3Int> { gridPosition });
-        carGamePosition.y = gridManager.GetGamePositionForGridPosition(new Vector3Int(0, 1, 0)).y;
+        carGamePosition.y = gridManager.GetGamePositionAndRotationForGridPosition(new Vector3Int(0, 1, 0)).Item1.y;
         car.transform.position = carGamePosition;
         car.GetComponent<CarNavigation>().CurrentGridPosition = gridPosition;
         car.GetComponent<CarNavigation>().SetDirections(directions);
