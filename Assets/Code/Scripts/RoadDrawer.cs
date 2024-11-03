@@ -116,6 +116,7 @@ public class RoadDrawer : MonoBehaviour
     private Dictionary<string, List<RoadPointData>> roadPointDatasForRoads = new Dictionary<string, List<RoadPointData>>();
     private string currentRoadName = GetRoadNameForIndex(roadIndex);
     public float roadPointClosenessDelta = 5.0f;
+    public bool closeToOtherRoad = false;
 
     private static string GetRoadNameForIndex(int index)
     {
@@ -139,13 +140,18 @@ public class RoadDrawer : MonoBehaviour
         ClearRoads();
         isDrawingRoad = false;
     }
-    RoadPointData lastRoadPointData = default;
+    (string roadName, RoadPointData closestRoadPointData) lastRoadNameAndClosesRoadPointData = default;
     // Update is called once per frame
     void Update()
     {
         if (isDrawingRoad)
         {
             LastMousePosition = Input.mousePosition;
+            Vector2 view = FindObjectOfType<Camera>().ScreenToViewportPoint( Input.mousePosition );
+            bool isOutside = view.x < 0 || view.x > 1 || view.y < 0 || view.y > 1;
+            if (isOutside) {
+                return;
+            }
             Ray ray = playerCamera.ScreenPointToRay(LastMousePosition);
 
 
@@ -154,14 +160,14 @@ public class RoadDrawer : MonoBehaviour
 
                 if (rayHit.collider.gameObject.GetComponent<TimeManager>() != null)
                 {
-                    lastRoadPointData = default;
+                    
                     if (pointInstance == default)
                     {
                         var tempPoint = Instantiate(point);
                         tempPoint.transform.position = rayHit.point;
                         pointInstance = tempPoint;
                     }
-                    else if ((pointInstance.transform.position - rayHit.point).magnitude > 3.0f)
+                    if ((pointInstance.transform.position - rayHit.point).magnitude > 3.0f)
                     {
                         if (splineGuidingPointInstances.Count >= 1)
                         {
@@ -171,44 +177,28 @@ public class RoadDrawer : MonoBehaviour
                         var tempPoint = Instantiate(point);
                         var tempPointPosition = rayHit.point;
 
-                        foreach (var roadDatas in roadPointDatasForRoads.Values)
+                        foreach (var (roadkey, roadDatas) in roadPointDatasForRoads)
                         {
-                            var rightClosestPoint = roadDatas.Select(roadPointData =>
+                            var closestMiddleRoadPoint = roadDatas.Select(roadPointData =>
                             {
-                                var magnitude = (roadPointData.rightRoadPoint - tempPointPosition).magnitude;
-                                return (roadPointData, roadPointData.rightRoadPoint, magnitude);
+                                var magnitude = (roadPointData.middleRoadPoint - tempPointPosition).magnitude;
+                                return (roadPointData, roadPointData.middleRoadPoint, magnitude);
                             })
                             .Where((roadPointData) => roadPointData.magnitude <= roadPointClosenessDelta)
                             .OrderBy((rd) => rd.magnitude)
                             .FirstOrDefault();
-                            var leftClosestPoint = roadDatas.Select(roadPointData =>
+
+                            if (closestMiddleRoadPoint == default)
                             {
-                                var magnitude = (roadPointData.leftRoadPoint - tempPointPosition).magnitude;
-                                return (roadPointData, roadPointData.leftRoadPoint, magnitude);
-                            })
-                            .Where((rd) => rd.magnitude <= roadPointClosenessDelta)
-                            .OrderBy((rd) => rd.magnitude)
-                            .FirstOrDefault();
-                            if (rightClosestPoint == default && leftClosestPoint == default)
-                            {
+                                closeToOtherRoad = false;
+                                lastRoadNameAndClosesRoadPointData = default;
                                 continue;
-                            }
-                            else if (leftClosestPoint == default)
-                            {
-                                lastRoadPointData = rightClosestPoint.roadPointData;
-                                tempPointPosition = rightClosestPoint.rightRoadPoint;
-                                break;
-                            }
-                            else if (rightClosestPoint == default)
-                            {
-                                lastRoadPointData = leftClosestPoint.roadPointData;
-                                tempPointPosition = leftClosestPoint.leftRoadPoint;
-                                break;
                             }
                             else
                             {
-                                lastRoadPointData = rightClosestPoint.magnitude < leftClosestPoint.magnitude ? rightClosestPoint.roadPointData : leftClosestPoint.roadPointData;
-                                tempPointPosition = rightClosestPoint.magnitude < leftClosestPoint.magnitude ? rightClosestPoint.rightRoadPoint : leftClosestPoint.leftRoadPoint;
+                                lastRoadNameAndClosesRoadPointData = (roadkey, closestMiddleRoadPoint.roadPointData);
+                                tempPointPosition = closestMiddleRoadPoint.middleRoadPoint;
+                                closeToOtherRoad = true;
                                 break;
                             }
                         }
@@ -220,48 +210,45 @@ public class RoadDrawer : MonoBehaviour
                         if (splineGuidingPointInstances.Count > 1)
                         {
                             var splinePoints = splineGuidingPointInstances.Select(sp => sp.transform.position).ToList();
-                            if (lastRoadPointData != default)
-                            {
 
-                                splinePoints.Add(lastRoadPointData.middleRoadPoint);
-                            }
-                            var (splineRoadPoints, batchesOnRight, batchesOnLeft) = GetCurveBetweenPoints(splinePoints, roadWidth, lastRoadPointData);
+                            var (splineRoadPoints, batchesOnRight, batchesOnLeft) = GetCurveBetweenPoints(splinePoints, roadWidth, lastRoadNameAndClosesRoadPointData);
                             DrawRoadCurve(splineRoadPoints, batchesOnRight, batchesOnLeft);
                         }
 
                     }
                 }
 
-            }
-
-            if (Input.GetMouseButtonDown(0) && pointInstance != default)
-            {
-
-                var distanceBetweenLastPointAndMousePoint = splineGuidingPointInstances.Count > 1 ? (splineGuidingPointInstances[splineGuidingPointInstances.Count - 2].transform.position - pointInstance.transform.position).magnitude : float.MaxValue;
-                if (distanceBetweenLastPointAndMousePoint > 5.0f && lastRoadPointData == default)
+                if (Input.GetMouseButtonDown(0) && pointInstance != default)
                 {
-                    splineGuidingPointInstances.Add(pointInstance);
-                    pointInstance = default;
-                }
-                else if (splineGuidingPointInstances.Count > 2)
-                {
-                    
-                    var splinePoints = splineGuidingPointInstances.Select(sp => sp.transform.position).ToList();
-                    splinePoints.RemoveAt(splinePoints.Count - 1);
-                    if (lastRoadPointData != default)
+
+                    var distanceBetweenLastPointAndMousePoint = splineGuidingPointInstances.Count > 1 ? (splineGuidingPointInstances[splineGuidingPointInstances.Count - 2].transform.position - pointInstance.transform.position).magnitude : float.MaxValue;
+                    if (distanceBetweenLastPointAndMousePoint > 5.0f && lastRoadNameAndClosesRoadPointData == default)
                     {
-                        splinePoints.Add(lastRoadPointData.middleRoadPoint);
+                        splineGuidingPointInstances.Add(pointInstance);
+                        pointInstance = default;
                     }
-                    var (splineRoadPoints, batchesOnRight, batchesOnLeft) = GetCurveBetweenPoints(splinePoints, roadWidth, lastRoadPointData);
-                    roadPointDatasForRoads.Remove(currentRoadName);
-                    roadPointDatasForRoads.Add(currentRoadName, new List<RoadPointData>(splineRoadPoints));
-                    StartCoroutine(FireRoadCreatedEvent(roadMeshes[0], splineRoadPoints, batchesOnRight, batchesOnLeft));
-                    roadMeshes.RemoveAt(0);
-                    currentRoadName = GetRoadNameForIndex(++roadIndex);
-                    ClearRoads();
-                    //DrawRoadCurve(splineRoadPoints, batchesOnRight, batchesOnLeft);
+                    else if (splineGuidingPointInstances.Count > 2 || lastRoadNameAndClosesRoadPointData != default)
+                    {
+
+                        var splinePoints = splineGuidingPointInstances.Select(sp => sp.transform.position).ToList();
+                        if(splinePoints.Count > 2 && lastRoadNameAndClosesRoadPointData == default) {
+                            splinePoints.RemoveAt(splinePoints.Count - 1);
+                        } 
+                        var (splineRoadPoints, batchesOnRight, batchesOnLeft) = GetCurveBetweenPoints(splinePoints, roadWidth, lastRoadNameAndClosesRoadPointData, true);
+                        
+                        roadPointDatasForRoads.Remove(currentRoadName);
+                        roadPointDatasForRoads.Add(currentRoadName, new List<RoadPointData>(splineRoadPoints));
+                        StartCoroutine(FireRoadCreatedEvent(roadMeshes[0], splineRoadPoints, batchesOnRight, batchesOnLeft));
+                        roadMeshes.RemoveAt(0);
+                        currentRoadName = GetRoadNameForIndex(++roadIndex);
+                        ClearRoads();
+                        //DrawRoadCurve(splineRoadPoints, batchesOnRight, batchesOnLeft);
+                    }
                 }
+
             }
+
+
         }
 
         if (Input.GetMouseButtonDown(1))
@@ -298,12 +285,12 @@ public class RoadDrawer : MonoBehaviour
     }
     private void DrawRoadMesh(List<RoadPointData> splineRoadPoints)
     {
-        
+
         RemoveRoadMeshes();
         var road = new GameObject(currentRoadName);
         roadMeshes.Add(road);
         var mesh = road.AddComponent<RoadMesh>();
-       
+
         mesh.DrawMesh(MeshGenerator.GenerateRoadMesh(splineRoadPoints), roadNaterial);
 
     }
@@ -367,7 +354,7 @@ public class RoadDrawer : MonoBehaviour
 
     }
 
-    public (List<RoadPointData>, List<List<BatchData>>, List<List<BatchData>>) GetCurveBetweenPoints(List<Vector3> points, float roadWidth, RoadPointData lastRoadPoint = default)
+    public (List<RoadPointData>, List<List<BatchData>>, List<List<BatchData>>) GetCurveBetweenPoints(List<Vector3> points, float roadWidth, (string roadName, RoadPointData closestRoadPoint) lastRoadNameAndClosesRoadPointData = default, bool roadReady = false)
     {
         if (points.Count < 2)
         {
@@ -377,6 +364,10 @@ public class RoadDrawer : MonoBehaviour
         {
             splineContainer.RemoveSplineAt(i);
         }
+        if (roadReady)
+        {
+            Debug.Log("Readt");
+        }
         splines.Clear();
         emptyTileList.ForEach(et => Destroy(et));
         emptyTileList.Clear();
@@ -384,16 +375,61 @@ public class RoadDrawer : MonoBehaviour
         Spline rightSpline = splineContainer.AddSpline();
         Spline middleSpline = splineContainer.AddSpline();
         splineRoadPoints.Clear();
-        if (lastRoadPoint != default)
+        RoadPointData lastRoadData = default;
+        if (lastRoadNameAndClosesRoadPointData != default)
         {
+            var tempPoint = points[points.Count - 1];
             points.RemoveAt(points.Count - 1);
-        }
-        GetSplineForTerrainBetweenPoints(points, out splineRoadPoints, roadWidth, lastRoadPoint);
-        if (lastRoadPoint != default)
-        {
-            splineRoadPoints.Add(lastRoadPoint);
+            var roadData = roadPointDatasForRoads[lastRoadNameAndClosesRoadPointData.roadName];
+            var idx = roadData.IndexOf(lastRoadNameAndClosesRoadPointData.closestRoadPoint);
+            var closestRoadData = roadData[idx];
+            var lastSplinePoint = points[points.Count - 1];
+            var distanceToLeftPoint = (lastSplinePoint - lastRoadNameAndClosesRoadPointData.closestRoadPoint.leftRoadPoint).magnitude;
+            var distanceToRightPoint = (lastSplinePoint - lastRoadNameAndClosesRoadPointData.closestRoadPoint.rightRoadPoint).magnitude;
+            bool isLeftCloserToLastPoint = distanceToLeftPoint < distanceToRightPoint;
+            Vector3 leftRoadPoint = default;
+            Vector3 middleRoadPoint = default;
+            Vector3 rightRoadPoint = default;
+            if (idx + 1 < roadData.Count)
+            {
+                var point1 = isLeftCloserToLastPoint ? closestRoadData.leftRoadPoint : closestRoadData.rightRoadPoint;
+                var point2 = isLeftCloserToLastPoint ? roadData[idx + 1].leftRoadPoint : roadData[idx + 1].rightRoadPoint;
+                leftRoadPoint = isLeftCloserToLastPoint ? point2 : point1;
+                rightRoadPoint = isLeftCloserToLastPoint ? point1 : point2;
+                middleRoadPoint = point1 + (point2 - point1) / 2;
+            }
+            else
+            {
+                leftRoadPoint = closestRoadData.leftRoadPoint;
+                middleRoadPoint = closestRoadData.middleRoadPoint;
+                rightRoadPoint = closestRoadData.rightRoadPoint;
+
+            }
+
+
+            lastRoadData = new RoadPointData
+            {
+                leftRoadPoint = leftRoadPoint,
+                rightRoadPoint = rightRoadPoint,
+                middleRoadPoint = middleRoadPoint,
+                roadWidth = roadWidth,
+                leftRoadPointType = closestRoadData.leftRoadPointType,
+                rightRoadPointType = closestRoadData.rightRoadPointType,
+                middleRoadPointType = closestRoadData.middleRoadPointType,
+                splineValue = 1.0f,
+                roadSectionIndex = points.Count
+            };
+
+            points.Add(middleRoadPoint);
         }
 
+        GetSplineForTerrainBetweenPoints(points, out splineRoadPoints, roadWidth, lastRoadNameAndClosesRoadPointData);
+
+        if (lastRoadData != default)
+        {
+            splineRoadPoints.RemoveAt(splineRoadPoints.Count - 1);
+            splineRoadPoints.Add(lastRoadData);
+        }
         splines.Add(leftSpline);
         splines.Add(rightSpline);
         splines.Add(leftSpline);
@@ -526,7 +562,7 @@ public class RoadDrawer : MonoBehaviour
                 roadMiddlePoint = roadHalfPoint,
                 roadSectionIndex = roadSectionIndex,
                 roadStartPoint = point1,
-                closestRoadPointData =  roadPointData1
+                closestRoadPointData = roadPointData1
             });
 
         }
@@ -678,7 +714,7 @@ public class RoadDrawer : MonoBehaviour
         }
     }
 
-    private void GetSplineForTerrainBetweenPoints(List<Vector3> splinePoints, out List<RoadPointData> splineRoadPoints, float roadWidth, RoadPointData lastRoadPoint = default)
+    private void GetSplineForTerrainBetweenPoints(List<Vector3> splinePoints, out List<RoadPointData> splineRoadPoints, float roadWidth, (string, RoadPointData) lastRoadNameAndClosesRoadPointData = default)
     {
         Spline tempSpline = splineContainer.AddSpline();
         Spline splineMiddle = splineContainer.AddSpline();

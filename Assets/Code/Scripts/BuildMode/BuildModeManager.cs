@@ -156,12 +156,12 @@ public class BuildModeManager : MonoBehaviour
         selectedBuildingData = buildingData;
     }
 
-    public AbstractBuildingType CreateBuildingFromBuildingData(BuildingData data, GameObject gameObject = default, string name = default)
+    public AbstractBuildingType CreateBuildingFromBuildingData(BuildingData data, GameObject gameObject = default, string name = default, Transform parent = default)
     {
         if (data == null) return null;
         if (gameObject == default)
         {
-            gameObject = Instantiate(data.prefab);
+            gameObject = Instantiate(data.prefab, parent);
         }
         if (name != default) {
             gameObject.name = name;
@@ -277,7 +277,7 @@ public class BuildModeManager : MonoBehaviour
 
                 var vectorFromLeftToMiddleOfRoad = roadPoint.middleRoadPoint - roadPoint.leftRoadPoint;
                 var position = roadPoint.leftRoadPoint + vectorFromLeftToMiddleOfRoad / (pointsToCreateOnLeft + 1.0f) * (j + 1);
-                var (point, selectionManager) = CreatePointAtPositionWithColor(position, Color.red);
+                var (point, selectionManager) = CreatePointAtPositionWithColor(position, Color.red, roadData.roadMesh);
                 var weights = new Dictionary<SelectableObject, NeighbourWeights>();
                 if (i > 0)
                 {
@@ -294,7 +294,7 @@ public class BuildModeManager : MonoBehaviour
             if (shouldUseMiddlePointOfRoad)
             {
                 var position = roadPoint.middleRoadPoint;
-                var (point, selectionManager) = CreatePointAtPositionWithColor(position, Color.white);
+                var (point, selectionManager) = CreatePointAtPositionWithColor(position, Color.white, roadData.roadMesh);
                 var weights = new Dictionary<SelectableObject, NeighbourWeights>();
                 if (i > 0)
                 {
@@ -328,7 +328,7 @@ public class BuildModeManager : MonoBehaviour
             {
                 var vectorFromMiddleToRightOfRoad = roadPoint.rightRoadPoint - roadPoint.middleRoadPoint;
                 var position = roadPoint.middleRoadPoint + vectorFromMiddleToRightOfRoad / (pointsToCreateOnRight + 1.0f) * (j + 1);
-                var (point, selectionManager) = CreatePointAtPositionWithColor(position, Color.yellow);
+                var (point, selectionManager) = CreatePointAtPositionWithColor(position, Color.yellow, roadData.roadMesh);
                 var weights = new Dictionary<SelectableObject, NeighbourWeights>();
                 if (i > 0)
                 {
@@ -365,10 +365,10 @@ public class BuildModeManager : MonoBehaviour
         return tilesToRoadPoints;
     }
 
-    private (AbstractBuildingType, SelectableObject) CreatePointAtPositionWithColor(Vector3 position, Color color)
+    private (AbstractBuildingType, SelectableObject) CreatePointAtPositionWithColor(Vector3 position, Color color, GameObject roadMesh)
     {
 
-        var point = CreateBuildingFromBuildingData(selectedBuildingData);
+        var point = CreateBuildingFromBuildingData(selectedBuildingData, parent: roadMesh.transform);
         var gridPosition = new Vector3Int();
         point.PlaceAtPosition(new Dictionary<(Vector3, Quaternion), List<Vector3Int>>() {
             {(position, Quaternion.identity), new List<Vector3Int>{gridPosition}},

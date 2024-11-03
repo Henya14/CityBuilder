@@ -112,22 +112,15 @@ public class SelectionManager : MonoBehaviour, SelectableObject
     void OnMouseEnter()
     {
         GetGridManager()?.ObjectSelectedAtPosition(GetGridPosition());
-        //FindObjectOfType<GridManager>().ObjectSelectedAtPosition(GetGridPosition());
-        //GetHighlight().ToggleHighlight(true);
-        var manager = FindObjectOfType<NavigationManager>();   
-        manager.ObjectSelected(this);
-        
-        //var manager = FindObjectOfType<GridManager>();   
-        //manager.ObjectSelectedAtPosition(GetGridPosition());
+
+        // var manager = FindObjectOfType<NavigationManager>();   
+        // manager.ObjectSelected(this);
+    
     }
 
     void OnMouseExit()
     {
-         GetGridManager()?.ObjectDeselectedAtPosition(GetGridPosition());
-        //FindObjectOfType<GridManager>().ObjectDeselectedAtPosition(GetGridPosition());
-        GetHighlight().ToggleHighlight(false);
-        var manager = FindObjectOfType<NavigationManager>();   
-        //manager.ObjectSelected(this);
+        GetGridManager()?.ObjectDeselectedAtPosition(GetGridPosition());
     }
     // Start is called before the first frame update
     void Start()
