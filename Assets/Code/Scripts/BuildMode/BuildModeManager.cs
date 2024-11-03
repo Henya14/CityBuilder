@@ -32,12 +32,13 @@ public class BuildModeManager : MonoBehaviour
     }
     public void ObjectSelected(Dictionary<Vector3, List<Vector3Int>> placingPositionsWithGridPositions, SelectableObject selectedObject)
     {
+        
         var gridPositions = new List<Vector3Int>();
         placingPositionsWithGridPositions.Values.ToList().ForEach(v => gridPositions.AddRange(v));
         gridPositions = gridPositions.Select(p => new Vector3Int(p.x, p.y + 1, p.z)).ToList();
 
         var selectedBuilding = CreateBuildingFromBuildingData(selectedBuildingData);
-        if (selectedBuilding == null) return;
+        if (selectedBuilding == null || selectedBuilding is Road) return;
         List<Vector3> placePositions = new List<Vector3>();
         Dictionary<(Vector3, Quaternion), List<Vector3Int>> updatedPlacingPositionsWithGridPositions = new Dictionary<(Vector3, Quaternion), List<Vector3Int>>();
         foreach (var prefabPlacePosition in placingPositionsWithGridPositions.Keys)
@@ -261,11 +262,35 @@ public class BuildModeManager : MonoBehaviour
         List<List<SelectableObject>> roadPoints = new List<List<SelectableObject>>(roadData.roadPoints.Count);
         for (int i = 0; i < roadData.roadPoints.Count; i++)
         {
+
+           
+          
             var roadPoint = roadData.roadPoints[i];
             int pointsToCreate = (int)roadPoint.roadWidth + 1;
             bool shouldUseMiddlePointOfRoad = pointsToCreate % 2 == 1;
             int pointsToCreateOnLeft = (int)Math.Floor((double)pointsToCreate / 2);
             int pointsToCreateOnRight = pointsToCreateOnLeft;
+
+             var point2 = Instantiate(debugSpherePrefab);
+            point2.transform.position = roadPoint.leftRoadPoint;
+
+            var selectionManager2 = point2.AddComponent<SelectionManager>();
+            selectionManager2.SetHighlightColor(Color.red);
+            selectionManager2.ToggleHighlight(true);
+
+            point2 = Instantiate(debugSpherePrefab);
+            point2.transform.position = roadPoint.middleRoadPoint;
+
+            selectionManager2 = point2.AddComponent<SelectionManager>();
+            selectionManager2.SetHighlightColor(Color.white);
+            selectionManager2.ToggleHighlight(true);
+
+            point2 = Instantiate(debugSpherePrefab);
+            point2.transform.position = roadPoint.rightRoadPoint;
+
+            selectionManager2 = point2.AddComponent<SelectionManager>();
+            selectionManager2.SetHighlightColor(Color.yellow);
+            selectionManager2.ToggleHighlight(true);
 
             if (roadPoints.ElementAtOrDefault(i) == default)
             {

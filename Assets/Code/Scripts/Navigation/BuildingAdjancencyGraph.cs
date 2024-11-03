@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
+using Unity.VisualScripting.Dependencies.Sqlite;
 using UnityEngine;
 
 
@@ -21,6 +23,9 @@ public class BuildingAdjacencyGraph
         {
             Value = building
         };
+        if (building == null || building == default) {
+            Debug.Log(building);
+        }
         AddGraphNode(node, neighbours);
     }
 
@@ -30,8 +35,8 @@ public class BuildingAdjacencyGraph
         GraphNodes.Add(node);
         foreach (var neighbour in neighbours)
         {
-            var neighbourNode = GraphNodes.Find(x => x.Value.Equals(neighbour.Key));
-            if (neighbourNode == null)
+            var neighbourNode = GraphNodes.FirstOrDefault(x => x.Value.Equals(neighbour.Key));
+            if (neighbourNode == default)
             {
                 continue;
             }
