@@ -113,8 +113,8 @@ public class SelectionManager : MonoBehaviour, SelectableObject
     {
         GetGridManager()?.ObjectSelectedAtPosition(GetGridPosition());
 
-        // var manager = FindObjectOfType<NavigationManager>();   
-        // manager.ObjectSelected(this);
+        var manager = FindObjectOfType<NavigationManager>();   
+        manager.ObjectSelected(this);
     
     }
 

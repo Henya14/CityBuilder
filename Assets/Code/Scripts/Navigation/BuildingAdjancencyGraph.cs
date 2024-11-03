@@ -17,7 +17,7 @@ public class BuildingAdjacencyGraph
         return from.GetConnection(from, to)?.Weight ?? GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT;
     }
 
-    public void AddBuilding(SelectableObject building, Dictionary<SelectableObject, NeighbourWeights> neighbours)
+    public GraphNode<SelectableObject> AddBuilding(SelectableObject building, Dictionary<SelectableObject, NeighbourWeights> neighbours)
     {
         var node = new GraphNode<SelectableObject>
         {
@@ -27,6 +27,7 @@ public class BuildingAdjacencyGraph
             Debug.Log(building);
         }
         AddGraphNode(node, neighbours);
+        return node;
     }
 
     public void AddGraphNode(GraphNode<SelectableObject> node, Dictionary<SelectableObject, NeighbourWeights> neighbours)

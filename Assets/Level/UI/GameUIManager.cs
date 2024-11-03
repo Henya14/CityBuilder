@@ -427,4 +427,14 @@ public class GameUIManager : MonoBehaviour
         gridManagers.Remove(gridManager);
     }
 
+    public void SetRoadDataForRoad(string roadName, RoadData roadData) 
+    {
+        roadDrawer.SetRoadDataForRoad(roadName, roadData);
+    }
+
+    public RoadData GetRoadDataForRoad(string roadName, RoadData roadData) 
+    {
+        return roadDrawer.GetRoadDataForRoad(roadName);
+    }
+
 }
