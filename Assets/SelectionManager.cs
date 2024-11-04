@@ -18,6 +18,7 @@ public interface SelectableObject {
     void SetGridPositions(List<Vector3Int> gridPositions);
     void ToggleHighlight(bool on);
     void FreezeHighlight(bool shouldFreeze);
+    public void SetHighlightColor(Color color);
     GameObject GetGameObject();
     string GetDescription();
     void SetDescription(string description);
@@ -113,8 +114,8 @@ public class SelectionManager : MonoBehaviour, SelectableObject
     {
         GetGridManager()?.ObjectSelectedAtPosition(GetGridPosition());
 
-        var manager = FindObjectOfType<NavigationManager>();   
-        manager.ObjectSelected(this);
+        var manager = FindObjectOfType<GameUIManager>();   
+        manager.ObjectSelected(this, null);
     
     }
 

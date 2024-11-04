@@ -6,8 +6,10 @@ using System.Threading;
 using System.Xml.Schema;
 using Unity.Mathematics;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEditor.PackageManager;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.UIElements;
 
 
@@ -33,7 +35,10 @@ public class BuildModeManager : MonoBehaviour
     }
     public void ObjectSelected(Dictionary<Vector3, List<Vector3Int>> placingPositionsWithGridPositions, SelectableObject selectedObject)
     {
-        
+        if (placingPositionsWithGridPositions == null)
+        {
+            return;
+        }
         var gridPositions = new List<Vector3Int>();
         placingPositionsWithGridPositions.Values.ToList().ForEach(v => gridPositions.AddRange(v));
         gridPositions = gridPositions.Select(p => new Vector3Int(p.x, p.y + 1, p.z)).ToList();
@@ -106,7 +111,8 @@ public class BuildModeManager : MonoBehaviour
                 };
 
                 var neighbourSelectableObject = neigbour.Value.GetSelectionManagerForGridPosition(neigbour.Key);
-                if (neigbour.Value is Road) {
+                if (neigbour.Value is Road)
+                {
 
                     neighbourSelectableObject = neigbour.Value.GetSelectionManagerForGridPosition(new Vector3Int());
                 }
@@ -157,7 +163,8 @@ public class BuildModeManager : MonoBehaviour
         {
             gameObject = Instantiate(data.prefab, parent);
         }
-        if (name != default) {
+        if (name != default)
+        {
             gameObject.name = name;
         }
         switch (data.buildingType)
@@ -197,23 +204,23 @@ public class BuildModeManager : MonoBehaviour
                 var x = 0;
                 foreach (var tiles in batchData.emptyTileDatas)
                 {
-                   
-                   
+
+
                     var y = 0;
-                    gridManager.AddBuildingToGrid(tilesToRoadPoints[tiles[0].closestRoadPointData][0].GetGameObject().GetComponent<Road>(), new List<Vector3Int> () {
+                    gridManager.AddBuildingToGrid(tilesToRoadPoints[tiles[0].closestRoadPointData][0].GetGameObject().GetComponent<Road>(), new List<Vector3Int>() {
                         new Vector3Int(x, 1 , -1)
                     });
                     foreach (var tile in tiles)
                     {
                         var gridPos = new Vector3Int(x, 0, y);
                         var obj = CreateBuildingFromBuildingData(emptyTileBuildingData, tile.gameObject, $"Tile x: {x} y: {y}");
-                        
+
                         obj.PlaceAtPosition(new Dictionary<(Vector3, Quaternion), List<Vector3Int>>()
                         {
                             { (tile.position, tile.rotation), new List<Vector3Int> {gridPos} },
                         }, new Dictionary<Vector3Int, NeighbourData>(), gridManager, obj.gameObject);
                         gridManager.AddTile(gridPos, obj.gameObject);
-                        
+
                         y++;
                     }
                     x++;
@@ -237,7 +244,7 @@ public class BuildModeManager : MonoBehaviour
                 }
             }
         }
-       
+
 
         foreach (var roadPoint in roadData.roadPoints)
         {
@@ -250,45 +257,46 @@ public class BuildModeManager : MonoBehaviour
     }
 
     private (Dictionary<RoadPointData, List<SelectableObject>> tilesToRoadPoints, RoadData roadData) CreateRoadNavigationPoints(RoadData roadData)
-    {   
+    {
         Dictionary<RoadPointData, List<SelectableObject>> tilesToRoadPoints = new Dictionary<RoadPointData, List<SelectableObject>>();
-        Dictionary<RoadPointData, List<GraphNode<SelectableObject>>> graphNodesToRoadPoints = new Dictionary<RoadPointData, List<GraphNode<SelectableObject>>>();
+        Dictionary<RoadPointData, List<GraphNodeForRoadPoint>> graphNodesToRoadPoints = new Dictionary<RoadPointData, List<GraphNodeForRoadPoint>>();
         List<List<SelectableObject>> roadPointSelectebleObjects = new List<List<SelectableObject>>(roadData.roadPoints.Count);
         for (int i = 0; i < roadData.roadPoints.Count; i++)
-        {          
+        {
             var roadPoint = roadData.roadPoints[i];
             int pointsToCreate = (int)roadPoint.roadWidth + 1;
             bool shouldUseMiddlePointOfRoad = pointsToCreate % 2 == 1;
             int pointsToCreateOnLeft = (int)Math.Floor((double)pointsToCreate / 2);
             int pointsToCreateOnRight = pointsToCreateOnLeft;
 
-            var point2 = Instantiate(debugSpherePrefab);
-            point2.transform.position = roadPoint.leftRoadPoint;
+            // var point2 = Instantiate(debugSpherePrefab);
+            // point2.transform.position = roadPoint.leftRoadPoint;
 
-            var selectionManager2 = point2.AddComponent<SelectionManager>();
-            selectionManager2.SetHighlightColor(Color.red);
-            selectionManager2.ToggleHighlight(true);
+            // var selectionManager2 = point2.AddComponent<SelectionManager>();
+            // selectionManager2.SetHighlightColor(Color.red);
+            // selectionManager2.ToggleHighlight(true);
 
-            point2 = Instantiate(debugSpherePrefab);
-            point2.transform.position = roadPoint.middleRoadPoint;
+            // point2 = Instantiate(debugSpherePrefab);
+            // point2.transform.position = roadPoint.middleRoadPoint;
 
-            selectionManager2 = point2.AddComponent<SelectionManager>();
-            selectionManager2.SetHighlightColor(Color.white);
-            selectionManager2.ToggleHighlight(true);
+            // selectionManager2 = point2.AddComponent<SelectionManager>();
+            // selectionManager2.SetHighlightColor(Color.white);
+            // selectionManager2.ToggleHighlight(true);
 
-            point2 = Instantiate(debugSpherePrefab);
-            point2.transform.position = roadPoint.rightRoadPoint;
+            // point2 = Instantiate(debugSpherePrefab);
+            // point2.transform.position = roadPoint.rightRoadPoint;
 
-            selectionManager2 = point2.AddComponent<SelectionManager>();
-            selectionManager2.SetHighlightColor(Color.yellow);
-            selectionManager2.ToggleHighlight(true);
+            // selectionManager2 = point2.AddComponent<SelectionManager>();
+            // selectionManager2.SetHighlightColor(Color.yellow);
+            // selectionManager2.ToggleHighlight(true);
 
             if (roadPointSelectebleObjects.ElementAtOrDefault(i) == default)
             {
                 roadPointSelectebleObjects.Add(new List<SelectableObject>());
             }
-            if(graphNodesToRoadPoints.GetValueOrDefault(roadPoint, default) == default) {
-                graphNodesToRoadPoints[roadPoint] = new List<GraphNode<SelectableObject>>();
+            if (graphNodesToRoadPoints.GetValueOrDefault(roadPoint, default) == default)
+            {
+                graphNodesToRoadPoints[roadPoint] = new List<GraphNodeForRoadPoint>();
             }
             for (int j = 0; j < pointsToCreateOnLeft; j++)
             {
@@ -296,7 +304,7 @@ public class BuildModeManager : MonoBehaviour
 
                 var vectorFromLeftToMiddleOfRoad = roadPoint.middleRoadPoint - roadPoint.leftRoadPoint;
                 var position = roadPoint.leftRoadPoint + vectorFromLeftToMiddleOfRoad / (pointsToCreateOnLeft + 1.0f) * (j + 1);
-                var (point, selectionManager) = CreatePointAtPositionWithColor(position, Color.red, roadData.roadMesh);
+                var (point, selectionManager) = CreatePointAtPositionWithColor(position, Color.red, roadData.roadMesh, roadPointSelectebleObjects[i].Count);
                 var weights = new Dictionary<SelectableObject, NeighbourWeights>();
                 if (i > 0)
                 {
@@ -307,14 +315,18 @@ public class BuildModeManager : MonoBehaviour
                     });
                 }
                 navigationManager.AddBuilding(selectionManager, weights);
-                graphNodesToRoadPoints[roadPoint].Add(navigationManager.GetGraphNodeForSelectableObject(selectionManager));
+                graphNodesToRoadPoints[roadPoint].Add(new GraphNodeForRoadPoint
+                {
+                    graphNode = navigationManager.GetGraphNodeForSelectableObject(selectionManager),
+                    pointSide = PointSide.Left
+                });
                 roadPointSelectebleObjects[i].Add(selectionManager);
 
             }
             if (shouldUseMiddlePointOfRoad)
             {
                 var position = roadPoint.middleRoadPoint;
-                var (point, selectionManager) = CreatePointAtPositionWithColor(position, Color.white, roadData.roadMesh);
+                var (point, selectionManager) = CreatePointAtPositionWithColor(position, Color.white, roadData.roadMesh, roadPointSelectebleObjects[i].Count);
                 var weights = new Dictionary<SelectableObject, NeighbourWeights>();
                 if (i > 0)
                 {
@@ -323,7 +335,7 @@ public class BuildModeManager : MonoBehaviour
                         WeightFromNeighbour = GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT,
                         WeightToNeighbour = 1
                     });
-                    if (i == roadData.roadPoints.Count - 1)
+                    if (i == roadData.roadPoints.Count - 1 && roadData.roadEndConnectionToOtherRoad == default)
                     {
                         weights.Add(roadPointSelectebleObjects[i][pointsToCreateOnLeft - 1], new NeighbourWeights
                         {
@@ -332,7 +344,7 @@ public class BuildModeManager : MonoBehaviour
                         });
                     }
                 }
-                else if (i == 0)
+                else if (i == 0 && roadData.roadStartConnectionToOtherRoad == default)
                 {
                     weights.Add(roadPointSelectebleObjects[0][pointsToCreateOnLeft - 1], new NeighbourWeights
                     {
@@ -342,24 +354,33 @@ public class BuildModeManager : MonoBehaviour
                 }
 
                 navigationManager.AddBuilding(selectionManager, weights);
-                graphNodesToRoadPoints[roadPoint].Add(navigationManager.GetGraphNodeForSelectableObject(selectionManager));
+                graphNodesToRoadPoints[roadPoint].Add(new GraphNodeForRoadPoint
+                {
+                    graphNode = navigationManager.GetGraphNodeForSelectableObject(selectionManager),
+                    pointSide = PointSide.Right
+                });
                 roadPointSelectebleObjects[i].Add(selectionManager);
             }
             for (int j = 0; j < pointsToCreateOnRight; j++)
             {
                 var vectorFromMiddleToRightOfRoad = roadPoint.rightRoadPoint - roadPoint.middleRoadPoint;
                 var position = roadPoint.middleRoadPoint + vectorFromMiddleToRightOfRoad / (pointsToCreateOnRight + 1.0f) * (j + 1);
-                var (point, selectionManager) = CreatePointAtPositionWithColor(position, Color.yellow, roadData.roadMesh);
+                var (point, selectionManager) = CreatePointAtPositionWithColor(position, Color.yellow, roadData.roadMesh,roadPointSelectebleObjects[i].Count);
                 var weights = new Dictionary<SelectableObject, NeighbourWeights>();
                 if (i > 0)
                 {
-                    weights.Add(roadPointSelectebleObjects[i - 1][pointsToCreateOnLeft + j + 1], new NeighbourWeights
+                    var idx = pointsToCreateOnLeft + j;
+                    if (shouldUseMiddlePointOfRoad)
+                    {
+                        idx++;
+                    }
+                    weights.Add(roadPointSelectebleObjects[i - 1][idx], new NeighbourWeights
                     {
                         WeightFromNeighbour = GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT,
                         WeightToNeighbour = 1
                     });
 
-                    if (i == roadData.roadPoints.Count - 1)
+                    if (i == roadData.roadPoints.Count - 1 && roadData.roadEndConnectionToOtherRoad == default)
                     {
                         weights.Add(roadPointSelectebleObjects[i][pointsToCreateOnLeft - 1 - j], new NeighbourWeights
                         {
@@ -368,7 +389,7 @@ public class BuildModeManager : MonoBehaviour
                         });
                     }
                 }
-                else if (i == 0)
+                else if (i == 0 && roadData.roadStartConnectionToOtherRoad == default)
                 {
                     weights.Add(roadPointSelectebleObjects[0][pointsToCreateOnLeft - 1 - j], new NeighbourWeights
                     {
@@ -378,17 +399,137 @@ public class BuildModeManager : MonoBehaviour
                 }
 
                 navigationManager.AddBuilding(selectionManager, weights);
-                graphNodesToRoadPoints[roadPoint].Add(navigationManager.GetGraphNodeForSelectableObject(selectionManager));
+                graphNodesToRoadPoints[roadPoint].Add(new GraphNodeForRoadPoint
+                {
+                    graphNode = navigationManager.GetGraphNodeForSelectableObject(selectionManager),
+                    pointSide = PointSide.Right
+                });
                 roadPointSelectebleObjects[i].Add(selectionManager);
             }
 
             tilesToRoadPoints.Add(roadPoint, roadPointSelectebleObjects[i]);
         }
         roadData.graphNodesForRoadPoints = graphNodesToRoadPoints;
+        gameUIManager.SetRoadDataForRoad(roadData.roadName, roadData);
+
+        if (roadData.roadEndConnectionToOtherRoad != default)
+        {
+            var roadDataForConnectingRoad = gameUIManager.GetRoadDataForRoad(roadData.roadEndConnectionToOtherRoad.connectingRoadName);
+            var closestRoadPointData = roadData.roadEndConnectionToOtherRoad.connectionPoint;
+            var endingRoadPointData = roadData.roadPoints[roadData.roadPoints.Count - 1];
+            var middlePointToCompare = endingRoadPointData.middleRoadPoint;
+            var distanceToLeftPoint = (middlePointToCompare - closestRoadPointData.leftRoadPoint).magnitude;
+            var distanceToRightPoint = (middlePointToCompare - closestRoadPointData.rightRoadPoint).magnitude;
+            bool isLeftCloserToPoint = distanceToLeftPoint < distanceToRightPoint;
+            var indexOfClosestRoadData = roadDataForConnectingRoad.roadPoints.IndexOf(closestRoadPointData);
+
+            if (isLeftCloserToPoint)
+            {
+                GetThatBag(graphNodesToRoadPoints, roadDataForConnectingRoad, closestRoadPointData, endingRoadPointData, indexOfClosestRoadData, isLeftCloserToPoint);
+            }
+            else
+            {
+                GetThatBag(graphNodesToRoadPoints, roadDataForConnectingRoad, closestRoadPointData, endingRoadPointData, indexOfClosestRoadData, isLeftCloserToPoint);
+            }
+        }
+
         return (tilesToRoadPoints, roadData);
     }
 
-    private (AbstractBuildingType, SelectableObject) CreatePointAtPositionWithColor(Vector3 position, Color color, GameObject roadMesh)
+    private static void GetThatBag(Dictionary<RoadPointData, List<GraphNodeForRoadPoint>> graphNodesToRoadPoints, RoadData roadDataForConnectingRoad, RoadPointData closestRoadPointData, RoadPointData endingRoadPointData, int indexOfClosestRoadData, bool isLeftCloserToPoint)
+    {
+        var connectingRoadPointForLeftConnection = roadDataForConnectingRoad.roadPoints[indexOfClosestRoadData + 1];
+        var graphNodes1 = roadDataForConnectingRoad.graphNodesForRoadPoints[closestRoadPointData];
+        var graphNodes2 = roadDataForConnectingRoad.graphNodesForRoadPoints[connectingRoadPointForLeftConnection];
+        if (!isLeftCloserToPoint)
+        {
+            var temp = graphNodes1;
+            graphNodes1 = graphNodes2;
+            graphNodes2 = temp;
+        }
+        // graphNodes1.ForEach(gn =>
+        // {
+        //     gn.graphNode.Value.SetHighlightColor(Color.red);
+        //     gn.graphNode.Value.ToggleHighlight(true);
+
+        // });
+
+        // graphNodes2.ForEach(gn =>
+        // {
+        //     gn.graphNode.Value.SetHighlightColor(Color.yellow);
+        //     gn.graphNode.Value.ToggleHighlight(true);
+
+        // });
+        var createdRoadGraphNodes = graphNodesToRoadPoints[endingRoadPointData];
+        var leftIndex = 0;
+        var rightIndex = 0;
+        var countOfLeftCreatedPoint = createdRoadGraphNodes.Where(gn => gn.pointSide == PointSide.Left).Count();
+        var countOfRightCreatedPoint = createdRoadGraphNodes.Where(gn => gn.pointSide == PointSide.Right).Count();
+        if (!isLeftCloserToPoint)
+        {
+            var temp = graphNodes1;
+            graphNodes1 = graphNodes2;
+            graphNodes2 = temp;
+            // createdRoadGraphNodes.Reverse();
+        }
+        for (int i = 0; i < createdRoadGraphNodes.Count; i++)
+        {
+            var createdRoadGraphNode = createdRoadGraphNodes[i];
+            if (createdRoadGraphNode.pointSide == PointSide.Left)
+            {
+                var leftGraphNodes = graphNodes2.Where(gn => gn.pointSide == PointSide.Left).ToList();
+
+                var rightGraphNodes = graphNodes1.Where(gn => gn.pointSide == PointSide.Right).ToList();
+                var leftGraphNode =  leftGraphNodes[leftIndex >= leftGraphNodes.Count ? leftGraphNodes.Count - 1 : leftIndex].graphNode;
+                
+                leftGraphNode.AddConnection(createdRoadGraphNode.graphNode, 1);
+                
+                
+                var rightGraphNode = rightGraphNodes[leftIndex].graphNode;
+                var leftOtherConnectedGraphNode =  graphNodes1.Where(gn => gn.pointSide == PointSide.Left).ToList()[leftIndex].graphNode;
+                var connections = leftOtherConnectedGraphNode.WhereConnections(conn => {
+                    return conn.Destination == leftOtherConnectedGraphNode && !graphNodes2.Select(gn=> gn.graphNode).Contains(conn.Source);
+                });
+                foreach (var connection in connections) {
+                    connection.Source.Value.SetHighlightColor(Color.cyan);
+                    createdRoadGraphNode.graphNode.Value.SetHighlightColor(Color.magenta);
+                    // leftOtherConnectedGraphNode.Value.SetHighlightColor(Color.magenta);
+
+                    connection.Source.Value.ToggleHighlight(true);
+                    createdRoadGraphNode.graphNode.Value.ToggleHighlight(true);
+                    connection.Source.AddConnection(createdRoadGraphNode.graphNode, 1);
+                }
+                rightGraphNode.AddConnection(createdRoadGraphNode.graphNode, 1);
+                leftIndex++;
+                if (leftIndex >= countOfLeftCreatedPoint && countOfLeftCreatedPoint < rightGraphNodes.Count)
+                {
+                    while (leftIndex < rightGraphNodes.Count)
+                    {
+                        var idx = leftIndex >= rightGraphNodes.Count ? rightGraphNodes.Count - 1 : leftIndex;
+                        rightGraphNodes[idx].graphNode.AddConnection(createdRoadGraphNode.graphNode, 1);
+                        rightGraphNodes[rightGraphNodes.Count - idx].graphNode.AddConnection(createdRoadGraphNode.graphNode, 1);
+                        leftIndex++;
+                    }
+                }
+            }
+            else
+            {
+                var leftGraphNodes = graphNodes1.Where(gn => gn.pointSide == PointSide.Left).ToList();
+                var rightGraphNodes = graphNodes2.Where(gn => gn.pointSide == PointSide.Right).ToList();
+                var indexForLeftGraphPoints = leftGraphNodes.Count - 1 - rightIndex;
+
+                if (indexForLeftGraphPoints < 0)
+                {
+                    indexForLeftGraphPoints = 0;
+                }
+                createdRoadGraphNode.graphNode.AddConnection(leftGraphNodes[indexForLeftGraphPoints].graphNode, 1);
+                createdRoadGraphNode.graphNode.AddConnection(rightGraphNodes[rightIndex >= rightGraphNodes.Count ? rightGraphNodes.Count - 1 : rightIndex].graphNode, 1);
+                rightIndex++;
+            }
+        }
+    }
+
+    private (AbstractBuildingType, SelectableObject) CreatePointAtPositionWithColor(Vector3 position, Color color, GameObject roadMesh, int index)
     {
 
         var point = CreateBuildingFromBuildingData(selectedBuildingData, parent: roadMesh.transform);
@@ -396,7 +537,7 @@ public class BuildModeManager : MonoBehaviour
         point.PlaceAtPosition(new Dictionary<(Vector3, Quaternion), List<Vector3Int>>() {
             {(position, Quaternion.identity), new List<Vector3Int>{gridPosition}},
         }, new Dictionary<Vector3Int, NeighbourData>(), default, point.gameObject);
-
+        point.name = $"Point idx: {index} as x: {position.x} y: {position.y} z: {position.z}";
 
         return (point, point.GetSelectionManagerForGridPosition(gridPosition));
     }

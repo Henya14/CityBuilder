@@ -432,7 +432,7 @@ public class GameUIManager : MonoBehaviour
         roadDrawer.SetRoadDataForRoad(roadName, roadData);
     }
 
-    public RoadData GetRoadDataForRoad(string roadName, RoadData roadData) 
+    public RoadData GetRoadDataForRoad(string roadName) 
     {
         return roadDrawer.GetRoadDataForRoad(roadName);
     }
