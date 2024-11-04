@@ -447,19 +447,7 @@ public class BuildModeManager : MonoBehaviour
             graphNodes1 = graphNodes2;
             graphNodes2 = temp;
         }
-        // graphNodes1.ForEach(gn =>
-        // {
-        //     gn.graphNode.Value.SetHighlightColor(Color.red);
-        //     gn.graphNode.Value.ToggleHighlight(true);
-
-        // });
-
-        // graphNodes2.ForEach(gn =>
-        // {
-        //     gn.graphNode.Value.SetHighlightColor(Color.yellow);
-        //     gn.graphNode.Value.ToggleHighlight(true);
-
-        // });
+        
         var createdRoadGraphNodes = graphNodesToRoadPoints[endingRoadPointData];
         var leftIndex = 0;
         var rightIndex = 0;
@@ -472,6 +460,20 @@ public class BuildModeManager : MonoBehaviour
             graphNodes2 = temp;
             // createdRoadGraphNodes.Reverse();
         }
+
+        graphNodes1.ForEach(gn =>
+        {
+            gn.graphNode.Value.SetHighlightColor(Color.red);
+            gn.graphNode.Value.ToggleHighlight(true);
+
+        });
+
+        graphNodes2.ForEach(gn =>
+        {
+            gn.graphNode.Value.SetHighlightColor(Color.yellow);
+            gn.graphNode.Value.ToggleHighlight(true);
+
+        });
         for (int i = 0; i < createdRoadGraphNodes.Count; i++)
         {
             var createdRoadGraphNode = createdRoadGraphNodes[i];
@@ -485,21 +487,24 @@ public class BuildModeManager : MonoBehaviour
                 leftGraphNode.AddConnection(createdRoadGraphNode.graphNode, 1);
                 
                 
-                var rightGraphNode = rightGraphNodes[leftIndex].graphNode;
+                var rightGraphNodeToConnectTo = rightGraphNodes[leftIndex].graphNode;
+                
                 var leftOtherConnectedGraphNode =  graphNodes1.Where(gn => gn.pointSide == PointSide.Left).ToList()[leftIndex].graphNode;
                 var connections = leftOtherConnectedGraphNode.WhereConnections(conn => {
                     return conn.Destination == leftOtherConnectedGraphNode && !graphNodes2.Select(gn=> gn.graphNode).Contains(conn.Source);
                 });
                 foreach (var connection in connections) {
+                    leftOtherConnectedGraphNode.Value.SetHighlightColor(Color.gray);
+                    leftOtherConnectedGraphNode.Value.ToggleHighlight(true);
                     connection.Source.Value.SetHighlightColor(Color.cyan);
                     createdRoadGraphNode.graphNode.Value.SetHighlightColor(Color.magenta);
                     // leftOtherConnectedGraphNode.Value.SetHighlightColor(Color.magenta);
 
-                    connection.Source.Value.ToggleHighlight(true);
-                    createdRoadGraphNode.graphNode.Value.ToggleHighlight(true);
+                    // connection.Source.Value.ToggleHighlight(true);
+                    // createdRoadGraphNode.graphNode.Value.ToggleHighlight(true);
                     connection.Source.AddConnection(createdRoadGraphNode.graphNode, 1);
                 }
-                rightGraphNode.AddConnection(createdRoadGraphNode.graphNode, 1);
+                rightGraphNodeToConnectTo.AddConnection(createdRoadGraphNode.graphNode, 1);
                 leftIndex++;
                 if (leftIndex >= countOfLeftCreatedPoint && countOfLeftCreatedPoint < rightGraphNodes.Count)
                 {
@@ -517,6 +522,22 @@ public class BuildModeManager : MonoBehaviour
                 var leftGraphNodes = graphNodes1.Where(gn => gn.pointSide == PointSide.Left).ToList();
                 var rightGraphNodes = graphNodes2.Where(gn => gn.pointSide == PointSide.Right).ToList();
                 var indexForLeftGraphPoints = leftGraphNodes.Count - 1 - rightIndex;
+                
+                var rightGraphNode = rightGraphNodes[rightIndex].graphNode;
+
+                var rightOtherConnectedGraphNode =  graphNodes1.Where(gn => gn.pointSide == PointSide.Right).ToList()[rightIndex].graphNode;
+                var connections = rightOtherConnectedGraphNode.WhereConnections(conn => {
+                    return conn.Source == rightOtherConnectedGraphNode && !createdRoadGraphNodes.Select(gn => gn.graphNode).Contains(conn.Destination) && !graphNodes2.Select(gn=> gn.graphNode).Contains(conn.Destination);
+                });
+                foreach (var connection in connections) {
+                    connection.Destination.Value.SetHighlightColor(Color.cyan);
+                    createdRoadGraphNode.graphNode.Value.SetHighlightColor(Color.magenta);
+                    // leftOtherConnectedGraphNode.Value.SetHighlightColor(Color.magenta);
+
+                    connection.Destination.Value.ToggleHighlight(true);
+                    createdRoadGraphNode.graphNode.Value.ToggleHighlight(true);
+                    createdRoadGraphNode.graphNode.AddConnection(connection.Destination, 1);
+                }
 
                 if (indexForLeftGraphPoints < 0)
                 {
