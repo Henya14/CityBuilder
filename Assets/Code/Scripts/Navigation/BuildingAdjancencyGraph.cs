@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
+using Unity.VisualScripting.Dependencies.Sqlite;
 using UnityEngine;
 
 
@@ -15,13 +17,17 @@ public class BuildingAdjacencyGraph
         return from.GetConnection(from, to)?.Weight ?? GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT;
     }
 
-    public void AddBuilding(SelectableObject building, Dictionary<SelectableObject, NeighbourWeights> neighbours)
+    public GraphNode<SelectableObject> AddBuilding(SelectableObject building, Dictionary<SelectableObject, NeighbourWeights> neighbours)
     {
         var node = new GraphNode<SelectableObject>
         {
             Value = building
         };
+        if (building == null || building == default) {
+            Debug.Log(building);
+        }
         AddGraphNode(node, neighbours);
+        return node;
     }
 
     public void AddGraphNode(GraphNode<SelectableObject> node, Dictionary<SelectableObject, NeighbourWeights> neighbours)
@@ -30,19 +36,19 @@ public class BuildingAdjacencyGraph
         GraphNodes.Add(node);
         foreach (var neighbour in neighbours)
         {
-            var neighbourNode = GraphNodes.Find(x => x.Value.Equals(neighbour.Key));
-            if (neighbourNode == null)
+            var neighbourNode = GraphNodes.FirstOrDefault(x => x.Value.Equals(neighbour.Key));
+            if (neighbourNode == default)
             {
                 continue;
             }
             if (neighbour.Value.WeightFromNeighbour != GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT)
             {
-                neighbourNode.AddConnection(node, neighbour.Value.WeightFromNeighbour);
+                node.AddConnection(neighbourNode, neighbour.Value.WeightFromNeighbour);
             }
 
             if (neighbour.Value.WeightToNeighbour != GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT)
             {
-                node.AddConnection(neighbourNode, neighbour.Value.WeightToNeighbour);
+                neighbourNode.AddConnection(node, neighbour.Value.WeightToNeighbour);
             }
         }
     }

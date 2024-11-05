@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Video;
 
 
 
@@ -12,27 +13,30 @@ public class Tile : MonoBehaviour
 
     public Morality tileMorality { get; set; }
 
-    [SerializeField] Material destMaterial;
     Material test;
     public Material baseMaterial { get; set; }
     private void Start()
     {
-        baseMaterial = GetComponent<MeshRenderer>().material;
-        test = new Material(destMaterial);
+        baseMaterial = GetComponentInChildren<MeshRenderer>().material;
+        
         var selectionManager = gameObject.AddComponent<SelectionManager>();
-        selectionManager.Init(gridPosition, Description, SelectableObjectType.Tile);
+        //selectionManager.Init(gridPosition, Description, SelectableObjectType.Tile);
+    }
+
+    public void SetMoralityMaterial(Material destMaterial) {
+        test = new Material(destMaterial);
     }
 
     public void changeMaterial()
     {
         Color customColor = new Color(0.1f, 0.9f * tileMorality.moralityLevel, 0.7f, 1.0f);
         test.SetColor("_Color", customColor);
-        GetComponent<MeshRenderer>().material = test;
+        GetComponentInChildren<MeshRenderer>().material = test;
     }
 
     public void resetMaterial()
     {
-        GetComponent<MeshRenderer>().material = baseMaterial;
+        GetComponentInChildren<MeshRenderer>().material = baseMaterial;
     }
 
 

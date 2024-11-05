@@ -16,7 +16,7 @@ public class DijkstraAlgorithm : ShortestPathStrategy
             nodeList = nodeList.OrderBy(n => n.CostToStart).ToList();
             var node = nodeList.First();
             nodeList.Remove(node);
-            foreach (var connection in node.GraphNode.Connections) 
+            foreach (var connection in node.GraphNode.GetOutGoingConnections()) 
             {
                 var neighbourSearchNode = graphSearchNodes.Find(n => connection.Destination == n.GraphNode);
                 if (neighbourSearchNode.Visited) {
