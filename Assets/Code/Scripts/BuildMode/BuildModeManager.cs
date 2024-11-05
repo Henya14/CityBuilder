@@ -365,7 +365,7 @@ public class BuildModeManager : MonoBehaviour
             {
                 var vectorFromMiddleToRightOfRoad = roadPoint.rightRoadPoint - roadPoint.middleRoadPoint;
                 var position = roadPoint.middleRoadPoint + vectorFromMiddleToRightOfRoad / (pointsToCreateOnRight + 1.0f) * (j + 1);
-                var (point, selectionManager) = CreatePointAtPositionWithColor(position, Color.yellow, roadData.roadMesh,roadPointSelectebleObjects[i].Count);
+                var (point, selectionManager) = CreatePointAtPositionWithColor(position, Color.yellow, roadData.roadMesh, roadPointSelectebleObjects[i].Count);
                 var weights = new Dictionary<SelectableObject, NeighbourWeights>();
                 if (i > 0)
                 {
@@ -415,28 +415,64 @@ public class BuildModeManager : MonoBehaviour
         if (roadData.roadEndConnectionToOtherRoad != default)
         {
             var roadDataForConnectingRoad = gameUIManager.GetRoadDataForRoad(roadData.roadEndConnectionToOtherRoad.connectingRoadName);
-            var closestRoadPointData = roadData.roadEndConnectionToOtherRoad.connectionPoint;
-            var endingRoadPointData = roadData.roadPoints[roadData.roadPoints.Count - 1];
-            var middlePointToCompare = endingRoadPointData.middleRoadPoint;
-            var distanceToLeftPoint = (middlePointToCompare - closestRoadPointData.leftRoadPoint).magnitude;
-            var distanceToRightPoint = (middlePointToCompare - closestRoadPointData.rightRoadPoint).magnitude;
-            bool isLeftCloserToPoint = distanceToLeftPoint < distanceToRightPoint;
-            var indexOfClosestRoadData = roadDataForConnectingRoad.roadPoints.IndexOf(closestRoadPointData);
-
-            if (isLeftCloserToPoint)
-            {
-                GetThatBag(graphNodesToRoadPoints, roadDataForConnectingRoad, closestRoadPointData, endingRoadPointData, indexOfClosestRoadData, isLeftCloserToPoint);
-            }
-            else
-            {
-                GetThatBag(graphNodesToRoadPoints, roadDataForConnectingRoad, closestRoadPointData, endingRoadPointData, indexOfClosestRoadData, isLeftCloserToPoint);
-            }
+            CreateIntersectionConnectionForConnetingRoadAndRoadExtension(roadData.roadEndConnectionToOtherRoad.connectionPoint, roadData, roadDataForConnectingRoad, graphNodesToRoadPoints, true);
+        }
+        if (roadData.roadStartConnectionToOtherRoad != default)
+        {
+            var roadDataForConnectingRoad = gameUIManager.GetRoadDataForRoad(roadData.roadStartConnectionToOtherRoad.connectingRoadName);
+            CreateIntersectionConnectionForConnetingRoadAndRoadExtension(roadData.roadStartConnectionToOtherRoad.connectionPoint, roadData, roadDataForConnectingRoad, graphNodesToRoadPoints, false);
         }
 
         return (tilesToRoadPoints, roadData);
     }
 
-    private static void GetThatBag(Dictionary<RoadPointData, List<GraphNodeForRoadPoint>> graphNodesToRoadPoints, RoadData roadDataForConnectingRoad, RoadPointData closestRoadPointData, RoadPointData endingRoadPointData, int indexOfClosestRoadData, bool isLeftCloserToPoint)
+    private void CreateIntersectionConnectionForConnetingRoadAndRoadExtension(RoadPointData closestRoadPointData, RoadData roadData, RoadData roadDataForConnectingRoad, Dictionary<RoadPointData, List<GraphNodeForRoadPoint>> graphNodesToRoadPoints, bool isLast)
+    {
+        var roadPointData = isLast ? roadData.roadPoints[roadData.roadPoints.Count - 1] : roadData.roadPoints[0];
+        var middlePointToCompare = roadPointData.middleRoadPoint;
+        var distanceToLeftPoint = (middlePointToCompare - closestRoadPointData.leftRoadPoint).magnitude;
+        var distanceToRightPoint = (middlePointToCompare - closestRoadPointData.rightRoadPoint).magnitude;
+        bool isLeftCloserToPoint = distanceToLeftPoint < distanceToRightPoint;
+        var indexOfClosestRoadData = roadDataForConnectingRoad.roadPoints.IndexOf(closestRoadPointData);
+        if (indexOfClosestRoadData == 0 || indexOfClosestRoadData == roadDataForConnectingRoad.roadPoints.Count - 1)
+        {
+            var startRoadPointDataMiddlePoint = roadData.roadPoints[0].middleRoadPoint;
+            var endRoadPointDataMiddlePoint = roadData.roadPoints[roadData.roadPoints.Count - 1].middleRoadPoint;
+            bool isStartCloserToClosestRoadData = (closestRoadPointData.middleRoadPoint - startRoadPointDataMiddlePoint).magnitude < (closestRoadPointData.middleRoadPoint - endRoadPointDataMiddlePoint).magnitude;
+            var roadPointDataToPlayWith = isStartCloserToClosestRoadData ? roadData.roadPoints[0] : roadData.roadPoints[roadData.roadPoints.Count - 1];
+            var graphNodes = graphNodesToRoadPoints[roadPointDataToPlayWith];
+            var connectingGraphNodes = roadDataForConnectingRoad.graphNodesForRoadPoints[closestRoadPointData].Select(cgn => cgn.graphNode).ToList();
+            foreach (var connectingGraphNode in connectingGraphNodes)
+            {
+                var loopBackConnectionsToDelete = connectingGraphNode.WhereConnections(connection =>
+                connectingGraphNodes.Contains(connection.Destination));
+                Debug.Log("geee");
+                foreach (var loopBackConnection in loopBackConnectionsToDelete)
+                {
+
+                    connectingGraphNode.RemoveConnection(loopBackConnection);
+                }
+            }
+            for (int i = 0; i < graphNodes.Count; i++)
+            {
+                var currentGraphNodeForRoadPoint = graphNodes[i];
+
+
+                connectingGraphNodes[i].AddConnection(currentGraphNodeForRoadPoint.graphNode, 1);
+                currentGraphNodeForRoadPoint.graphNode.AddConnection(connectingGraphNodes[i], 1);
+
+            }
+            Debug.Log("party");
+        }
+        else
+        {
+
+            CreateIntersectionConnectionsForConnectingRoad(graphNodesToRoadPoints, roadDataForConnectingRoad, closestRoadPointData, roadPointData, indexOfClosestRoadData, isLeftCloserToPoint, isLast);
+        }
+
+    }
+
+    private void CreateIntersectionConnectionsForConnectingRoad(Dictionary<RoadPointData, List<GraphNodeForRoadPoint>> graphNodesToRoadPoints, RoadData roadDataForConnectingRoad, RoadPointData closestRoadPointData, RoadPointData roadPointData, int indexOfClosestRoadData, bool isLeftCloserToPoint, bool isLast)
     {
         var connectingRoadPointForLeftConnection = roadDataForConnectingRoad.roadPoints[indexOfClosestRoadData + 1];
         var graphNodes1 = roadDataForConnectingRoad.graphNodesForRoadPoints[closestRoadPointData];
@@ -447,8 +483,8 @@ public class BuildModeManager : MonoBehaviour
             graphNodes1 = graphNodes2;
             graphNodes2 = temp;
         }
-        
-        var createdRoadGraphNodes = graphNodesToRoadPoints[endingRoadPointData];
+
+        var createdRoadGraphNodes = graphNodesToRoadPoints[roadPointData];
         var leftIndex = 0;
         var rightIndex = 0;
         var countOfLeftCreatedPoint = createdRoadGraphNodes.Where(gn => gn.pointSide == PointSide.Left).Count();
@@ -461,90 +497,147 @@ public class BuildModeManager : MonoBehaviour
             // createdRoadGraphNodes.Reverse();
         }
 
-        graphNodes1.ForEach(gn =>
-        {
-            gn.graphNode.Value.SetHighlightColor(Color.red);
-            gn.graphNode.Value.ToggleHighlight(true);
+        // graphNodes1.ForEach(gn =>
+        // {
+        //     gn.graphNode.Value.SetHighlightColor(Color.red);
+        //     gn.graphNode.Value.ToggleHighlight(true);
 
-        });
+        // });
 
-        graphNodes2.ForEach(gn =>
-        {
-            gn.graphNode.Value.SetHighlightColor(Color.yellow);
-            gn.graphNode.Value.ToggleHighlight(true);
+        // graphNodes2.ForEach(gn =>
+        // {
+        //     gn.graphNode.Value.SetHighlightColor(Color.yellow);
+        //     gn.graphNode.Value.ToggleHighlight(true);
 
-        });
+        // });
         for (int i = 0; i < createdRoadGraphNodes.Count; i++)
         {
             var createdRoadGraphNode = createdRoadGraphNodes[i];
             if (createdRoadGraphNode.pointSide == PointSide.Left)
             {
-                var leftGraphNodes = graphNodes2.Where(gn => gn.pointSide == PointSide.Left).ToList();
 
-                var rightGraphNodes = graphNodes1.Where(gn => gn.pointSide == PointSide.Right).ToList();
-                var leftGraphNode =  leftGraphNodes[leftIndex >= leftGraphNodes.Count ? leftGraphNodes.Count - 1 : leftIndex].graphNode;
-                
-                leftGraphNode.AddConnection(createdRoadGraphNode.graphNode, 1);
-                
-                
-                var rightGraphNodeToConnectTo = rightGraphNodes[leftIndex].graphNode;
-                
-                var leftOtherConnectedGraphNode =  graphNodes1.Where(gn => gn.pointSide == PointSide.Left).ToList()[leftIndex].graphNode;
-                var connections = leftOtherConnectedGraphNode.WhereConnections(conn => {
-                    return conn.Destination == leftOtherConnectedGraphNode && !graphNodes2.Select(gn=> gn.graphNode).Contains(conn.Source);
+                var leftGraphNodes = (isLast ? graphNodes2 : graphNodes1).Where(gn => gn.pointSide == PointSide.Left).ToList();
+                var leftGraphNode = leftGraphNodes[leftIndex >= leftGraphNodes.Count ? leftGraphNodes.Count - 1 : leftIndex].graphNode;
+                if (isLast)
+                {//fordit es g1
+                    leftGraphNode.AddConnection(createdRoadGraphNode.graphNode, 1);
+                }
+                else
+                {
+                    createdRoadGraphNode.graphNode.AddConnection(leftGraphNode, 1);
+                }
+
+
+
+                var leftOtherConnectedGraphNode = (isLast ? graphNodes1 : graphNodes2).Where(gn => gn.pointSide == PointSide.Left).ToList()[leftIndex].graphNode;
+                var connections = leftOtherConnectedGraphNode.WhereConnections(conn =>
+                {
+                    return (isLast ? conn.Destination : conn.Source) == leftOtherConnectedGraphNode && !(isLast ? graphNodes2 : graphNodes1).Select(gn => gn.graphNode).Contains(isLast ? conn.Source : conn.Destination);
                 });
-                foreach (var connection in connections) {
-                    leftOtherConnectedGraphNode.Value.SetHighlightColor(Color.gray);
-                    leftOtherConnectedGraphNode.Value.ToggleHighlight(true);
-                    connection.Source.Value.SetHighlightColor(Color.cyan);
-                    createdRoadGraphNode.graphNode.Value.SetHighlightColor(Color.magenta);
+                foreach (var connection in connections)
+                {
+                    // leftOtherConnectedGraphNode.Value.SetHighlightColor(Color.gray);
+                    // leftOtherConnectedGraphNode.Value.ToggleHighlight(true);
+                    // connection.Source.Value.SetHighlightColor(Color.cyan);
+                    // createdRoadGraphNode.graphNode.Value.SetHighlightColor(Color.magenta);
                     // leftOtherConnectedGraphNode.Value.SetHighlightColor(Color.magenta);
 
                     // connection.Source.Value.ToggleHighlight(true);
                     // createdRoadGraphNode.graphNode.Value.ToggleHighlight(true);
-                    connection.Source.AddConnection(createdRoadGraphNode.graphNode, 1);
+                    if (isLast)
+                    {
+                        connection.Source.AddConnection(createdRoadGraphNode.graphNode, 1);
+                    }
+                    else
+                    {
+                        createdRoadGraphNode.graphNode.AddConnection(connection.Destination, 1);
+                    }
                 }
-                rightGraphNodeToConnectTo.AddConnection(createdRoadGraphNode.graphNode, 1);
+
+                var rightGraphNodes = (isLast ? graphNodes1 : graphNodes2).Where(gn => gn.pointSide == PointSide.Right).ToList();
+                var rightGraphNodeToConnectTo = rightGraphNodes[leftIndex].graphNode;
+                if (isLast)
+                {
+                    rightGraphNodeToConnectTo.AddConnection(createdRoadGraphNode.graphNode, 1); // fordit es g2
+                }
+                else
+                {
+                    createdRoadGraphNode.graphNode.AddConnection(rightGraphNodeToConnectTo, 1);
+                }
+
                 leftIndex++;
                 if (leftIndex >= countOfLeftCreatedPoint && countOfLeftCreatedPoint < rightGraphNodes.Count)
                 {
                     while (leftIndex < rightGraphNodes.Count)
                     {
                         var idx = leftIndex >= rightGraphNodes.Count ? rightGraphNodes.Count - 1 : leftIndex;
-                        rightGraphNodes[idx].graphNode.AddConnection(createdRoadGraphNode.graphNode, 1);
-                        rightGraphNodes[rightGraphNodes.Count - idx].graphNode.AddConnection(createdRoadGraphNode.graphNode, 1);
+                        if (isLast)
+                        {
+                            rightGraphNodes[rightGraphNodes.Count - idx].graphNode.AddConnection(createdRoadGraphNode.graphNode, 1);
+                        }
+                        else
+                        {
+                            createdRoadGraphNode.graphNode.AddConnection(rightGraphNodes[rightGraphNodes.Count - idx].graphNode, 1);
+                        }
+
                         leftIndex++;
                     }
                 }
             }
             else
             {
-                var leftGraphNodes = graphNodes1.Where(gn => gn.pointSide == PointSide.Left).ToList();
-                var rightGraphNodes = graphNodes2.Where(gn => gn.pointSide == PointSide.Right).ToList();
-                var indexForLeftGraphPoints = leftGraphNodes.Count - 1 - rightIndex;
-                
-                var rightGraphNode = rightGraphNodes[rightIndex].graphNode;
 
-                var rightOtherConnectedGraphNode =  graphNodes1.Where(gn => gn.pointSide == PointSide.Right).ToList()[rightIndex].graphNode;
-                var connections = rightOtherConnectedGraphNode.WhereConnections(conn => {
-                    return conn.Source == rightOtherConnectedGraphNode && !createdRoadGraphNodes.Select(gn => gn.graphNode).Contains(conn.Destination) && !graphNodes2.Select(gn=> gn.graphNode).Contains(conn.Destination);
+
+
+
+                var rightOtherConnectedGraphNode = (isLast ? graphNodes1 : graphNodes2).Where(gn => gn.pointSide == PointSide.Right).ToList()[rightIndex].graphNode;
+                var connections = rightOtherConnectedGraphNode.WhereConnections(conn =>
+                {
+                    return (isLast ? conn.Source : conn.Destination) == rightOtherConnectedGraphNode && !createdRoadGraphNodes.Select(gn => gn.graphNode).Contains(isLast ? conn.Destination : conn.Source) && !(isLast ? graphNodes2 : graphNodes1).Select(gn => gn.graphNode).Contains(isLast ? conn.Destination : conn.Source);
                 });
-                foreach (var connection in connections) {
-                    connection.Destination.Value.SetHighlightColor(Color.cyan);
-                    createdRoadGraphNode.graphNode.Value.SetHighlightColor(Color.magenta);
-                    // leftOtherConnectedGraphNode.Value.SetHighlightColor(Color.magenta);
+                foreach (var connection in connections)
+                {
+                    // connection.Destination.Value.SetHighlightColor(Color.cyan);
+                    // createdRoadGraphNode.graphNode.Value.SetHighlightColor(Color.magenta);
+                    // // leftOtherConnectedGraphNode.Value.SetHighlightColor(Color.magenta);
 
-                    connection.Destination.Value.ToggleHighlight(true);
-                    createdRoadGraphNode.graphNode.Value.ToggleHighlight(true);
-                    createdRoadGraphNode.graphNode.AddConnection(connection.Destination, 1);
+                    // connection.Destination.Value.ToggleHighlight(true);
+                    // createdRoadGraphNode.graphNode.Value.ToggleHighlight(true);
+                    if (isLast)
+                    {
+                        createdRoadGraphNode.graphNode.AddConnection(connection.Destination, 1);
+                    }
+                    else
+                    {
+                        connection.Source.AddConnection(createdRoadGraphNode.graphNode, 1);
+                    }
                 }
 
+                var leftGraphNodes = (isLast ? graphNodes1 : graphNodes2).Where(gn => gn.pointSide == PointSide.Left).ToList();
+                var indexForLeftGraphPoints = leftGraphNodes.Count - 1 - rightIndex;
                 if (indexForLeftGraphPoints < 0)
                 {
                     indexForLeftGraphPoints = 0;
                 }
-                createdRoadGraphNode.graphNode.AddConnection(leftGraphNodes[indexForLeftGraphPoints].graphNode, 1);
-                createdRoadGraphNode.graphNode.AddConnection(rightGraphNodes[rightIndex >= rightGraphNodes.Count ? rightGraphNodes.Count - 1 : rightIndex].graphNode, 1);
+                if (isLast)
+                {
+                    createdRoadGraphNode.graphNode.AddConnection(leftGraphNodes[indexForLeftGraphPoints].graphNode, 1); //g2 es fordit
+                }
+                else
+                {
+                    leftGraphNodes[indexForLeftGraphPoints].graphNode.AddConnection(createdRoadGraphNode.graphNode, 1); //g2 es fordit
+                }
+
+                var rightGraphNodes = (isLast ? graphNodes2 : graphNodes1).Where(gn => gn.pointSide == PointSide.Right).ToList();
+                var rightGraphNode = rightGraphNodes[rightIndex].graphNode;
+                if (isLast)
+                {
+                    createdRoadGraphNode.graphNode.AddConnection(rightGraphNodes[rightIndex >= rightGraphNodes.Count ? rightGraphNodes.Count - 1 : rightIndex].graphNode, 1);
+                }
+                else
+                {
+                    rightGraphNodes[rightIndex >= rightGraphNodes.Count ? rightGraphNodes.Count - 1 : rightIndex].graphNode.AddConnection(createdRoadGraphNode.graphNode, 1);
+                }
                 rightIndex++;
             }
         }

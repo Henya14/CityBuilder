@@ -309,10 +309,12 @@ public class RoadDrawer : MonoBehaviour
 
                             };
                         }
+                        
 
                         roadPointDatasForRoads[currentRoadName] = roadData;
                         StartCoroutine(FireRoadCreatedEvent(currentRoadName, roadMeshes[0], splineRoadPoints, batchesOnRight, batchesOnLeft));
                         firstRoadNameAndClosestRoadPointData = default;
+                        lastRoadNameAndClosestRoadPointData = default;
                         roadMeshes.RemoveAt(0);
                         currentRoadName = GetRoadNameForIndex(++roadIndex);
                         ClearRoads();
@@ -381,6 +383,8 @@ public class RoadDrawer : MonoBehaviour
         }
         splineGuidingPointInstances.ForEach(r => Destroy(r));
         splineGuidingPointInstances.Clear();
+        lastRoadNameAndClosestRoadPointData = default;
+        firstRoadNameAndClosestRoadPointData = default;
         RemoveSplinePoints();
         RemoveRoadMeshes();
     }
