@@ -26,6 +26,7 @@ public class BuildModeManager : MonoBehaviour
     public GameObject threeWay;
     public GameObject fourWay;
     private List<BuildingData> buildingDatas;
+    [SerializeField] Material moralityMaterial;
 
     void Start()
     {
@@ -198,6 +199,7 @@ public class BuildModeManager : MonoBehaviour
             {
                 gridmgCount++;
                 var gridManager = gameObject.AddComponent<GridManager>();
+                
                 gameUIManager.AddGridManager(gridManager);
                 gridManager.number = gridmgCount;
 
@@ -219,8 +221,13 @@ public class BuildModeManager : MonoBehaviour
                         {
                             { (tile.position, tile.rotation), new List<Vector3Int> {gridPos} },
                         }, new Dictionary<Vector3Int, NeighbourData>(), gridManager, obj.gameObject);
-                        gridManager.AddTile(gridPos, obj.gameObject);
-
+                        var tileScript = obj.AddComponent<Tile>();
+                        tileScript.SetMoralityMaterial(moralityMaterial);
+                        
+                        Morality newMorality = new Morality();
+                        newMorality.moralityLevel = 1.0f;
+                        tileScript.tileMorality = newMorality;
+                        gridManager.AddTile(gridPos, tileScript);
                         y++;
                     }
                     x++;

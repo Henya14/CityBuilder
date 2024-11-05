@@ -15,12 +15,12 @@ public enum SelectionMode
 public class GridManager : MonoBehaviour
 {
 
-    [SerializeField] GameObject[] tiles;
+    [SerializeField] Tile[] tiles;
     [SerializeField] int gridHeight = 20;
     [SerializeField] int gridWidth = 20;
     [SerializeField] public float tileSize = 0.1f;
     [SerializeField] float chanceToSwitchTile = 0.3f;
-    [SerializeField] GameObject previousTilePlaced = null;
+    [SerializeField] Tile previousTilePlaced = null;
     bool isMouseButtonDown = false;
     SelectionMode selectionMode = SelectionMode.Single;
     public Vector2Int selectionSize { get; set; } = new Vector2Int(1, 1);
@@ -41,7 +41,7 @@ public class GridManager : MonoBehaviour
     List<GameObject> arrows = new List<GameObject>();
 
 
-    Dictionary<Vector3Int, GameObject> tileMap = new Dictionary<Vector3Int, GameObject>();
+    Dictionary<Vector3Int, Tile> tileMap = new Dictionary<Vector3Int, Tile>();
     Dictionary<Vector3Int, AbstractBuildingType> buildingsMap = new Dictionary<Vector3Int, AbstractBuildingType>();
     Dictionary<Vector3Int, AbstarctProperty> propertyMap = new Dictionary<Vector3Int, AbstarctProperty>();
     int offsetX = 10;
@@ -89,7 +89,7 @@ public class GridManager : MonoBehaviour
     private void PlaceTile(string tileObjectName, Vector3Int gridPosition, float moralityLevel)
     {
         
-        GameObject tileToPlace = tiles[0];
+        Tile tileToPlace = tiles[0];
         if (tileObjectName != null)
         {
             for (int i = 0; i < tiles.Length; i++)
@@ -113,7 +113,7 @@ public class GridManager : MonoBehaviour
         }
         previousTilePlaced = tileToPlace;
 
-        GameObject newTile = Instantiate(tileToPlace, transform);
+        Tile newTile = Instantiate(tileToPlace, transform);
 
         Morality newMorality = new Morality();
 
@@ -129,7 +129,7 @@ public class GridManager : MonoBehaviour
         newTile.name = $"GamePosition: {newPosition.x}, {newPosition.z}, GridPosition: {gridPosition.x}, {gridPosition.z} ";
     }
 
-    public void AddTile(Vector3Int gridPosition, GameObject tile) {
+    public void AddTile(Vector3Int gridPosition, Tile tile) {
         tileMap[gridPosition] = tile;
     }
 
@@ -140,7 +140,7 @@ public class GridManager : MonoBehaviour
         {
             Destroy(tile.Value.gameObject);
         }
-        tileMap = new Dictionary<Vector3Int, GameObject>();
+        tileMap = new Dictionary<Vector3Int, Tile>();
     }
 
     public void ObjectSelectedAtPosition(Vector3Int selectionPosition)
@@ -301,7 +301,7 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    public GameObject GetTileAtPosition(Vector3Int position)
+    public Tile GetTileAtPosition(Vector3Int position)
     {
         return tileMap.GetValueOrDefault(position, null);
     }

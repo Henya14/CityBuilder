@@ -9,8 +9,7 @@ public enum HouseLevel
 
 public class PropertyManager : MonoBehaviour
 {
-    Dictionary<Vector3Int, AbstractBuildingType> buildings;
-    [SerializeField] GridManager gridManager;
+    [SerializeField] List<GridManager> gridManagers = new List<GridManager>();
     //Used for logging: private int buildingsCnt = 0;
     [SerializeField] BuildModeManager buildModeManager;
 
@@ -26,10 +25,8 @@ public class PropertyManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        gridManager = FindObjectOfType<GridManager>();
         buildModeManager = FindObjectOfType<BuildModeManager>();
         navigationManager = FindObjectOfType<NavigationManager>();
-        buildings = gridManager.GetBuildingsMap();
         //TimeManager.OnMinuteChanged += Log;
         //TimeManager.OnMinuteChanged += MoveIn;
         //TODO: IncreasePopulation called every minute after ShouldBeIncreased func finished
@@ -39,207 +36,212 @@ public class PropertyManager : MonoBehaviour
     public void IncreasePopulation()
     {
         //Iterate buildings
-        foreach (var building in buildings)
+        foreach (var gridManager in gridManagers)
         {
-            var name = building.Value.buildingName;
-            //only housing zones
-            //serach word in zone building name
-            if (name.Contains(zoneNameSeacrhWord) || name.Contains(zoneNameSeacrhWord.Replace(" ","")))
+
+
+            foreach (var building in gridManager.GetBuildingsMap())
             {
-                var position = building.Key + Vector3Int.zero;
-
-                //Check if next to road
-                bool nextToRoad = false;
-                Dictionary<Vector3Int, AbstractBuildingType> nhbs = gridManager.GetNeigbouringBuildingsForPosition(position);
-                Vector3Int nhbDir = Vector3Int.zero;
-                var neighbourDictionary = new Dictionary<SelectableObject, NeighbourWeights>();
-
-                foreach (var nhb in nhbs)
+                var name = building.Value.buildingName;
+                //only housing zones
+                //serach word in zone building name
+                if (name.Contains(zoneNameSeacrhWord) || name.Contains(zoneNameSeacrhWord.Replace(" ", "")))
                 {
-                    if (nhb.Value == null) { continue; }
-                    if (nhb.Value is Road)
+                    var position = building.Key + Vector3Int.zero;
+
+                    //Check if next to road
+                    bool nextToRoad = false;
+                    Dictionary<Vector3Int, AbstractBuildingType> nhbs = gridManager.GetNeigbouringBuildingsForPosition(position);
+                    Vector3Int nhbDir = Vector3Int.zero;
+                    var neighbourDictionary = new Dictionary<SelectableObject, NeighbourWeights>();
+
+                    foreach (var nhb in nhbs)
                     {
-                        var adjacentRoad = nhb.Value as Road;
-                        neighbourDictionary.Add(adjacentRoad.GetSelectionManagerForGridPosition(nhb.Key), new NeighbourWeights
+                        if (nhb.Value == null) { continue; }
+                        if (nhb.Value is Road)
                         {
-                            WeightFromNeighbour = 1,
-                            WeightToNeighbour = 1
-                        });
-                        nextToRoad = true;
-                        nhbDir += nhb.Key - position;
-                        Debug.Log($"nhb dir: {nhbDir.x}, {nhbDir.z}");
-                        break;
-                    }
-                }
-
-                //MoveIn only next to road zone tiles
-                if (nextToRoad)
-                {
-
-                    position.y = 2; //Property 
-                    var property = gridManager.GetPropertyAt(position);
-
-                    //If there is already a property
-                    if (property != null)
-                    {
-                        if (property.Capacity > property.HeadCount)
-                        {
-                            switch (ShouldBeIncreased(position))
+                            var adjacentRoad = nhb.Value as Road;
+                            neighbourDictionary.Add(adjacentRoad.GetSelectionManagerForGridPosition(new Vector3Int()), new NeighbourWeights
                             {
-                                case HouseLevel.None: break;
-                                default: property.AddPerson(); break;
-                            }
-
+                                WeightFromNeighbour = 1,
+                                WeightToNeighbour = 1
+                            });
+                            nextToRoad = true;
+                            nhbDir += nhb.Key - position;
+                            Debug.Log($"nhb dir: {nhbDir.x}, {nhbDir.z}");
+                            break;
                         }
-                        else continue;
                     }
-                    //If there is NO property
-                    else
+
+                    //MoveIn only next to road zone tiles
+                    if (nextToRoad)
                     {
-                        HouseLevel hlvl = ShouldBeIncreased(position);
-                        switch (hlvl)
+
+                        position.y = 2; //Property 
+                        var property = gridManager.GetPropertyAt(position);
+
+                        //If there is already a property
+                        if (property != null)
                         {
-                            case HouseLevel.None:
-                                break;
-                            default:
-                                var propertyObject = Construct(position, hlvl, nhbDir);
-                                //Add script based on given property type 
-                                var description = "";
-                                switch (propertyType)
+                            if (property.Capacity > property.HeadCount)
+                            {
+                                switch (ShouldBeIncreased(position, gridManager))
                                 {
-                                    case PropertyType.Residental:
-                                        property = propertyObject.AddComponent<ResidentialProperty>();
-                                        description = "Residental property";
-                                        break;
-                                    case PropertyType.Industrial:
-                                        property = propertyObject.AddComponent<IndustrialProperty>();
-                                        description = "Industrial building";
-                                        break;
-                                    case PropertyType.Shopping:
-                                        property = propertyObject.AddComponent<ShoppingProperty>();
-                                        description = "Shopping building";
-                                        break;
+                                    case HouseLevel.None: break;
+                                    default: property.AddPerson(); break;
                                 }
-                                property.PropertyGameObject = propertyObject;
-                                var selectionManager = propertyObject.AddComponent<SelectionManager>();
-                                selectionManager.Init(position, description, SelectableObjectType.ZoneBuilding);
-                                property.SelectionManager = selectionManager;
-                                var highlight = propertyObject.AddComponent<Highlight>();
-                                highlight.SetRenderers(new List<Renderer> { propertyObject.GetComponent<Renderer>() });
-                                highlight.SetHighlightColor(Color.white);
-                                property.AddPerson();
-                                property.HouseLevel = hlvl;
-                                gridManager.AddProperty(position, property);
+
+                            }
+                            else continue;
+                        }
+                        //If there is NO property
+                        else
+                        {
+                            HouseLevel hlvl = ShouldBeIncreased(position, gridManager);
+                            switch (hlvl)
+                            {
+                                case HouseLevel.None:
+                                    break;
+                                default:
+                                    var propertyObject = Construct(position, hlvl, nhbDir, gridManager);
+                                    //Add script based on given property type 
+                                    var description = "";
+                                    switch (propertyType)
+                                    {
+                                        case PropertyType.Residental:
+                                            property = propertyObject.AddComponent<ResidentialProperty>();
+                                            description = "Residental property";
+                                            break;
+                                        case PropertyType.Industrial:
+                                            property = propertyObject.AddComponent<IndustrialProperty>();
+                                            description = "Industrial building";
+                                            break;
+                                        case PropertyType.Shopping:
+                                            property = propertyObject.AddComponent<ShoppingProperty>();
+                                            description = "Shopping building";
+                                            break;
+                                    }
+                                    property.PropertyGameObject = propertyObject;
+                                    var selectionManager = propertyObject.AddComponent<SelectionManager>();
+                                    selectionManager.Init(position, description, SelectableObjectType.ZoneBuilding);
+                                    property.SelectionManager = selectionManager;
+                                    var highlight = propertyObject.AddComponent<Highlight>();
+                                    highlight.SetRenderers(new List<Renderer> { propertyObject.GetComponent<Renderer>() });
+                                    highlight.SetHighlightColor(Color.white);
+                                    property.AddPerson();
+                                    property.HouseLevel = hlvl;
+                                    gridManager.AddProperty(position, property);
 
 
-                                navigationManager.AddBuilding(selectionManager, neighbourDictionary);
-                                //navigationManager.AddBuilding(selectedBuilding.GetSelectionManagerForGridPosition(neighboursForPosition.Key), weights);
-                                break;
+                                    navigationManager.AddBuilding(selectionManager, neighbourDictionary);
+                                    //navigationManager.AddBuilding(selectedBuilding.GetSelectionManagerForGridPosition(neighboursForPosition.Key), weights);
+                                    break;
+                            }
                         }
                     }
                 }
             }
         }
     }
-    public void loadProperties(List<PropertySaveData> properties)
-    {
-        foreach (var propertyData in properties)
-        {
-            //Only load property for this zone
-            if (propertyData.PropertyType == propertyType)
-            {
+    // public void loadProperties(List<PropertySaveData> properties)
+    // {
+    //     foreach (var propertyData in properties)
+    //     {
+    //         //Only load property for this zone
+    //         if (propertyData.PropertyType == propertyType)
+    //         {
 
-                var position = propertyData.sVector3.ConvertBack() + Vector3Int.zero;
+    //             var position = propertyData.sVector3.ConvertBack() + Vector3Int.zero;
 
-                //Check if next to road
-                Dictionary<Vector3Int, AbstractBuildingType> nhbs = gridManager.GetNeigbouringBuildingsForPosition(position);
-                Vector3Int nhbDir = Vector3Int.zero;
-                var neighbourDictionary = new Dictionary<SelectableObject, NeighbourWeights>();
+    //             //Check if next to road
+    //             Dictionary<Vector3Int, AbstractBuildingType> nhbs = gridManager.GetNeigbouringBuildingsForPosition(position);
+    //             Vector3Int nhbDir = Vector3Int.zero;
+    //             var neighbourDictionary = new Dictionary<SelectableObject, NeighbourWeights>();
 
-                foreach (var nhb in nhbs)
-                {
-                    if (nhb.Value == null) { continue; }
-                    if (nhb.Value is Road)
-                    {
-                        var adjacentRoad = nhb.Value as Road;
-                        neighbourDictionary.Add(adjacentRoad.GetSelectionManagerForGridPosition(nhb.Key), new NeighbourWeights
-                        {
-                            WeightFromNeighbour = 1,
-                            WeightToNeighbour = 1
-                        });
-                        nhbDir += nhb.Key - position;
-                        Debug.Log($"nhb dir: {nhbDir.x}, {nhbDir.z}");
-                        break;
-                    }
-                }
-                AbstarctProperty property;
+    //             foreach (var nhb in nhbs)
+    //             {
+    //                 if (nhb.Value == null) { continue; }
+    //                 if (nhb.Value is Road)
+    //                 {
+    //                     var adjacentRoad = nhb.Value as Road;
+    //                     neighbourDictionary.Add(adjacentRoad.GetSelectionManagerForGridPosition(nhb.Key), new NeighbourWeights
+    //                     {
+    //                         WeightFromNeighbour = 1,
+    //                         WeightToNeighbour = 1
+    //                     });
+    //                     nhbDir += nhb.Key - position;
+    //                     Debug.Log($"nhb dir: {nhbDir.x}, {nhbDir.z}");
+    //                     break;
+    //                 }
+    //             }
+    //             AbstarctProperty property;
 
-                var propertyObject = Construct(position, propertyData.HouseLevel, nhbDir);
-                //Add script based on given property type 
-                var description = "";
-                switch (propertyType)
-                {
-                    case PropertyType.Residental:
-                        property = propertyObject.AddComponent<ResidentialProperty>();
-                        description = "Residental property";
-                        break;
-                    case PropertyType.Industrial:
-                        property = propertyObject.AddComponent<IndustrialProperty>();
-                        description = "Industrial building";
-                        break;
-                    default:
-                        property = propertyObject.AddComponent<ShoppingProperty>();
-                        description = "Shopping building";
-                        break;
-                }
-                property.PropertyGameObject = propertyObject;
-                var selectionManager = propertyObject.AddComponent<SelectionManager>();
-                selectionManager.Init(position, description, SelectableObjectType.ZoneBuilding);
-                property.SelectionManager = selectionManager;
-                var highlight = propertyObject.AddComponent<Highlight>();
-                highlight.SetRenderers(new List<Renderer> { propertyObject.GetComponent<Renderer>() });
-                highlight.SetHighlightColor(Color.white);
-                //LoadData instead of add person and house level
-                property.loadSaveData(propertyData);
-                gridManager.AddProperty(position, property);
-
-
-                navigationManager.AddBuilding(selectionManager, neighbourDictionary);
-                
+    //             var propertyObject = Construct(position, propertyData.HouseLevel, nhbDir);
+    //             //Add script based on given property type 
+    //             var description = "";
+    //             switch (propertyType)
+    //             {
+    //                 case PropertyType.Residental:
+    //                     property = propertyObject.AddComponent<ResidentialProperty>();
+    //                     description = "Residental property";
+    //                     break;
+    //                 case PropertyType.Industrial:
+    //                     property = propertyObject.AddComponent<IndustrialProperty>();
+    //                     description = "Industrial building";
+    //                     break;
+    //                 default:
+    //                     property = propertyObject.AddComponent<ShoppingProperty>();
+    //                     description = "Shopping building";
+    //                     break;
+    //             }
+    //             property.PropertyGameObject = propertyObject;
+    //             var selectionManager = propertyObject.AddComponent<SelectionManager>();
+    //             selectionManager.Init(position, description, SelectableObjectType.ZoneBuilding);
+    //             property.SelectionManager = selectionManager;
+    //             var highlight = propertyObject.AddComponent<Highlight>();
+    //             highlight.SetRenderers(new List<Renderer> { propertyObject.GetComponent<Renderer>() });
+    //             highlight.SetHighlightColor(Color.white);
+    //             //LoadData instead of add person and house level
+    //             property.loadSaveData(propertyData);
+    //             gridManager.AddProperty(position, property);
 
 
-            }
-        }
-    }
-    public HouseLevel ShouldBeIncreased(Vector3Int position)
+    //             navigationManager.AddBuilding(selectionManager, neighbourDictionary);
+
+
+
+    //         }
+    //     }
+    // }
+    public HouseLevel ShouldBeIncreased(Vector3Int position, GridManager gridManager)
     {
         //TODO: use moral
-        Vector3Int tilePos = position+Vector3Int.zero;
+        Vector3Int tilePos = position + Vector3Int.zero;
         tilePos.y = 0;
         Tile tile = gridManager.GetTileAtPosition(tilePos).GetComponent<Tile>();
-        float moral=tile.tileMorality.moralityLevel;
-        HouseLevel houselevel=HouseLevel.None;
+        float moral = tile.tileMorality.moralityLevel;
+        HouseLevel houselevel = HouseLevel.None;
 
         //moral increase with random
 
         if (moral < 2) houselevel = HouseLevel.lvl1;
 
-        else if(2 <= moral && moral < 3) houselevel= HouseLevel.lvl2;
+        else if (2 <= moral && moral < 3) houselevel = HouseLevel.lvl2;
 
-        else if(3 <= moral) houselevel = HouseLevel.lvl3;
+        else if (3 <= moral) houselevel = HouseLevel.lvl3;
 
         return houselevel;
     }
 
     // Update is called once per frame
     void Update()
-    { 
+    {
     }
 
     //Construct fun
-    GameObject Construct(Vector3Int key,HouseLevel houselvl, Vector3Int roadDir)
+    GameObject Construct(Vector3Int key, HouseLevel houselvl, Vector3Int roadDir, GridManager gridManager)
     {
-        GameObject house=null;
+        GameObject house = null;
         int random;
         switch (houselvl)
         {
@@ -260,33 +262,33 @@ public class PropertyManager : MonoBehaviour
 
 
 
-        return PlaceBuilding(key, house, roadDir);
-       //return PlaceDummy(key);
+        return PlaceBuilding(key, house, roadDir, gridManager);
+        //return PlaceDummy(key);
     }
-    GameObject PlaceBuilding(Vector3Int key,GameObject prefab, Vector3Int roadDir)
+    GameObject PlaceBuilding(Vector3Int key, GameObject prefab, Vector3Int roadDir, GridManager gridManager)
     {
         var dc = Instantiate(prefab);
 
         dc.name = $"{propertyType.ToString()} Property  {(float)key.x / 2 - 5}, {(float)key.z / 2 - 5}";
         dc.transform.parent = this.transform;
-        dc.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+        dc.transform.localScale = new Vector3(3.5f, 3.5f, 3.5f);
         var pos = gridManager.GetGamePositionAndRotationForGridPosition(key).Item1;
-        dc.transform.position = new Vector3(pos.x - 0.25f, 0.5f, pos.z  + 0.25f);
-        // 1,0,0 rotate right 90
-        if (roadDir.x == 1)
-        {
-            dc.transform.Rotate(new Vector3(0, 1, 0), 90);
-        }
-        // -1,0,0 rotate left 90
-        else if (roadDir.x == -1)
-        {
-            dc.transform.Rotate(new Vector3(0, 1, 0), -90);
-        }
-        //rotate 180 if 0,0,-1
-        else if(roadDir.z == -1)
-        {
-            dc.transform.Rotate(new Vector3(0, 1, 0), 180);
-        }
+        dc.transform.position = new Vector3(pos.x - 0.25f, 0.2f, pos.z + 0.25f);
+        // // 1,0,0 rotate right 90
+        // if (roadDir.x == 1)
+        // {
+        //     dc.transform.Rotate(new Vector3(0, 1, 0), 90);
+        // }
+        // // -1,0,0 rotate left 90
+        // else if (roadDir.x == -1)
+        // {
+        //     dc.transform.Rotate(new Vector3(0, 1, 0), -90);
+        // }
+        // //rotate 180 if 0,0,-1
+        // else if (roadDir.z == -1)
+        // {
+        //     dc.transform.Rotate(new Vector3(0, 1, 0), 180);
+        // }
 
         //if 0,0,1 NO rotate
         return dc;
@@ -300,6 +302,10 @@ public class PropertyManager : MonoBehaviour
 
         dc.transform.localPosition = new Vector3((float)key.x / 2 - 5 - 0.25f, 0.75f, (float)key.z / 2 - 5 + 0.25f);
         return dc;
+    }
+
+    public void AddGridManager(GridManager gridManager) {
+        gridManagers.Add(gridManager);
     }
     //TODO Kivenni a random fgveket ha m�r nincs benn�k hasznos�that�
     /*

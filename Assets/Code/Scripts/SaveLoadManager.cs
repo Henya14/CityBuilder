@@ -56,7 +56,7 @@ public class SaveLoadManager : MonoBehaviour
         serializableList.list = new List<TileSaveData>();
         tilesToSaveOrLoad = serializableList;
     }
-    public void SaveTiles(Dictionary<Vector3Int, GameObject> tileMap)
+    public void SaveTiles(Dictionary<Vector3Int, Tile> tileMap)
     {
         ResetTilesList();
 
@@ -189,7 +189,7 @@ public class SaveLoadManager : MonoBehaviour
 
         foreach (var manager in FindObjectsOfType<PropertyManager>())
         {
-            manager.loadProperties(propertyToSaveOrLoad.list);
+            //manager.loadProperties(propertyToSaveOrLoad.list);
         }
 
     }
