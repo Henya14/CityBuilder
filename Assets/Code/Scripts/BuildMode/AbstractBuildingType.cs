@@ -40,6 +40,7 @@ public abstract class AbstractBuildingType : MonoBehaviour
                 building = Instantiate(buildingData.prefab);
             } else {
                 building = prefab;
+                prefab = default;
             }
             building.transform.position = gamePosition;
             building.transform.rotation = rotation;

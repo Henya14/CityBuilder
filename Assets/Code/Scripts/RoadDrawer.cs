@@ -480,11 +480,13 @@ public class RoadDrawer : MonoBehaviour
         if (lastRoadData != default)
         {
             splineRoadPoints.RemoveAt(splineRoadPoints.Count - 1);
+            lastRoadData.roadSectionIndex = splineRoadPoints.Max(sp => sp.roadSectionIndex);
             splineRoadPoints.Add(lastRoadData);
         }
         if (firstRoadData != default)
         {
             splineRoadPoints.RemoveAt(0);
+            firstRoadData.roadSectionIndex = 0;
             splineRoadPoints.Insert(0, firstRoadData);
         }
         if (shouldSwitchSides)
@@ -524,14 +526,21 @@ public class RoadDrawer : MonoBehaviour
 
             if (i < splineRoadPoints.Count - 1)
             {
-                emptyTilesOnRight.Add(GetEmptyTilesForRoad(splineRoadPoints[i], splineRoadPoints[i + 1], RoadSide.Right, splineRoadPoints[i].roadSectionIndex));
-                emptyTilesOnLeft.Add(GetEmptyTilesForRoad(splineRoadPoints[i], splineRoadPoints[i + 1], RoadSide.Left, splineRoadPoints[i].roadSectionIndex));
-
-                roadSectionIndexes.Add(splineRoadPoints[i].roadSectionIndex);
+               
                 if (splineRoadPoints[i].roadSectionIndex > maxRoadSectionIndex)
                 {
                     maxRoadSectionIndex = splineRoadPoints[i].roadSectionIndex;
                 }
+                if(splineRoadPoints.Where(srp => srp.roadSectionIndex == 0).Count() > 4 && i < 3 && firstRoadNameAndClosestRoadPointData != default) {
+                    
+                    continue;
+                }
+                roadSectionIndexes.Add(splineRoadPoints[i].roadSectionIndex);
+                emptyTilesOnRight.Add(GetEmptyTilesForRoad(splineRoadPoints[i], splineRoadPoints[i + 1], RoadSide.Right, splineRoadPoints[i].roadSectionIndex));
+                emptyTilesOnLeft.Add(GetEmptyTilesForRoad(splineRoadPoints[i], splineRoadPoints[i + 1], RoadSide.Left, splineRoadPoints[i].roadSectionIndex));
+
+                
+                
                 //(previousLeftForward, previousLeftRoadDirectionVector, previousLeftRoadMiddlePoint) = AddEmptyTiles(splineRoadPoints[i], splineRoadPoints[i + 1], RoadSide.Left, previousLeftForward, previousLeftRoadDirectionVector, previousLeftRoadMiddlePoint);
             }
         }
@@ -601,7 +610,7 @@ public class RoadDrawer : MonoBehaviour
 
         }
 
-
+        
         lastRoadData = new RoadPointData
         {
             leftRoadPoint = leftRoadPoint,
@@ -871,7 +880,11 @@ public class RoadDrawer : MonoBehaviour
             SplineUtility.GetNearestPoint(tempSpline, splinePoints[i], out float3 nearestPoint, out float splineValue);
             if (i == 0)
             {
-                guidingPointSplineValues.Add(splineValue);
+                guidingPointSplineValues.Add(0.0f);
+                continue;
+            } 
+            if (i == splinePoints.Count -1 ) {
+                guidingPointSplineValues.Add(1.0f);
                 continue;
             }
             if (splineValue - guidingPointSplineValues[guidingPointSplineValues.Count - 1] > 0.01)
