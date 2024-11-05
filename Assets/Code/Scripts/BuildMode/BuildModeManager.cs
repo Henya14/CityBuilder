@@ -49,7 +49,7 @@ public class BuildModeManager : MonoBehaviour
         Dictionary<(Vector3, Quaternion), List<Vector3Int>> updatedPlacingPositionsWithGridPositions = new Dictionary<(Vector3, Quaternion), List<Vector3Int>>();
         foreach (var prefabPlacePosition in placingPositionsWithGridPositions.Keys)
         {
-            
+
             var (gamePosition, rotation) = selectedObject.GetGridManager().GetGamePositionAndRotationForGridPosition(placingPositionsWithGridPositions[prefabPlacePosition][0]);
             var gamePositionY = gamePosition.y;
             var placePosition = new Vector3(prefabPlacePosition.x, gamePositionY, prefabPlacePosition.z);
@@ -191,15 +191,25 @@ public class BuildModeManager : MonoBehaviour
     public void RoadCreated(RoadData roadData)
     {
         var (tilesToRoadPoints, graphNodesToRoadPoints) = CreateRoadNavigationPoints(roadData);
+
+   
         int gridmgCount = 0;
-        var emptyTileBuildingData = buildingDatas.First(bd => bd.BuildingName == "Empty Tile");
-        foreach (var batch in roadData.batchesOnLeft)
+        gridmgCount = SetUpEmptyTilesForBatches(roadData.batchesOnLeft, tilesToRoadPoints, gridmgCount);
+        SetUpEmptyTilesForBatches(roadData.batchesOnRight, tilesToRoadPoints, gridmgCount);
+    }
+
+    private int SetUpEmptyTilesForBatches(List<List<BatchData>> batchDatasList, Dictionary<RoadPointData, List<SelectableObject>> tilesToRoadPoints, int gridmgCount)
+    {
+         var emptyTileBuildingData = buildingDatas.First(bd => bd.BuildingName == "Empty Tile");
+        foreach (var batchDatas in batchDatasList)
         {
-            foreach (var batchData in batch)
+
+
+            foreach (var batchData in batchDatas)
             {
                 gridmgCount++;
                 var gridManager = gameObject.AddComponent<GridManager>();
-                
+
                 gameUIManager.AddGridManager(gridManager);
                 gridManager.number = gridmgCount;
 
@@ -223,7 +233,7 @@ public class BuildModeManager : MonoBehaviour
                         }, new Dictionary<Vector3Int, NeighbourData>(), gridManager, obj.gameObject);
                         var tileScript = obj.AddComponent<Tile>();
                         tileScript.SetMoralityMaterial(moralityMaterial);
-                        
+
                         Morality newMorality = new Morality();
                         newMorality.moralityLevel = 1.0f;
                         tileScript.tileMorality = newMorality;
@@ -234,33 +244,7 @@ public class BuildModeManager : MonoBehaviour
                 }
             }
         }
-        foreach (var batch in roadData.batchesOnRight)
-        {
-            foreach (var batchData in batch)
-            {
-                foreach (var tiles in batchData.emptyTileDatas)
-                {
-                    foreach (var tile in tiles)
-                    {
-                        var (obj, go) = CreateBuildingFromBuildingData(emptyTileBuildingData, tile.gameObject);
-                        obj.PlaceAtPosition(new Dictionary<(Vector3, Quaternion), List<Vector3Int>>()
-                        {
-                            { (tile.position, tile.rotation), new List<Vector3Int> { new Vector3Int() } },
-                        }, new Dictionary<Vector3Int, NeighbourData>(), default, obj.gameObject);
-                    }
-                }
-            }
-        }
-
-
-        foreach (var roadPoint in roadData.roadPoints)
-        {
-            int pointsToCreate = (int)roadPoint.roadWidth + 1;
-            bool shouldUseMiddlePointOfRoad = pointsToCreate % 2 == 1;
-
-
-            Debug.Log(pointsToCreate);
-        }
+        return gridmgCount;
     }
 
     private (Dictionary<RoadPointData, List<SelectableObject>> tilesToRoadPoints, RoadData roadData) CreateRoadNavigationPoints(RoadData roadData)

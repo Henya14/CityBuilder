@@ -52,7 +52,7 @@ public class PropertyManager : MonoBehaviour
                     //Check if next to road
                     bool nextToRoad = false;
                     Dictionary<Vector3Int, AbstractBuildingType> nhbs = gridManager.GetNeigbouringBuildingsForPosition(position);
-                    Vector3Int nhbDir = Vector3Int.zero;
+                    Vector3 nhbDir = Vector3.zero;
                     var neighbourDictionary = new Dictionary<SelectableObject, NeighbourWeights>();
 
                     foreach (var nhb in nhbs)
@@ -61,13 +61,16 @@ public class PropertyManager : MonoBehaviour
                         if (nhb.Value is Road)
                         {
                             var adjacentRoad = nhb.Value as Road;
-                            neighbourDictionary.Add(adjacentRoad.GetSelectionManagerForGridPosition(new Vector3Int()), new NeighbourWeights
+                            var selectionManager = adjacentRoad.GetSelectionManagerForGridPosition(new Vector3Int());
+                            neighbourDictionary.Add(selectionManager, new NeighbourWeights
                             {
                                 WeightFromNeighbour = 1,
                                 WeightToNeighbour = 1
                             });
                             nextToRoad = true;
-                            nhbDir += nhb.Key - position;
+                            
+                            nhbDir = selectionManager.GetGameObject().transform.position;
+                            
                             Debug.Log($"nhb dir: {nhbDir.x}, {nhbDir.z}");
                             break;
                         }
@@ -103,6 +106,7 @@ public class PropertyManager : MonoBehaviour
                                 case HouseLevel.None:
                                     break;
                                 default:
+                                    
                                     var propertyObject = Construct(position, hlvl, nhbDir, gridManager);
                                     //Add script based on given property type 
                                     var description = "";
@@ -239,7 +243,7 @@ public class PropertyManager : MonoBehaviour
     }
 
     //Construct fun
-    GameObject Construct(Vector3Int key, HouseLevel houselvl, Vector3Int roadDir, GridManager gridManager)
+    GameObject Construct(Vector3Int key, HouseLevel houselvl, Vector3 roadPosition, GridManager gridManager)
     {
         GameObject house = null;
         int random;
@@ -262,10 +266,10 @@ public class PropertyManager : MonoBehaviour
 
 
 
-        return PlaceBuilding(key, house, roadDir, gridManager);
+        return PlaceBuilding(key, house, roadPosition, gridManager);
         //return PlaceDummy(key);
     }
-    GameObject PlaceBuilding(Vector3Int key, GameObject prefab, Vector3Int roadDir, GridManager gridManager)
+    GameObject PlaceBuilding(Vector3Int key, GameObject prefab, Vector3 roadPosition, GridManager gridManager)
     {
         var dc = Instantiate(prefab);
 
@@ -274,6 +278,7 @@ public class PropertyManager : MonoBehaviour
         dc.transform.localScale = new Vector3(3.5f, 3.5f, 3.5f);
         var pos = gridManager.GetGamePositionAndRotationForGridPosition(key).Item1;
         dc.transform.position = new Vector3(pos.x - 0.25f, 0.2f, pos.z + 0.25f);
+        dc.transform.LookAt(roadPosition);
         // // 1,0,0 rotate right 90
         // if (roadDir.x == 1)
         // {
