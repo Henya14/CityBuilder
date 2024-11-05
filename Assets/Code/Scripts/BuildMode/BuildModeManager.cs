@@ -48,7 +48,8 @@ public class BuildModeManager : MonoBehaviour
         Dictionary<(Vector3, Quaternion), List<Vector3Int>> updatedPlacingPositionsWithGridPositions = new Dictionary<(Vector3, Quaternion), List<Vector3Int>>();
         foreach (var prefabPlacePosition in placingPositionsWithGridPositions.Keys)
         {
-            var (gamePosition, rotation) = selectedObject.GetGridManager().GetGamePositionAndRotationForGridPosition(gridPositions[0]);
+            
+            var (gamePosition, rotation) = selectedObject.GetGridManager().GetGamePositionAndRotationForGridPosition(placingPositionsWithGridPositions[prefabPlacePosition][0]);
             var gamePositionY = gamePosition.y;
             var placePosition = new Vector3(prefabPlacePosition.x, gamePositionY, prefabPlacePosition.z);
             placePositions.Add(placePosition);
