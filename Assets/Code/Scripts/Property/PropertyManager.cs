@@ -277,7 +277,7 @@ public class PropertyManager : MonoBehaviour
         dc.transform.parent = this.transform;
         dc.transform.localScale = new Vector3(3.5f, 3.5f, 3.5f);
         var pos = gridManager.GetGamePositionAndRotationForGridPosition(key).Item1;
-        dc.transform.position = new Vector3(pos.x - 0.25f, 0.2f, pos.z + 0.25f);
+        dc.transform.position = new Vector3(pos.x - 0.25f, 0.0f, pos.z + 0.25f);
         dc.transform.LookAt(roadPosition);
         // // 1,0,0 rotate right 90
         // if (roadDir.x == 1)

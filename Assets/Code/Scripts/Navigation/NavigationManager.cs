@@ -140,7 +140,7 @@ public class NavigationManager : MonoBehaviour
     {
         List<Direction> dirs;
         GetDirectionsForRoute(route, out dirs);
-        PlaceCarAtPosition(route[0].GraphNode.Value.GetGridPosition(), dirs);
+        //PlaceCarAtPosition(route[0].GraphNode.Value.GetGridPosition(), dirs);
     }
     public void PlaceCarAtPosition(Vector3Int gridPosition, List<Direction> directions)
     {

@@ -49,7 +49,7 @@ public class GameUIManager : MonoBehaviour
     private List<GridManager> gridManagers = new List<GridManager>();
     private NavigationManager navigationManager;
     private RoadDrawer roadDrawer;
-    private PropertyManager propertyManager;
+    private List<PropertyManager> propertyManagers;
     //New common manager: PropertyManager
     //private ResidentManager residentManager;
     [SerializeField] VisualTreeAsset buildingListElementTemplate;
@@ -109,7 +109,7 @@ public class GameUIManager : MonoBehaviour
         buildModeManager = FindObjectOfType<BuildModeManager>();
         navigationManager = FindObjectOfType<NavigationManager>();
         roadDrawer = FindObjectOfType<RoadDrawer>();
-        propertyManager = FindObjectOfType<PropertyManager>();
+        propertyManagers = FindObjectsOfType<PropertyManager>().ToList();
 
         roadDrawer.RoadCreated += RoadCreated;
         
@@ -422,7 +422,7 @@ public class GameUIManager : MonoBehaviour
 
     public void AddGridManager(GridManager gridManager) {
         gridManagers.Add(gridManager);
-        propertyManager.AddGridManager(gridManager);
+        propertyManagers.ForEach(propertyManager => propertyManager.AddGridManager(gridManager));
     }
 
     public void RemoveGridManager(GridManager gridManager) {
