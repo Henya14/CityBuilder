@@ -43,7 +43,7 @@ public class BuildModeManager : MonoBehaviour
         placingPositionsWithGridPositions.Values.ToList().ForEach(v => gridPositions.AddRange(v));
         gridPositions = gridPositions.Select(p => new Vector3Int(p.x, p.y + 1, p.z)).ToList();
 
-        var selectedBuilding = CreateBuildingFromBuildingData(selectedBuildingData);
+        var (selectedBuilding, go) = CreateBuildingFromBuildingData(selectedBuildingData);
         if (selectedBuilding == null || selectedBuilding is Road) return;
         List<Vector3> placePositions = new List<Vector3>();
         Dictionary<(Vector3, Quaternion), List<Vector3Int>> updatedPlacingPositionsWithGridPositions = new Dictionary<(Vector3, Quaternion), List<Vector3Int>>();
@@ -62,7 +62,7 @@ public class BuildModeManager : MonoBehaviour
         selectedBuilding.twoWayCurvy = twoWayCurvy;
         selectedBuilding.threeWay = threeWay;
         selectedBuilding.fourWay = fourWay;
-        selectedBuilding.PlaceAtPosition(updatedPlacingPositionsWithGridPositions, neigboursForBuildingPositions, selectedObject.GetGridManager());
+        selectedBuilding.PlaceAtPosition(updatedPlacingPositionsWithGridPositions, neigboursForBuildingPositions, selectedObject.GetGridManager(), go);
         if (selectedBuilding is Building)
         {
             AddBuildingToNavigationManager(selectedBuilding, neigboursForBuildingPositions);
@@ -156,9 +156,9 @@ public class BuildModeManager : MonoBehaviour
         selectedBuildingData = buildingData;
     }
 
-    public AbstractBuildingType CreateBuildingFromBuildingData(BuildingData data, GameObject gameObject = default, string name = default, Transform parent = default)
+    public (AbstractBuildingType, GameObject) CreateBuildingFromBuildingData(BuildingData data, GameObject gameObject = default, string name = default, Transform parent = default)
     {
-        if (data == null) return null;
+        if (data == null) return (default, default);
         if (gameObject == default)
         {
             gameObject = Instantiate(data.prefab, parent);
@@ -172,15 +172,15 @@ public class BuildModeManager : MonoBehaviour
             case BuildingType.Road:
                 var createdRoad = gameObject.AddComponent<Road>();
                 createdRoad.Init(data);
-                return createdRoad;
+                return (createdRoad, gameObject);
             case BuildingType.IndividualBuilding:
                 var createdBuilding = gameObject.AddComponent<Building>();
                 createdBuilding.Init(data);
-                return createdBuilding;
+                return (createdBuilding, gameObject);
             case BuildingType.Zone:
                 var createdZone = gameObject.AddComponent<Zone>();
                 createdZone.Init(data);
-                return createdZone;
+                return (createdZone, gameObject);
             default:
                 throw new Exception("Unknown Building Type");
         }
@@ -213,7 +213,7 @@ public class BuildModeManager : MonoBehaviour
                     foreach (var tile in tiles)
                     {
                         var gridPos = new Vector3Int(x, 0, y);
-                        var obj = CreateBuildingFromBuildingData(emptyTileBuildingData, tile.gameObject, $"Tile x: {x} y: {y}");
+                        var (obj, go) = CreateBuildingFromBuildingData(emptyTileBuildingData, tile.gameObject, $"Tile x: {x} y: {y}");
 
                         obj.PlaceAtPosition(new Dictionary<(Vector3, Quaternion), List<Vector3Int>>()
                         {
@@ -235,7 +235,7 @@ public class BuildModeManager : MonoBehaviour
                 {
                     foreach (var tile in tiles)
                     {
-                        var obj = CreateBuildingFromBuildingData(emptyTileBuildingData, tile.gameObject);
+                        var (obj, go) = CreateBuildingFromBuildingData(emptyTileBuildingData, tile.gameObject);
                         obj.PlaceAtPosition(new Dictionary<(Vector3, Quaternion), List<Vector3Int>>()
                         {
                             { (tile.position, tile.rotation), new List<Vector3Int> { new Vector3Int() } },
@@ -646,7 +646,7 @@ public class BuildModeManager : MonoBehaviour
     private (AbstractBuildingType, SelectableObject) CreatePointAtPositionWithColor(Vector3 position, Color color, GameObject roadMesh, int index)
     {
 
-        var point = CreateBuildingFromBuildingData(selectedBuildingData, parent: roadMesh.transform);
+        var (point, go) = CreateBuildingFromBuildingData(selectedBuildingData, parent: roadMesh.transform);
         var gridPosition = new Vector3Int();
         point.PlaceAtPosition(new Dictionary<(Vector3, Quaternion), List<Vector3Int>>() {
             {(position, Quaternion.identity), new List<Vector3Int>{gridPosition}},

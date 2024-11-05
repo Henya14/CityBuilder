@@ -66,11 +66,13 @@ public class RoadConnection
     public string connectingRoadName;
 }
 
-public enum PointSide {
+public enum PointSide
+{
     Right,
     Left
 }
-public struct GraphNodeForRoadPoint {
+public struct GraphNodeForRoadPoint
+{
     public GraphNode<SelectableObject> graphNode;
     public PointSide pointSide;
 }
@@ -171,6 +173,7 @@ public class RoadDrawer : MonoBehaviour
     (string roadName, RoadPointData closestRoadPointData) lastRoadNameAndClosestRoadPointData = default;
     (string roadName, RoadPointData closestRoadPointData) firstRoadNameAndClosestRoadPointData = default;
     // Update is called once per frame
+    int pointIdx = 0;
     void Update()
     {
         if (isDrawingRoad)
@@ -196,6 +199,7 @@ public class RoadDrawer : MonoBehaviour
                         var tempPoint = Instantiate(point);
                         tempPoint.transform.position = rayHit.point;
                         pointInstance = tempPoint;
+                        pointInstance.name = $"Point #{pointIdx++}";
                     }
                     if ((pointInstance.transform.position - rayHit.point).magnitude > 3.0f)
                     {
@@ -206,7 +210,6 @@ public class RoadDrawer : MonoBehaviour
                         Destroy(pointInstance);
                         var tempPoint = Instantiate(point);
                         var tempPointPosition = rayHit.point;
-
                         foreach (var (roadkey, roadDatas) in roadPointDatasForRoads)
                         {
                             var closestMiddleRoadPoint = roadDatas.roadPoints.Select(roadPointData =>
@@ -289,7 +292,7 @@ public class RoadDrawer : MonoBehaviour
 
                         };
 
-                        
+
                         if (firstRoadNameAndClosestRoadPointData != default)
                         {
                             roadData.roadStartConnectionToOtherRoad = new RoadConnection()
@@ -309,7 +312,7 @@ public class RoadDrawer : MonoBehaviour
 
                             };
                         }
-                        
+
 
                         roadPointDatasForRoads[currentRoadName] = roadData;
                         StartCoroutine(FireRoadCreatedEvent(currentRoadName, roadMeshes[0], splineRoadPoints, batchesOnRight, batchesOnLeft));
@@ -387,6 +390,11 @@ public class RoadDrawer : MonoBehaviour
         firstRoadNameAndClosestRoadPointData = default;
         RemoveSplinePoints();
         RemoveRoadMeshes();
+        if (pointInstance != default)
+        {
+            Destroy(pointInstance);
+            pointInstance = default;
+        }
     }
 
 
