@@ -12,6 +12,7 @@ public class Resource : MonoBehaviour
     [SerializeField]
     private Dictionary<string, float> m_recipe; //Resource m_amount pairs
     //Producer list
+    public List<ResourceProducer> Producers = new List<ResourceProducer>();
     //Storage list
     public List<ResourceStorage> Storages = new List<ResourceStorage>();
     [SerializeField]
@@ -55,9 +56,13 @@ public class Resource : MonoBehaviour
         }
         return sum;
     }
-    public float GetRate()
+    public float GetRatePerHour()
     {
         return m_amount_per_hour;
+    }
+    public float GetRatePerMinute()
+    {
+        return m_amount_per_hour/60;
     }
     public bool AddStorage(ResourceStorage storage)
     {
@@ -71,5 +76,14 @@ public class Resource : MonoBehaviour
     public Dictionary<string, float> GetRecipe()
     {
         return m_recipe;
+    }
+    public bool AddProducer(ResourceProducer producer)
+    {
+        Producers.Add(producer);
+        return Producers.Contains(producer);
+    }
+    public bool RemoveProducer(ResourceProducer producer)
+    {
+        return Producers.Remove(producer);
     }
 }

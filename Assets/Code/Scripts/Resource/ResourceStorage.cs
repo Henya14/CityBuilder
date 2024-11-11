@@ -6,56 +6,58 @@ using UnityEngine;
 public class ResourceStorage : MonoBehaviour
 {
     private ResourceManager resourceManager;
-    public Resource Resource { get; private set; }
+    private Resource m_resource;
+    public Resource Resource { get { return m_resource; } }
     private float m_amount;
     public float StoredAmount { get { return m_amount; } }
-    public float Capacity { get; private set; }
+    private float m_capacity;
+    public float Capacity { get { return m_capacity; } }
     
 
     void Start()
     {
         m_amount = 0;
         resourceManager = FindAnyObjectByType<ResourceManager>();
-        Capacity = 20;
+        m_capacity = 20;
     }
 
     public bool AssignToResource(string resource)
     {
-        if (Resource != null)
+        if (m_resource != null)
         {
-            bool ckRemoveFalse = Resource.RemoveStorage(this);
+            bool ckRemoveFalse = m_resource.RemoveStorage(this);
             if (!ckRemoveFalse) {
-                Debug.Log($"Failed to remove storage({this.name}) from resource ({Resource.ResourceName}) ");
+                Debug.Log($"Failed to remove storage({this.name}) from resource ({m_resource.ResourceName}) ");
                 return ckRemoveFalse; 
             }
         }
 
-        Resource = resourceManager.FindResourceByName(resource);
-        if (Resource == null)
+        m_resource = resourceManager.FindResourceByName(resource);
+        if (m_resource == null)
         {
             Debug.Log($"Failed to find resource ({resource}) (for storage({this.name}))");
             return false;
         }
 
-        bool ckAddFalse = Resource.AddStorage(this);
+        bool ckAddFalse = m_resource.AddStorage(this);
         if (!ckAddFalse)
         {
-            Debug.Log($"Failed to remove storage({this.name}) from resource ({Resource.ResourceName}) ");
+            Debug.Log($"Failed to remove storage({this.name}) from resource ({m_resource.ResourceName}) ");
             return ckAddFalse;
         }
 
-        Debug.Log($"Storage({this.name}) succesfully assigned to new resource ({Resource.ResourceName})");
+        Debug.Log($"Storage({this.name}) succesfully assigned to new resource ({m_resource.ResourceName})");
         return true;
     }
 
-    public bool AddResource(int amount)
+    public bool AddResource(float amount)
     {
-        if (Resource == null)
+        if (m_resource == null)
         {
             Debug.Log($"No resource assigned to storage{this.name}");
             return false; 
         }
-        if (m_amount + amount > Capacity)
+        if (m_amount + amount > m_capacity)
         {
             return false;
         }
@@ -65,7 +67,7 @@ public class ResourceStorage : MonoBehaviour
     }
     public bool TakeResource(int amount)
     {
-        if (Resource == null)
+        if (m_resource == null)
         {
             Debug.Log($"No resource assigned to storage{this.name}");
             return false;
@@ -79,12 +81,12 @@ public class ResourceStorage : MonoBehaviour
     }
     private void OnDestroy()
     {
-        if (Resource != null)
+        if (m_resource != null)
         {
-            if (Resource.RemoveStorage(this))
-                Debug.Log($"{this.name} storage is destroyed and SUCCESSFULLY removed from {Resource.name}");
+            if (m_resource.RemoveStorage(this))
+                Debug.Log($"{this.name} storage is destroyed and SUCCESSFULLY removed from {m_resource.name}");
             else
-                Debug.Log($"{this.name} storage is destroyed but FAILED to remove from {Resource.name}");
+                Debug.Log($"{this.name} storage is destroyed but FAILED to remove from {m_resource.name}");
         }
         else
         {

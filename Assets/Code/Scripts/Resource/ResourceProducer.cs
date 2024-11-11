@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Resources;
 using UnityEngine;
 
 public class ResourceProducer : ResourceStorage
@@ -12,15 +13,19 @@ public class ResourceProducer : ResourceStorage
     public bool IsRunning {  get; private set; }
     [SerializeField]
     public bool SomethingMissing { get; private set; }
+    [SerializeField]
+    public string Reason { get; private set; }
     private Dictionary<string, float> m_forProcessing; //Resources for recipe
-    private Dictionary<string, float> m_needMore; //Resources for recipe
+    private Dictionary<string, float> m_needMore; //(missing)Resources for recipe 
+    private int m_cycleUntilReCheck;
 
 
     // Start is called before the first frame update
     void Start()
     {
+        m_cycleUntilReCheck = 0;
         //Subscribe to hour or minute change
-        if(Type!=null)
+        if (Type!=null)
             this.AssignToResource(Type);
     }
     [SerializeField]
@@ -29,19 +34,27 @@ public class ResourceProducer : ResourceStorage
         TurnedOn = !TurnedOn;
         if (TurnedOn)
         {
-            CheckRecipe();
-            if (SomethingMissing)
-            {
-                IsRunning = false;
-            }
-            else
-            {
-                IsRunning = true;
-            }
+            RunProducer();
         }
         else
         {
             IsRunning = false;
+            Reason = "Turned OFF";
+        }
+    }
+    private void RunProducer()
+    {
+        CheckRecipe();
+        if (SomethingMissing)
+        {
+            IsRunning = false;
+            Reason = "Something missing for the recipe";
+        }
+        else
+        {
+            Reason = string.Empty;
+            m_cycleUntilReCheck = 60;
+            IsRunning = true;
         }
     }
     private void CheckRecipe()
@@ -105,6 +118,65 @@ public class ResourceProducer : ResourceStorage
                 m_needMore.Remove(res);
             }
         }
+    }
+    public new bool AssignToResource(string resource)
+    {
+        Resource originalResource = Resource;
+        bool re = base.AssignToResource(resource);
+        if(re)
+        {
+            if (originalResource != null)
+            {
+                bool ckRemoveFalse = originalResource.RemoveProducer(this);
+                if (!ckRemoveFalse)
+                {
+                    Debug.Log($"Failed to remove producer({this.name}) from resource ({originalResource.ResourceName}) ");
+                    base.AssignToResource(originalResource.ResourceName);
+                    return ckRemoveFalse;
+                }
+            }
+
+            bool ckAddFalse = Resource.AddProducer(this);
+            if (!ckAddFalse)
+            {
+                Debug.Log($"Failed to remove producer({this.name}) from resource ({originalResource.ResourceName}) ");
+                base.AssignToResource(originalResource.ResourceName);
+                return ckAddFalse;
+            }
+
+            Debug.Log($"Producer({this.name}) succesfully assigned to new resource ({Resource.ResourceName})");
+            return true;
+        }
+        else
+        {
+            Debug.Log($"Failed to remove producer({this.name}) STORAGE from resource ({originalResource.ResourceName}) ");
+        }
+        return false;
+    }
+    public void Produce()
+    {
+        if(Resource != null && IsRunning)
+        {
+            if (m_cycleUntilReCheck > 0)
+            {
+                float rate = Resource.GetRatePerMinute();
+                bool isFull = base.AddResource(rate);
+                if (isFull)
+                {
+                    IsRunning = false;
+                    Reason = "Storage full";
+                }
+                else
+                {
+                    m_cycleUntilReCheck--;
+                }
+            }
+            else
+            {
+                RunProducer();
+            }
+        }
+
     }
 
 }
