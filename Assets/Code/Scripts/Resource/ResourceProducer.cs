@@ -4,8 +4,13 @@ using UnityEngine;
 
 public class ResourceProducer : ResourceStorage
 {
+    [SerializeField]
+    public string Type;
+    [SerializeField]
     public bool TurnedOn {  get; private set; }
+    [SerializeField]
     public bool IsRunning {  get; private set; }
+    [SerializeField]
     public bool SomethingMissing { get; private set; }
     private Dictionary<string, float> m_forProcessing; //Resources for recipe
     private Dictionary<string, float> m_needMore; //Resources for recipe
@@ -15,8 +20,10 @@ public class ResourceProducer : ResourceStorage
     void Start()
     {
         //Subscribe to hour or minute change
-        
+        if(Type!=null)
+            this.AssignToResource(Type);
     }
+    [SerializeField]
     public void Switch()
     {
         TurnedOn = !TurnedOn;
