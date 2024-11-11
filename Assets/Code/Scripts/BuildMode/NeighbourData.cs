@@ -11,7 +11,7 @@ public class NeighbourData
 
     public NeighbourData(Dictionary<Vector3Int, AbstractBuildingType> neighboursForGridPositions)
     {
-        this.NeighboursForGridPositions = neighboursForGridPositions;
+        NeighboursForGridPositions = neighboursForGridPositions;
     }
 
     public void SetNeighbour(Vector3Int gridPosition, AbstractBuildingType neighbour)

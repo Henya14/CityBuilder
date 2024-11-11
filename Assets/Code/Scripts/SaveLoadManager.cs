@@ -68,7 +68,7 @@ public class SaveLoadManager : MonoBehaviour
                 PositionY = VandB.Key.y,
                 PositionZ = VandB.Key.z
             };
-            data.ConvertTile(VandB.Value);
+            data.ConvertTile(VandB.Value.GetComponent<Tile>());
             tilesToSaveOrLoad.list.Add(data);
         }
         string tileJson = JsonUtility.ToJson(tilesToSaveOrLoad);
@@ -148,7 +148,7 @@ public class SaveLoadManager : MonoBehaviour
         string buildingJson = File.ReadAllText(saveFileName + "Buildings.json");
         buildingsToSaveOrLoad = JsonUtility.FromJson<SerializableList<BuildingSaveData>>(buildingJson);
 
-        buildModeManager.LoadBuildings(buildingsToSaveOrLoad.list);
+        //buildModeManager.LoadBuildings(buildingsToSaveOrLoad.list);
     }
 
 
@@ -189,7 +189,7 @@ public class SaveLoadManager : MonoBehaviour
 
         foreach (var manager in FindObjectsOfType<PropertyManager>())
         {
-            manager.loadProperties(propertyToSaveOrLoad.list);
+            //manager.loadProperties(propertyToSaveOrLoad.list);
         }
 
     }

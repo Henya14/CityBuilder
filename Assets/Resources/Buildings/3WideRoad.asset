@@ -18,7 +18,7 @@ MonoBehaviour:
   price: 100
   size: {x: 3, y: 1}
   isAvailable: 1
-  prefab: {fileID: 6515529762217398849, guid: 2a298a835cb3bfd45b424ec51f625c33, type: 3}
+  prefab: {fileID: 8964427670939829494, guid: defa4935887e3bc469e8cf79e52fb69e, type: 3}
   buildingPicture: {fileID: 0}
   scales: {x: 0, y: 0, z: 0}
   buyableBuilding: 0

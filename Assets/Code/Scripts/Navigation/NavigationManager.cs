@@ -16,6 +16,7 @@ public class NavigationManager : MonoBehaviour
     BuildingAdjacencyGraph adjacencyGraph = new BuildingAdjacencyGraph();
     List<SelectableObject> selectedObjects = new List<SelectableObject>();
     GridManager gridManager;
+    SelectableObject selectableObject;
     // Start is called before the first frame update
     void Start()
     {
@@ -25,7 +26,48 @@ public class NavigationManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetMouseButtonDown(0))
+        {
 
+            if (selectedObjects.Count >= 2)
+            {
+                DeselectObjects();
+            }
+            if (adjacencyGraph.GetGraphNodeForSelectableObject(selectableObject) != null)
+            {
+                selectedObjects.Add(selectableObject);
+                selectableObject.ToggleHighlight(true);
+                selectableObject.FreezeHighlight(true);
+                if (selectedObjects.Count == 2)
+                {
+                    var start = adjacencyGraph.GetGraphNodeForSelectableObject(selectedObjects[0]);
+                    var destination = adjacencyGraph.GetGraphNodeForSelectableObject(selectedObjects[1]);
+                    List<GraphSearchNode<SelectableObject>> route;
+                    FindShortestPathBeetweenTwoPoints(start, destination, out route);
+                    route?.ForEach(r =>
+                    {
+                        r.GraphNode.Value.FreezeHighlight(false);
+                        r.GraphNode.Value.ToggleHighlight(true);
+                        r.GraphNode.Value.FreezeHighlight(true);
+                        selectedObjects.Add(r.GraphNode.Value);
+                    });
+                    if (route != null)
+                    {
+                        List<GraphNode<SelectableObject>> nodes;
+                        List<Direction> dirs;
+                        GetNodesForRoute(route, out nodes);
+                        GetDirectionsForNodes(nodes, out dirs);
+                        //PlaceCarAtPosition(nodes[0].Value.GetRelativeClosestGridPosition(nodes[1].Value.GetGridPosition()), dirs);
+                        Debug.Log(string.Join(",", dirs.Select(d => d.ToString())));
+
+                    }
+
+
+                }
+
+            }
+
+        }
     }
 
     public void ObjectSelected(SelectableObject selectedObject)
@@ -34,55 +76,21 @@ public class NavigationManager : MonoBehaviour
         {
             return;
         }
-        if (selectedObjects.Count >= 2)
-        {
-            DeselectObjects();
-        }
-        if (adjacencyGraph.GetGraphNodeAtGridPosition(selectedObject.GetGridPosition()) != null)
-        {
-            selectedObjects.Add(selectedObject);
-            selectedObject.ToggleHighlight(true);
-            selectedObject.FreezeHighlight(true);
-            if (selectedObjects.Count == 2)
-            {
-                var start = adjacencyGraph.GetGraphNodeForSelectableObject(selectedObjects[0]);
-                var destination = adjacencyGraph.GetGraphNodeForSelectableObject(selectedObjects[1]);
-                List<GraphSearchNode<SelectableObject>> route;
-                FindShortestPathBeetweenTwoPoints(start, destination, out route);
-                route?.ForEach(r =>
-                {
-                    r.GraphNode.Value.FreezeHighlight(false);
-                    r.GraphNode.Value.ToggleHighlight(true);
-                    r.GraphNode.Value.FreezeHighlight(true);
-                    selectedObjects.Add(r.GraphNode.Value);
-                });
-                if (route != null)
-                {
-                    List<GraphNode<SelectableObject>> nodes;
-                    List<Direction> dirs;
-                    GetNodesForRoute(route, out nodes);
-                    GetDirectionsForNodes(nodes, out dirs);
-                    PlaceCarAtPosition(nodes[0].Value.GetRelativeClosestGridPosition(nodes[1].Value.GetGridPosition()), dirs);
-                    Debug.Log(string.Join(",", dirs.Select(d => d.ToString())));
+        selectableObject = selectedObject;
 
-                }
-
-
-            }
-
-        }
     }
 
 
 
-     private void GetDirectionsForRoute(List<GraphSearchNode<SelectableObject>> route, out List<Direction> dirs)  {
-            List<GraphNode<SelectableObject>> nodes;
-            GetNodesForRoute(route, out nodes);
-            GetDirectionsForNodes(nodes, out dirs);
-     }
-    private void GetDirectionsForNodes(List<GraphNode<SelectableObject>> nodes, out List<Direction> dirs) 
+    private void GetDirectionsForRoute(List<GraphSearchNode<SelectableObject>> route, out List<Direction> dirs)
     {
-       
+        List<GraphNode<SelectableObject>> nodes;
+        GetNodesForRoute(route, out nodes);
+        GetDirectionsForNodes(nodes, out dirs);
+    }
+    private void GetDirectionsForNodes(List<GraphNode<SelectableObject>> nodes, out List<Direction> dirs)
+    {
+
         dirs = new List<Direction>();
         for (int i = 0; i < nodes.Count - 1; i++)
         {
@@ -110,7 +118,7 @@ public class NavigationManager : MonoBehaviour
             dirs.Add(direction);
         }
     }
-    private void GetNodesForRoute( List<GraphSearchNode<SelectableObject>> route, out List<GraphNode<SelectableObject>> nodes)
+    private void GetNodesForRoute(List<GraphSearchNode<SelectableObject>> route, out List<GraphNode<SelectableObject>> nodes)
     {
         nodes = new List<GraphNode<SelectableObject>>();
         nodes.AddRange(route?.Select(r => r.GraphNode));
@@ -128,18 +136,19 @@ public class NavigationManager : MonoBehaviour
         start,
         destination);
     }
-    public void StartCarOnRoute(List<GraphSearchNode<SelectableObject>> route) {
+    public void StartCarOnRoute(List<GraphSearchNode<SelectableObject>> route)
+    {
         List<Direction> dirs;
         GetDirectionsForRoute(route, out dirs);
-        PlaceCarAtPosition(route[0].GraphNode.Value.GetGridPosition(), dirs);
+        //PlaceCarAtPosition(route[0].GraphNode.Value.GetGridPosition(), dirs);
     }
     public void PlaceCarAtPosition(Vector3Int gridPosition, List<Direction> directions)
     {
         var car = Instantiate(carPrefab);
-        
+
 
         var carGamePosition = gridManager.GetSelectionCenter(new List<Vector3Int> { gridPosition });
-        carGamePosition.y = gridManager.GetGamePositionForGridPosition(new Vector3Int(0, 1, 0)).y;
+        carGamePosition.y = gridManager.GetGamePositionAndRotationForGridPosition(new Vector3Int(0, 1, 0)).Item1.y;
         car.transform.position = carGamePosition;
         car.GetComponent<CarNavigation>().CurrentGridPosition = gridPosition;
         car.GetComponent<CarNavigation>().SetDirections(directions);
@@ -161,12 +170,12 @@ public class NavigationManager : MonoBehaviour
         adjacencyGraph.AddBuilding(building, weights);
     }
 
-    public List<GraphNode<SelectableObject>> WhereBuildings(Func<GraphNode<SelectableObject>, bool> predicate) 
+    public List<GraphNode<SelectableObject>> WhereBuildings(Func<GraphNode<SelectableObject>, bool> predicate)
     {
         return adjacencyGraph.WhereGraphNodes(predicate).GraphNodes;
     }
 
-    public GraphNode<SelectableObject> GetGraphNodeForSelectableObject(SelectableObject objectToSearch) 
+    public GraphNode<SelectableObject> GetGraphNodeForSelectableObject(SelectableObject objectToSearch)
     {
         return adjacencyGraph.GetGraphNodeForSelectableObject(objectToSearch);
     }

@@ -7,6 +7,7 @@ public class GraphNode<T>
 {
 
     public T Value { get; set; }
+    
     public List<GraphConnection<GraphNode<T>>> Connections { get; set; } = new List<GraphConnection<GraphNode<T>>>();
 
     public void AddConnection(GraphConnection<GraphNode<T>> connection)
@@ -16,13 +17,14 @@ public class GraphNode<T>
 
     public void AddConnection(GraphNode<T> destination, int weight)
     {
-        var connection = new GraphConnection<GraphNode<T>>
+        var connectionFromNode = new GraphConnection<GraphNode<T>>
         {
             Source = this,
             Destination = destination,
             Weight = weight
         };
-        Connections.Add(connection);
+        destination.AddConnection(connectionFromNode);
+        Connections.Add(connectionFromNode);
     }
 
     public void RemoveConnection(GraphConnection<GraphNode<T>> connection)
@@ -38,6 +40,9 @@ public class GraphNode<T>
     public List<GraphConnection<GraphNode<T>>> WhereConnections(Func<GraphConnection<GraphNode<T>>, bool> predicate)
     {
         return Connections.Where(predicate).ToList();
+    }
+    public List<GraphConnection<GraphNode<T>>> GetOutGoingConnections() {
+        return WhereConnections(connection => connection.Source == this);
     }
 }
 

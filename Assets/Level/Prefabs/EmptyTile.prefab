@@ -489,4 +489,4 @@ MonoBehaviour:
   renderers:
   - {fileID: 1686951919737679051}
   highlightColor: {r: 1, g: 1, b: 1, a: 1}
-  isHighlighted: 1
+  isHighlighted: 0

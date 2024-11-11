@@ -18,10 +18,13 @@ public interface SelectableObject {
     void SetGridPositions(List<Vector3Int> gridPositions);
     void ToggleHighlight(bool on);
     void FreezeHighlight(bool shouldFreeze);
+    public void SetHighlightColor(Color color);
     GameObject GetGameObject();
     string GetDescription();
     void SetDescription(string description);
     SelectableObjectType GetSelectableObjectType();
+    void SetGridManager(GridManager gridManager);
+    GridManager GetGridManager();
 }
 
 public class SelectionManager : MonoBehaviour, SelectableObject
@@ -29,16 +32,27 @@ public class SelectionManager : MonoBehaviour, SelectableObject
     Vector3Int? gridPosition = null;
     List<Vector3Int> gridPositions = new List<Vector3Int>();
     private string Description {get; set;} = "";
+    GridManager gridManager = default;
 
     
     SelectableObjectType type;
 
-    public void Init(Vector3Int gridPosition, string description, SelectableObjectType type) 
+    public void Init(Vector3Int gridPosition, string description, SelectableObjectType type, GridManager gridManager = default) 
     {
         this.gridPosition = gridPosition;
         Description = description;
         this.type = type;
+        this.gridManager = gridManager;
     }
+
+    public void SetGridManager(GridManager gridManager) {
+        this.gridManager = gridManager;
+    } 
+
+    public GridManager GetGridManager() {
+        return gridManager;
+    } 
+
 
 
     public Vector3Int GetGridPosition()
@@ -74,7 +88,13 @@ public class SelectionManager : MonoBehaviour, SelectableObject
  
     private Highlight GetHighlight()
     {
-       return gameObject.GetComponent<Highlight>();
+       Highlight highlight = gameObject.GetComponent<Highlight>() ?? gameObject.GetComponentInChildren<Highlight>();
+       return highlight;
+    }
+
+    public void SetHighlightColor(Color color)
+    {
+       gameObject.GetComponent<Highlight>().SetHighlightColor(color);
     }
 
     public void ToggleHighlight(bool on)
@@ -92,14 +112,16 @@ public class SelectionManager : MonoBehaviour, SelectableObject
     }
     void OnMouseEnter()
     {
-        var manager = FindObjectOfType<GridManager>();   
-        manager.ObjectSelectedAtPosition(GetGridPosition());
+        GetGridManager()?.ObjectSelectedAtPosition(GetGridPosition());
+
+        var manager = FindObjectOfType<GameUIManager>();   
+        manager.ObjectSelected(this, null);
+    
     }
 
     void OnMouseExit()
     {
-        var manager = FindObjectOfType<GridManager>();   
-        manager.ObjectDeselectedAtPosition(GetGridPosition());
+        GetGridManager()?.ObjectDeselectedAtPosition(GetGridPosition());
     }
     // Start is called before the first frame update
     void Start()
