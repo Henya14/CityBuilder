@@ -145,7 +145,7 @@ public class ResourceProducer : ResourceStorage
     }
     public new bool AssignToResource(string resource)
     {
-        Resource originalResource = Resource;
+        Resource originalResource = base.Resource;
         bool re = base.AssignToResource(resource);
         if(re)
         {

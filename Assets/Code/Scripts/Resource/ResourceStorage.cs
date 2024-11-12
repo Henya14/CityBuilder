@@ -33,10 +33,12 @@ public class ResourceStorage : MonoBehaviour
                 return ckRemoveFalse; 
             }
         }
+
         if(resourceManager == null) { 
             Debug.Log("Null Managaer, research for manager");
             resourceManager = FindObjectOfType<ResourceManager>();
         }
+
         m_resource = resourceManager.FindResourceByName(resource);
         if (m_resource == null)
         {
@@ -52,6 +54,7 @@ public class ResourceStorage : MonoBehaviour
         }
 
         Debug.Log($"Storage({this.name}) succesfully assigned to new resource ({m_resource.ResourceName})");
+        m_amount = 0.0F;
         return true;
     }
 
