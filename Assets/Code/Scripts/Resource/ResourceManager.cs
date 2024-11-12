@@ -26,6 +26,7 @@ public class ResourceManager : MonoBehaviour
         {
             if (res.ResourceName == name) return res;
         }
+        Debug.LogError(name + " Resource not found by " + this.name);
         return null;
     }
 }

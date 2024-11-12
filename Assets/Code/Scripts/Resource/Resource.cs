@@ -4,19 +4,30 @@ using UnityEngine;
 
 public class Resource : MonoBehaviour
 {
-    [SerializeField]
+
+    [SerializeField] //To see in inspector
+    public static float epsilon = 0.001F;
+
+    [SerializeField] //To see in inspector
     private string m_resname ;
     public string ResourceName {  get { return m_resname; } }
-    [SerializeField]
+
+    [SerializeField] //To see in inspector
     private float m_amount_per_hour;
-    [SerializeField]
+
+    [SerializeField] //To see in inspector
     private Dictionary<string, float> m_recipe; //Resource m_amount pairs
-    //Producer list
-    public List<ResourceProducer> Producers = new List<ResourceProducer>();
-    //Storage list
-    public List<ResourceStorage> Storages = new List<ResourceStorage>();
-    [SerializeField]
+
+    [SerializeField] //To see in inspector
+    private List<ResourceProducer> Producers = new List<ResourceProducer>();
+
+    [SerializeField] //To see in inspector
+    private List<ResourceStorage> Storages = new List<ResourceStorage>();
+
+    [SerializeField] //To see in inspector
     private string m_description;
+
+    [SerializeField] public bool log = false;
     /*
     [SerializeField]
     private string iconPath;
@@ -43,9 +54,13 @@ public class Resource : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        TimeManager.OnMinuteChanged += LogAmount;
     }
-    
+    public void LogAmount()
+    {
+        if(log == true)
+            Debug.Log(GetAmount());
+    }
     
     public float GetAmount()
     {
@@ -85,5 +100,14 @@ public class Resource : MonoBehaviour
     public bool RemoveProducer(ResourceProducer producer)
     {
         return Producers.Remove(producer);
+    }
+    public static bool EpsilonCheck(float a, float b)
+    {
+        float diff= a-b;
+        if (diff > -epsilon && diff < epsilon) 
+        {
+            return true;
+        }
+        return false;
     }
 }

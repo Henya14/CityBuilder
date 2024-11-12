@@ -5,27 +5,51 @@ using UnityEngine;
 
 public class ResourceProducer : ResourceStorage
 {
-    [SerializeField]
-    public string Type;
-    [SerializeField]
-    public bool TurnedOn {  get; private set; }
-    [SerializeField]
-    public bool IsRunning {  get; private set; }
-    [SerializeField]
-    public bool SomethingMissing { get; private set; }
-    [SerializeField]
-    public string Reason { get; private set; }
+    [SerializeField] public string Type;
+
+    [SerializeField] //To see in inspector
+    private bool m_turnedOn;
+    public bool TurnedOn { get { return m_turnedOn; } private set { m_turnedOn = value; } }
+
+    [SerializeField] //To see in inspector
+    private bool m_isRunning;
+    public bool IsRunning { get { return m_isRunning; } private set { m_isRunning = value; } }
+
+    [SerializeField] //To see in inspector
+    private bool m_somethingMissing;
+    public bool SomethingMissing { get { return m_somethingMissing; } private set { m_somethingMissing = value; } }
+
+    [SerializeField] //To see in inspector
+    private string m_reason;
+    public string Reason { get { return m_reason; } private set { m_reason = value; } }
+
+    [SerializeField] //To see in inspector
     private Dictionary<string, float> m_forProcessing; //Resources for recipe
+
+    [SerializeField] //To see in inspector
     private Dictionary<string, float> m_needMore; //(missing)Resources for recipe 
+
+    [SerializeField] //To see in inspector
     private int m_cycleUntilReCheck;
 
 
     // Start is called before the first frame update
     void Start()
     {
+        TurnedOn = false;
         m_cycleUntilReCheck = 0;
-        //Subscribe to hour or minute change
+        m_forProcessing = new Dictionary<string, float>();
+        m_needMore = new Dictionary<string, float>();
         if (Type!=null)
+            this.AssignToResource(Type);
+        //Subscribe to hour or minute change
+        TimeManager.OnMinuteChanged += this.Produce;
+        Switch();
+
+    }
+    private void Update()
+    {
+        if (Type != null && Resource == null)
             this.AssignToResource(Type);
     }
     [SerializeField]
@@ -94,7 +118,7 @@ public class ResourceProducer : ResourceStorage
     }
 
 
-    public void addResource(KeyValuePair<string, float> item)
+    public void AddResourceForProcess(KeyValuePair<string, float> item)
     {
         float amount = item.Value;
         string res = item.Key;
@@ -155,12 +179,16 @@ public class ResourceProducer : ResourceStorage
     }
     public void Produce()
     {
+        if(!TurnedOn)
+        {
+            return;
+        }
         if(Resource != null && IsRunning)
         {
             if (m_cycleUntilReCheck > 0)
             {
                 float rate = Resource.GetRatePerMinute();
-                bool isFull = base.AddResource(rate);
+                bool isFull = !base.AddResource(rate); //If Add not successfull that means it full
                 if (isFull)
                 {
                     IsRunning = false;

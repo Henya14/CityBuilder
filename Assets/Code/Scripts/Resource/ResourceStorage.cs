@@ -6,20 +6,22 @@ using UnityEngine;
 public class ResourceStorage : MonoBehaviour
 {
     private ResourceManager resourceManager;
+    [SerializeField] //To see in inspector
     private Resource m_resource;
     public Resource Resource { get { return m_resource; } }
-    private float m_amount;
+    [SerializeField] //To see in inspector
+    private float m_amount=0.0F;
     public float StoredAmount { get { return m_amount; } }
-    private float m_capacity;
+    [SerializeField] //To see in inspector
+    private float m_capacity = 20.0F;
     public float Capacity { get { return m_capacity; } }
     
 
     void Start()
     {
-        m_amount = 0;
-        resourceManager = FindAnyObjectByType<ResourceManager>();
-        m_capacity = 20;
+        resourceManager = FindObjectOfType<ResourceManager>();
     }
+    
 
     public bool AssignToResource(string resource)
     {
@@ -31,7 +33,10 @@ public class ResourceStorage : MonoBehaviour
                 return ckRemoveFalse; 
             }
         }
-
+        if(resourceManager == null) { 
+            Debug.Log("Null Managaer, research for manager");
+            resourceManager = FindObjectOfType<ResourceManager>();
+        }
         m_resource = resourceManager.FindResourceByName(resource);
         if (m_resource == null)
         {
@@ -57,6 +62,13 @@ public class ResourceStorage : MonoBehaviour
             Debug.Log($"No resource assigned to storage{this.name}");
             return false; 
         }
+
+        if (Resource.EpsilonCheck(m_amount + amount, m_capacity))
+        {
+            m_amount = m_capacity;
+            return true;
+        }
+
         if (m_amount + amount > m_capacity)
         {
             return false;
@@ -65,18 +77,20 @@ public class ResourceStorage : MonoBehaviour
         return true;
         
     }
-    public bool TakeResource(int amount)
+    public bool TakeResource(float amount)
     {
         if (m_resource == null)
         {
             Debug.Log($"No resource assigned to storage{this.name}");
             return false;
         }
-        if (m_amount - amount < 0)
+        if ( (m_amount + Resource.epsilon) < amount ) //If there isn't enough in storage return false
         {
             return false;
         }
+
         m_amount -= amount;
+        if(m_amount < 0) m_amount = 0.0F;
         return true;
     }
     private void OnDestroy()
