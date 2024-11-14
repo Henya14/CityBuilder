@@ -41,7 +41,7 @@ public class ResourceProducer : ResourceStorage
         m_cycleUntilReCheck = 0;
         m_forProcessing = new Dictionary<string, float>();
         m_needMore = new Dictionary<string, float>();
-        if (Type!=null)
+        if (!string.IsNullOrEmpty(Type))
             this.AssignToResource(Type);
         //Subscribe to hour or minute change
         TimeManager.OnMinuteChanged += this.Produce;
@@ -172,6 +172,7 @@ public class ResourceProducer : ResourceStorage
     }
     public new bool AssignToResource(string resource)
     {
+        if(string.IsNullOrEmpty(resource)) { return false; }
         if(resource == Type) { return true; } //Don't need to reassign for the same type
         TurnOff();
         Resource originalResource = base.Resource;

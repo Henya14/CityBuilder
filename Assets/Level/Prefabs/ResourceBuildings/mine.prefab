@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 2306457628114845847}
   - component: {fileID: 1768495407713922608}
   - component: {fileID: 3235414563174142611}
+  - component: {fileID: 7315897827592005060}
   m_Layer: 0
   m_Name: mine
   m_TagString: Untagged
@@ -149,3 +150,24 @@ MonoBehaviour:
   - {fileID: 121772239651376110}
   highlightColor: {r: 1, g: 1, b: 1, a: 1}
   isHighlighted: 0
+--- !u!65 &7315897827592005060
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6955360413364821175}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 3.8499367, y: 1.6684017, z: 1.7543222}
+  m_Center: {x: -0.98400533, y: 0.8240346, z: -0.0030789978}
