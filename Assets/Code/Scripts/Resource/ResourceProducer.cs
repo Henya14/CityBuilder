@@ -1,11 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Resources;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class ResourceProducer : ResourceStorage
 {
-    [SerializeField] public string Type;
+    [SerializeField] public string Type = null;
 
     [SerializeField] //To see in inspector
     private bool m_turnedOn;
@@ -36,7 +37,7 @@ public class ResourceProducer : ResourceStorage
     // Start is called before the first frame update
     void Start()
     {
-        TurnedOn = false;
+        TurnOff();
         m_cycleUntilReCheck = 0;
         m_forProcessing = new Dictionary<string, float>();
         m_needMore = new Dictionary<string, float>();
@@ -49,22 +50,48 @@ public class ResourceProducer : ResourceStorage
     }
     private void Update()
     {
-        if (Type != null && Resource == null)
+        /*if (Type != null && Resource == null)
             this.AssignToResource(Type);
+        */
     }
     [SerializeField]
     public void Switch()
     {
-        TurnedOn = !TurnedOn;
         if (TurnedOn)
         {
-            RunProducer();
+           TurnOff();
         }
         else
         {
-            IsRunning = false;
-            Reason = "Turned OFF";
+            TurnOn();
         }
+    }
+    public void TurnOn()
+    {
+        if(base.Resource != null)
+        {
+            TurnedOn = true;
+            RunProducer();
+            return;
+        }
+        else if (AssignToCurrentType())
+        {
+            TurnedOn = true;
+            RunProducer();
+            return;
+        }
+
+        Reason = "Can't find resource";
+    }
+    public void TurnOff()
+    {
+        TurnedOn = false;
+        IsRunning = false;
+        Reason = "Turned OFF";
+    }
+    public bool AssignToCurrentType()
+    {
+        return this.AssignToResource(Type);
     }
     private void RunProducer()
     {
@@ -145,6 +172,8 @@ public class ResourceProducer : ResourceStorage
     }
     public new bool AssignToResource(string resource)
     {
+        if(resource == Type) { return true; } //Don't need to reassign for the same type
+        TurnOff();
         Resource originalResource = base.Resource;
         bool re = base.AssignToResource(resource);
         if(re)
@@ -154,8 +183,9 @@ public class ResourceProducer : ResourceStorage
                 bool ckRemoveFalse = originalResource.RemoveProducer(this);
                 if (!ckRemoveFalse)
                 {
-                    Debug.Log($"Failed to remove producer({this.name}) from resource ({originalResource.ResourceName}) ");
+                    Debug.Log($"Failed to remove producer({this.gameObject.name}) from resource ({originalResource.ResourceName}) ");
                     base.AssignToResource(originalResource.ResourceName);
+                    
                     return ckRemoveFalse;
                 }
             }
@@ -163,17 +193,25 @@ public class ResourceProducer : ResourceStorage
             bool ckAddFalse = Resource.AddProducer(this);
             if (!ckAddFalse)
             {
-                Debug.Log($"Failed to remove producer({this.name}) from resource ({originalResource.ResourceName}) ");
+                Debug.Log($"Failed to remove producer({this.gameObject.name}) from resource ({originalResource.ResourceName}) ");
                 base.AssignToResource(originalResource.ResourceName);
                 return ckAddFalse;
             }
 
-            Debug.Log($"Producer({this.name}) succesfully assigned to new resource ({Resource.ResourceName})");
+            Debug.Log($"Producer({this.gameObject.name}) succesfully assigned to new resource ({Resource.ResourceName})");
             return true;
         }
         else
         {
-            Debug.Log($"Failed to remove producer({this.name}) STORAGE from resource ({originalResource.ResourceName}) ");
+            if(originalResource == null)
+            {
+                Debug.Log($"Failed to assign producer({this.gameObject.name}) STORAGE for first time.");
+            }
+            else
+            {
+                Debug.Log($"Failed to remove producer({this.gameObject.name}) STORAGE from resource ({originalResource.ResourceName}) ");
+            }
+            //Debug.Log($"Failed to remove producer({this.name}) STORAGE from resource ({originalResource.ResourceName}) ");
         }
         return false;
     }

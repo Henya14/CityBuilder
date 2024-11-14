@@ -23,7 +23,7 @@
             }
         },
         {
-            "Type": "Wood",
+            "Type": "Clay",
             "Rearity": 0.085,
             "GatheredAmountPerHour": 3.0,
             "Color": {

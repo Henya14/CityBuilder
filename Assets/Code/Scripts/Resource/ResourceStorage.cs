@@ -7,7 +7,7 @@ public class ResourceStorage : MonoBehaviour
 {
     private ResourceManager resourceManager;
     [SerializeField] //To see in inspector
-    private Resource m_resource;
+    private Resource m_resource = null;
     public Resource Resource { get { return m_resource; } }
     [SerializeField] //To see in inspector
     private float m_amount=0.0F;
