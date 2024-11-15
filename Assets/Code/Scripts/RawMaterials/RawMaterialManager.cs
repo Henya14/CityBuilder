@@ -52,13 +52,14 @@ public class RawMaterialManager : MonoBehaviour
         if(!rawMaterialPlaces.ContainsKey(rect))
         {
             rawMaterialPlaces.Add(rect,type);
-
+            /*
             var sp1 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             var sp2 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             sp1.transform.position = (new Vector3(rect.xMin,0,rect.yMin));
             sp2.transform.position = (new Vector3(rect.xMax, 0, rect.yMax));
             sp1.name = "TopRes";
             sp2.name = "BottomRes";
+            */
         }
     }
     public bool IsOnRawMaterial(Rect rect)
@@ -66,7 +67,7 @@ public class RawMaterialManager : MonoBehaviour
         bool overlaps=false;
         foreach(var raw in rawMaterialPlaces.Keys)
         {
-            if(raw.Overlaps(rect)){
+            if(raw.Overlaps(rect, true)){
                 overlaps = true;
                 break;
             }

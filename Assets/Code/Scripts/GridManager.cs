@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.EventSystems;
 using Unity.VisualScripting;
+using static UnityEditor.PlayerSettings;
 
 public enum SelectionMode
 {
@@ -237,7 +238,7 @@ public class GridManager : MonoBehaviour
                 {
                     isValid = false;
                 }
-                if(isResourceMine)
+                if(isResourceMine && !onRawMaterial)
                 {
                     //If one of the tiles on rawmaterials the mine can be placed
                     Tile tile;
@@ -245,15 +246,40 @@ public class GridManager : MonoBehaviour
                         Debug.LogError("Tile not found");
                     else
                     {
-                        Vector3 topLeft, bottomRight;
-                        GetTileCorners(tile, out topLeft, out bottomRight);
+                        List<Vector3> corners;
+                        GetTileCorners(tile, out corners);
                         Rect placeRect = new()
                         {
-                            min = new Vector2(topLeft.x, topLeft.z),
-                            max = new Vector2(bottomRight.x, bottomRight.z)
+                            xMin = corners[0].x,
+                            yMin = corners[0].z,
+                            xMax = corners[0].x,
+                            yMax = corners[0].z
                         };
-                        if (rawMaterialManager.IsOnRawMaterial(placeRect))
+                        foreach (var corner in corners)
+                        {
+                            if (placeRect.xMin < corner.x) { placeRect.xMin = corner.x; }
+                            if (placeRect.xMax > corner.x) { placeRect.xMax = corner.x; }
+                            if (placeRect.yMin > corner.z) { placeRect.yMin = corner.z; }
+                            if (placeRect.yMax < corner.z) { placeRect.yMax = corner.z; }
+                        }
+                        if (rawMaterialManager.IsOnRawMaterial(placeRect)){
                             onRawMaterial = true;
+                            //Debug Cpasules
+                            /*
+                            var ca1 = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                            var ca2 = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                            var ca3 = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                            var ca4 = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                            ca1.transform.position = (corners[0]);
+                            ca2.transform.position = (corners[1]);
+                            ca3.transform.position = (corners[2]);
+                            ca4.transform.position = (corners[3]);
+                            ca1.name = "TopLOn";
+                            ca2.name = "TopROn";
+                            ca3.name = "BottomLOn";
+                            ca4.name = "BottomROn";
+                            */
+                        }
                     }
 
 
@@ -269,27 +295,39 @@ public class GridManager : MonoBehaviour
         }
         return isValid;
     }
-    private void GetTileCorners(Tile tile, out Vector3 topLeft, out Vector3 bottomRight)
+    /**
+     * Corners: topLeft, topRight, bottomLeft, bottomRight
+     */
+    private void GetTileCorners(Tile tile, out List<Vector3> corners)
     {
+        Vector3 topLeft, topRight, bottomLeft, bottomRight;
         GameObject gameObject = tile.gameObject;
         Quaternion orirot;
-        Vector3 minPos, maxPos, oripos, oriscale, rot;
+        Vector3 oripos, oriscale, sca;
         oriscale = gameObject.transform.localScale;
         gameObject.transform.GetPositionAndRotation(out oripos, out orirot);
-        rot = new Vector3(oriscale.x / 2, 0, oriscale.z / 2);
-        minPos = new Vector3(oripos.x, oripos.y, oripos.z);
-        minPos = minPos - orirot * rot;
-        maxPos = new Vector3(oripos.x, oripos.y, oripos.z);
-        maxPos = maxPos + orirot * rot;
-        topLeft = minPos;
-        bottomRight =maxPos;
+        sca = new Vector3(oriscale.x / 2, 0, oriscale.z / 2);
+
+        topLeft = oripos + orirot.normalized * new Vector3(-oriscale.x / 2, 0, -oriscale.z / 2);
+        topRight = oripos + orirot.normalized * new Vector3(oriscale.x / 2, 0, -oriscale.z / 2);
+        bottomLeft = oripos + orirot.normalized * new Vector3(-oriscale.x / 2, 0, oriscale.z / 2); 
+        bottomRight = oripos + orirot.normalized * new Vector3(oriscale.x / 2, 0, oriscale.z / 2);
+        corners = new List<Vector3> { topLeft, topRight, bottomLeft, bottomRight };
         //Debug Cubes
+        /*
         var cu1 = GameObject.CreatePrimitive(PrimitiveType.Cube);
         var cu2 = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        cu1.transform.position = (minPos);
-        cu2.transform.position = (maxPos);
+        var cu3 = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        var cu4 = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cu1.transform.position = (topLeft);
+        cu2.transform.position = (topRight);
+        cu3.transform.position = (bottomLeft);
+        cu4.transform.position = (bottomRight);
         cu1.name = "TopLeft";
-        cu2.name = "BottomRight";
+        cu2.name = "TopRight";
+        cu3.name = "BottomLeft";
+        cu4.name = "BottomRight";
+        */
     }
 
     public void ObjectDeselectedAtPosition(Vector3Int position)
