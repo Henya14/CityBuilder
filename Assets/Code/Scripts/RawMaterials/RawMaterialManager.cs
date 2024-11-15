@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class RawMaterialManager : MonoBehaviour
 {
-    public static List<RawMaterialWithRearity> rawMaterials;
-    [SerializeField] public MapGenarator mapGenarator;
+    [SerializeField] private List<RawMaterialWithRearity> rawMaterials;
+    [SerializeField] private List<Rect> RawMaterialPlaces;
     // Start is called before the first frame update
     void Start()
     {
@@ -18,14 +18,14 @@ public class RawMaterialManager : MonoBehaviour
     {
         
     }
-    public static List<RawMaterialWithRearity> GetRawMaterials(){
-        if(rawMaterials == null)
+    public  List<RawMaterialWithRearity> GetRawMaterials(){
+        if(rawMaterials == null || rawMaterials.Count == 0)
         {
             LoadRawMaterials();
         }
         return rawMaterials;
     }
-    public static void LoadRawMaterials()
+    public void LoadRawMaterials()
     {
         //Beolvasas
         rawMaterials = new List<RawMaterialWithRearity>();
@@ -38,6 +38,17 @@ public class RawMaterialManager : MonoBehaviour
             Resource.CreateComponent(o, rawMaterial.Type, "", rawMaterial.GatheredAmountPerHour, new Dictionary<string, float>());
         }
 
-        
+        if(rawMaterials.Count == 0) 
+        {
+            Debug.LogWarning("Raw Materials not found");
+        }
+    }
+    public void AddRect(Rect rect)
+    {
+        if(RawMaterialPlaces == null)
+        {
+            RawMaterialPlaces = new List<Rect>();
+        }
+        RawMaterialPlaces.Add(rect);
     }
 }

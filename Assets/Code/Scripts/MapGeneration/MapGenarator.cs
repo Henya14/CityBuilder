@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class MapGenarator : MonoBehaviour
 {
@@ -22,17 +23,16 @@ public class MapGenarator : MonoBehaviour
    [SerializeField] public bool autoUpdateEnabled;
    public TerrainType[] terrainTypes;
 
+   [SerializeField] RawMaterialManager materialManager;
    [Range(0, 1)]
    [SerializeField] float rawMaterialLowestAltitude;
    [Range(0, 1)]
    [SerializeField] float rawMaterialHighestAltitude;
-   public List<RawMaterialWithRearity> rawMaterials;
    public float meshHeightMultiplier;
    public AnimationCurve meshHeightCurve;
 
    void Start() {
-        rawMaterials = new List<RawMaterialWithRearity> ();
-        rawMaterials.AddRange(RawMaterialManager.GetRawMaterials());
+        
         GenerateMap();
    }
    public void GenerateMap()
@@ -42,6 +42,9 @@ public class MapGenarator : MonoBehaviour
           rawMaterialLowestAltitude = 0;
           rawMaterialHighestAltitude = 1;
       }
+      materialManager.LoadRawMaterials();
+      List<RawMaterialWithRearity> rawMaterials = new(materialManager.GetRawMaterials());
+
       float[,] noiseMap = NoiseGenerator.GenerateNoiseMap(mapChunkSize, mapChunkSize, seed, noiseScale, iterations, amplitudeChangeFactor, frequencyChangeFactor, noiseOffset);
 
       Color[] colorMap = new Color[mapChunkSize * mapChunkSize];
@@ -56,6 +59,7 @@ public class MapGenarator : MonoBehaviour
             if (height > maxHeight){
                maxHeight = height;
             }
+            //Raw Material Generation
             bool thereIsMaterial=false;
             if(rawMaterialLowestAltitude <= height && height <= rawMaterialHighestAltitude)
             foreach(var rm in rawMaterials)
@@ -65,10 +69,13 @@ public class MapGenarator : MonoBehaviour
                     colorMap[y * mapChunkSize + x] = rm.Color;
                     thereIsMaterial = true;
                     //Debug.Log($"-----------{y * mapChunkSize + x}, {rm.Type}");
+                    materialManager.AddRect(RawMaterialPlaced(x, y));
                     break;
                 }
             }
             if (thereIsMaterial) { continue; }
+
+
             for (int i = 0; i < terrainTypes.Length; i++)
             {
                if (height <= terrainTypes[i].height)
@@ -95,6 +102,39 @@ public class MapGenarator : MonoBehaviour
           mapDisplay.DrawMesh(MeshGenerator.GenerateTerrainMesh(noiseMap, meshHeightMultiplier, meshHeightCurve, levelOfDetail), TextureGenerator.CreateTextureFromColorMap(colorMap, mapChunkSize, mapChunkSize));
       }
    }
+    private Rect RawMaterialPlaced(int x, int y) //-1200,0,1200 -> 1200,0,-1200 , +10x, #, -10y, 
+    {
+        MapDisplay mapDisplay = FindObjectOfType<MapDisplay>();
+
+        GameObject mesh = mapDisplay.meshRenderer.gameObject;
+        float xScale = 10;
+        float yScale = 10;
+        float xCorner = (mapChunkSize - 1) / -2;
+        float yCorner = (mapChunkSize - 1) / 2;
+        if (mesh != null)
+        {
+            xScale = mesh.transform.localScale.x;
+            yScale = mesh.transform.localScale.z;
+        }
+        else
+        {
+            Debug.Log("Mesh not found");
+        }
+
+        //Rect rect = new Rect(-1200+(10*x),1200-10*(y+1),10,10);
+        Rect rect = new Rect(xScale*(xCorner +  x), yScale*(yCorner - (y + 1)), xScale, yScale);
+        /*
+        GameObject recto = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        recto.transform.localPosition = new Vector3(rect.x+ xScale/2, 2, rect.y+ yScale/2);
+        recto.transform.localScale = new Vector3(xScale, 1, yScale);
+        if(rect.x==1200 || rect.y == -1200)
+        {
+            Debug.LogWarning($"x: {x}, y: {y}");
+        }
+        */
+        return rect;
+    }
+
 
    void OnValidate()
    {

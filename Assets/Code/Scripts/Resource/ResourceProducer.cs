@@ -95,18 +95,28 @@ public class ResourceProducer : ResourceStorage
     }
     private void RunProducer()
     {
-        CheckRecipe();
-        if (SomethingMissing)
+        if(m_cycleUntilReCheck <= 0)
         {
-            IsRunning = false;
-            Reason = "Something missing for the recipe";
+            CheckRecipe();
+            if (SomethingMissing)
+            {
+                IsRunning = false;
+                Reason = "Something missing for the recipe";
+            }
+            else
+            {
+                Reason = string.Empty;
+                m_cycleUntilReCheck = 60;
+                IsRunning = true;
+            }
         }
         else
         {
+
             Reason = string.Empty;
-            m_cycleUntilReCheck = 60;
             IsRunning = true;
         }
+
     }
     private void CheckRecipe()
     {
@@ -134,7 +144,7 @@ public class ResourceProducer : ResourceStorage
         { 
             amount -= m_forProcessing[res];
         }
-        if (!m_needMore.ContainsKey(res))
+        if (m_needMore.ContainsKey(res))
         {
             m_needMore[res] = amount;
         }
@@ -173,8 +183,7 @@ public class ResourceProducer : ResourceStorage
     public new bool AssignToResource(string resource)
     {
         if(string.IsNullOrEmpty(resource)) { return false; }
-        if(resource == Type) { return true; } //Don't need to reassign for the same type
-        TurnOff();
+        if(resource == Resource?.ResourceName) { return true; } //Don't need to reassign for the same type
         Resource originalResource = base.Resource;
         bool re = base.AssignToResource(resource);
         if(re)
@@ -200,6 +209,7 @@ public class ResourceProducer : ResourceStorage
             }
 
             Debug.Log($"Producer({this.gameObject.name}) succesfully assigned to new resource ({Resource.ResourceName})");
+            m_cycleUntilReCheck = 0;
             return true;
         }
         else

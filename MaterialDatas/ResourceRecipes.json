@@ -10,6 +10,12 @@
                     "value": 1.0
                 }
             ]
+        },
+        {
+            "name": "Wood",
+            "description": "Cut forest for this...",
+            "amount_per_hour": 3,
+            "recipe": []
         }
     ]
 }
