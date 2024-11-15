@@ -69,7 +69,7 @@ public class MapGenarator : MonoBehaviour
                     colorMap[y * mapChunkSize + x] = rm.Color;
                     thereIsMaterial = true;
                     //Debug.Log($"-----------{y * mapChunkSize + x}, {rm.Type}");
-                    materialManager.AddRect(RawMaterialPlaced(x, y));
+                    materialManager.AddRect(RawMaterialPlaced(x, y), rm.Type);
                     break;
                 }
             }

@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.EventSystems;
+using Unity.VisualScripting;
 
 public enum SelectionMode
 {
@@ -226,16 +227,69 @@ public class GridManager : MonoBehaviour
             var buildingPositions = buildingsMap.Keys.Select(p => new Vector2(p.x, p.z));
             var selectedTilePositionsVec2 = selectedTilePositions.Select(p => new Vector2(p.x, p.z));
 
+            bool isResourceMine = gameUIManager.GetSelectedBuildingData().Name.Equals("ResourceMine");
+            RawMaterialManager rawMaterialManager = FindObjectOfType<RawMaterialManager>();
+            
+            bool onRawMaterial = false;
             foreach (var selectedTilePosition in selectedTilePositionsVec2)
             {
                 if (buildingPositions.Contains(selectedTilePosition))
                 {
                     isValid = false;
                 }
+                if(isResourceMine)
+                {
+                    //If one of the tiles on rawmaterials the mine can be placed
+                    Tile tile;
+                    if (!tileMap.TryGetValue(new Vector3Int((int)selectedTilePosition.x, 0, (int)selectedTilePosition.y),out tile))
+                        Debug.LogError("Tile not found");
+                    else
+                    {
+                        Vector3 topLeft, bottomRight;
+                        GetTileCorners(tile, out topLeft, out bottomRight);
+                        Rect placeRect = new()
+                        {
+                            min = new Vector2(topLeft.x, topLeft.z),
+                            max = new Vector2(bottomRight.x, bottomRight.z)
+                        };
+                        if (rawMaterialManager.IsOnRawMaterial(placeRect))
+                            onRawMaterial = true;
+                    }
+
+
+                }
+
+            }
+            if (!onRawMaterial && isResourceMine)//Later replaced with other member variable check
+            {
+                isValid=false;
+            
             }
 
         }
         return isValid;
+    }
+    private void GetTileCorners(Tile tile, out Vector3 topLeft, out Vector3 bottomRight)
+    {
+        GameObject gameObject = tile.gameObject;
+        Quaternion orirot;
+        Vector3 minPos, maxPos, oripos, oriscale, rot;
+        oriscale = gameObject.transform.localScale;
+        gameObject.transform.GetPositionAndRotation(out oripos, out orirot);
+        rot = new Vector3(oriscale.x / 2, 0, oriscale.z / 2);
+        minPos = new Vector3(oripos.x, oripos.y, oripos.z);
+        minPos = minPos - orirot * rot;
+        maxPos = new Vector3(oripos.x, oripos.y, oripos.z);
+        maxPos = maxPos + orirot * rot;
+        topLeft = minPos;
+        bottomRight =maxPos;
+        //Debug Cubes
+        var cu1 = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        var cu2 = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cu1.transform.position = (minPos);
+        cu2.transform.position = (maxPos);
+        cu1.name = "TopLeft";
+        cu2.name = "BottomRight";
     }
 
     public void ObjectDeselectedAtPosition(Vector3Int position)

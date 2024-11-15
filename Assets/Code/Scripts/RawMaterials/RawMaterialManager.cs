@@ -2,11 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
 public class RawMaterialManager : MonoBehaviour
 {
     [SerializeField] private List<RawMaterialWithRearity> rawMaterials;
-    [SerializeField] private List<Rect> RawMaterialPlaces;
+    [SerializeField] private Dictionary<Rect,string> rawMaterialPlaces;
     // Start is called before the first frame update
     void Start()
     {
@@ -29,13 +30,12 @@ public class RawMaterialManager : MonoBehaviour
     {
         //Beolvasas
         rawMaterials = new List<RawMaterialWithRearity>();
+        rawMaterialPlaces = new Dictionary<Rect, string>();
         rawMaterials = ResourceImporter.GetRawMaterials();
-        foreach(var rawMaterial in rawMaterials)
+        var resourceManager = FindAnyObjectByType<ResourceManager>();
+        foreach (var rawMaterial in rawMaterials)
         {
-            var resourceManager = FindAnyObjectByType<ResourceManager>();
-            var o = new GameObject(rawMaterial.Type);
-            o.transform.parent = resourceManager.transform;
-            Resource.CreateComponent(o, rawMaterial.Type, "", rawMaterial.GatheredAmountPerHour, new Dictionary<string, float>());
+            resourceManager.AddResourceAsRaw(rawMaterial);
         }
 
         if(rawMaterials.Count == 0) 
@@ -43,12 +43,34 @@ public class RawMaterialManager : MonoBehaviour
             Debug.LogWarning("Raw Materials not found");
         }
     }
-    public void AddRect(Rect rect)
+    public void AddRect(Rect rect, string type)
     {
-        if(RawMaterialPlaces == null)
+        if(rawMaterialPlaces == null)
         {
-            RawMaterialPlaces = new List<Rect>();
+            rawMaterialPlaces = new Dictionary<Rect, string>();
         }
-        RawMaterialPlaces.Add(rect);
+        if(!rawMaterialPlaces.ContainsKey(rect))
+        {
+            rawMaterialPlaces.Add(rect,type);
+
+            var sp1 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            var sp2 = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            sp1.transform.position = (new Vector3(rect.xMin,0,rect.yMin));
+            sp2.transform.position = (new Vector3(rect.xMax, 0, rect.yMax));
+            sp1.name = "TopRes";
+            sp2.name = "BottomRes";
+        }
+    }
+    public bool IsOnRawMaterial(Rect rect)
+    {
+        bool overlaps=false;
+        foreach(var raw in rawMaterialPlaces.Keys)
+        {
+            if(raw.Overlaps(rect)){
+                overlaps = true;
+                break;
+            }
+        }
+        return overlaps;
     }
 }

@@ -234,6 +234,10 @@ public class GameUIManager : MonoBehaviour
             gridManagers.ForEach(gm => gm.ChangeSelection(selectedBuilding.size, selectedBuilding.buildingType, selectedBuilding.prefab));
         }
     }
+    public BuildingData GetSelectedBuildingData()
+    {
+        return buildingList.selectedItem as BuildingData;
+    }
 
     void SetSelectedForGameModeSelectorButtons(bool selected)
     {
