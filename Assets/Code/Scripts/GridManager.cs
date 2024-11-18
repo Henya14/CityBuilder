@@ -248,24 +248,13 @@ public class GridManager : MonoBehaviour
                     {
                         List<Vector3> corners;
                         GetTileCorners(tile, out corners);
-                        Rect placeRect = new()
+
+                        if (rawMaterialManager.IsOnRawMaterial( corners.Select(c => new Vector2(c.x, c.z)).ToList<Vector2>() ))
                         {
-                            xMin = corners[0].x,
-                            yMin = corners[0].z,
-                            xMax = corners[0].x,
-                            yMax = corners[0].z
-                        };
-                        foreach (var corner in corners)
-                        {
-                            if (placeRect.xMin < corner.x) { placeRect.xMin = corner.x; }
-                            if (placeRect.xMax > corner.x) { placeRect.xMax = corner.x; }
-                            if (placeRect.yMin > corner.z) { placeRect.yMin = corner.z; }
-                            if (placeRect.yMax < corner.z) { placeRect.yMax = corner.z; }
-                        }
-                        if (rawMaterialManager.IsOnRawMaterial(placeRect)){
                             onRawMaterial = true;
-                            //Debug Cpasules
                             /*
+                            //Debug Cpasules
+                            
                             var ca1 = GameObject.CreatePrimitive(PrimitiveType.Capsule);
                             var ca2 = GameObject.CreatePrimitive(PrimitiveType.Capsule);
                             var ca3 = GameObject.CreatePrimitive(PrimitiveType.Capsule);
@@ -296,7 +285,7 @@ public class GridManager : MonoBehaviour
         return isValid;
     }
     /**
-     * Corners: topLeft, topRight, bottomLeft, bottomRight
+     * Corners: topLeft, topRight, bottomRight, bottomLeft
      */
     private void GetTileCorners(Tile tile, out List<Vector3> corners)
     {
@@ -310,24 +299,25 @@ public class GridManager : MonoBehaviour
 
         topLeft = oripos + orirot.normalized * new Vector3(-oriscale.x / 2, 0, -oriscale.z / 2);
         topRight = oripos + orirot.normalized * new Vector3(oriscale.x / 2, 0, -oriscale.z / 2);
-        bottomLeft = oripos + orirot.normalized * new Vector3(-oriscale.x / 2, 0, oriscale.z / 2); 
         bottomRight = oripos + orirot.normalized * new Vector3(oriscale.x / 2, 0, oriscale.z / 2);
-        corners = new List<Vector3> { topLeft, topRight, bottomLeft, bottomRight };
-        //Debug Cubes
+        bottomLeft = oripos + orirot.normalized * new Vector3(-oriscale.x / 2, 0, oriscale.z / 2);
+        corners = new List<Vector3> { topLeft, topRight, bottomRight, bottomLeft };
         /*
+        //Debug Cubes
         var cu1 = GameObject.CreatePrimitive(PrimitiveType.Cube);
         var cu2 = GameObject.CreatePrimitive(PrimitiveType.Cube);
         var cu3 = GameObject.CreatePrimitive(PrimitiveType.Cube);
         var cu4 = GameObject.CreatePrimitive(PrimitiveType.Cube);
         cu1.transform.position = (topLeft);
         cu2.transform.position = (topRight);
-        cu3.transform.position = (bottomLeft);
-        cu4.transform.position = (bottomRight);
+        cu3.transform.position = (bottomRight);
+        cu4.transform.position = (bottomLeft);
         cu1.name = "TopLeft";
         cu2.name = "TopRight";
-        cu3.name = "BottomLeft";
-        cu4.name = "BottomRight";
+        cu3.name = "BottomRight";
+        cu4.name = "BottomLeft";
         */
+        
     }
 
     public void ObjectDeselectedAtPosition(Vector3Int position)
