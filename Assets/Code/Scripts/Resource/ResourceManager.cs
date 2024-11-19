@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Resources;
 using UnityEngine;
 
@@ -43,6 +44,24 @@ public class ResourceManager : MonoBehaviour
         var o = new GameObject(rawResource.Type);
         o.transform.parent = this.transform;
         Resource.CreateComponent(o, rawResource.Type, "", rawResource.GatheredAmountPerHour, new Dictionary<string, float>());
-
+    }
+    public List<string> GetAllResourceName()
+    {
+        return GetComponentsInChildren<Resource>()
+                    .Select(res => res.ResourceName)
+                    .ToList();
+    }
+    public List<string> GetRawResourceName()
+    {
+        return FindObjectOfType<RawMaterialManager>().GetRawMaterials()
+                    .Select(raw => raw.Type)
+                    .ToList();
+    }
+    public List<string> GetNotRawResourceName()
+    {
+        var rawlist = GetRawResourceName();
+        return GetAllResourceName()
+                    .Where(res => !rawlist.Contains(res))
+                    .ToList();
     }
 }

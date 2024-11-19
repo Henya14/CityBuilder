@@ -9,7 +9,7 @@ using static UnityEditor.PlayerSettings;
 
 public class RawMaterialManager : MonoBehaviour
 {
-    [SerializeField] private int narrowBy = 1000;
+    [SerializeField] private int narrowBy = 100;
     [SerializeField] private List<RawMaterialWithRearity> rawMaterials;
     private Dictionary<Rect,string> rawMaterialPlaces;
     // Start is called before the first frame update

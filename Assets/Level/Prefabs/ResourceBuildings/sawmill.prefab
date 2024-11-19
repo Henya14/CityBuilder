@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 8771037047024944255}
   - component: {fileID: 6248443689597929466}
   - component: {fileID: 3161337550570110904}
+  - component: {fileID: 4358026015869592661}
+  - component: {fileID: 4661519309589070731}
   m_Layer: 0
   m_Name: sawmill
   m_TagString: Untagged
@@ -122,4 +124,51 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c71d7cc69f81df46b528e2c544bee3d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_resource: {fileID: 0}
+  m_amount: 0
+  m_capacity: 20
   Type: Plank
+  m_turnedOn: 0
+  m_isRunning: 0
+  m_somethingMissing: 0
+  m_reason: 
+  m_cycleUntilReCheck: 0
+  m_produceOptions:
+  - Plank
+--- !u!65 &4358026015869592661
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4615519059564530467}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.6901256, y: 0.40909582, z: 1.6804768}
+  m_Center: {x: 0.028287768, y: 0.20454791, z: -0.030137181}
+--- !u!114 &4661519309589070731
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4615519059564530467}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb3873e3f530c7449ad39ab52b4db767, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  renderers:
+  - {fileID: 8771037047024944255}
+  highlightColor: {r: 1, g: 1, b: 1, a: 1}
+  isHighlighted: 0

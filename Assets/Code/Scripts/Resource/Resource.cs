@@ -101,7 +101,7 @@ public class Resource : MonoBehaviour
     {
         return Producers.Remove(producer);
     }
-    public static bool EpsilonCheck(float a, float b)
+    public static bool EqualCheckWithEpsilon(float a, float b)
     {
         float diff= a-b;
         if (diff > -epsilon && diff < epsilon) 

@@ -66,7 +66,7 @@ public class ResourceStorage : MonoBehaviour
             return false; 
         }
 
-        if (Resource.EpsilonCheck(m_amount + amount, m_capacity))
+        if (Resource.EqualCheckWithEpsilon(m_amount + amount, m_capacity))
         {
             m_amount = m_capacity;
             return true;

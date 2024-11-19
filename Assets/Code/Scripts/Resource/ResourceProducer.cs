@@ -33,6 +33,9 @@ public class ResourceProducer : ResourceStorage
     [SerializeField] //To see in inspector
     private int m_cycleUntilReCheck;
 
+    [SerializeField] //To see in inspector
+    private List<string> m_produceOptions; //List of resources that can be produced by this instance of producer
+    public List<string> ProduceOptions { get { return m_produceOptions; } }
 
     // Start is called before the first frame update
     void Start()
@@ -184,6 +187,7 @@ public class ResourceProducer : ResourceStorage
     {
         if(string.IsNullOrEmpty(resource)) { return false; }
         if(resource == Resource?.ResourceName) { return true; } //Don't need to reassign for the same type
+        if(!m_produceOptions.Contains(resource)) { return false; } //Can only be set to resource that in the options
         Resource originalResource = base.Resource;
         bool re = base.AssignToResource(resource);
         if(re)
@@ -254,6 +258,14 @@ public class ResourceProducer : ResourceStorage
             }
         }
 
+    }
+    public void AddOptions(string newOption)
+    {
+        if (m_produceOptions==null)
+        {
+            m_produceOptions = new();
+        }
+        m_produceOptions.Add(newOption);
     }
 
 }
