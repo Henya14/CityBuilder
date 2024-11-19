@@ -246,8 +246,7 @@ public class GridManager : MonoBehaviour
                         Debug.LogError("Tile not found");
                     else
                     {
-                        List<Vector3> corners;
-                        GetTileCorners(tile, out corners);
+                        List<Vector3> corners = GetTileCorners(tile);
 
                         if (rawMaterialManager.IsOnRawMaterial( corners.Select(c => new Vector2(c.x, c.z)).ToList<Vector2>() ))
                         {
@@ -287,7 +286,7 @@ public class GridManager : MonoBehaviour
     /**
      * Corners: topLeft, topRight, bottomRight, bottomLeft
      */
-    private void GetTileCorners(Tile tile, out List<Vector3> corners)
+    public List<Vector3> GetTileCorners(Tile tile)
     {
         Vector3 topLeft, topRight, bottomLeft, bottomRight;
         GameObject gameObject = tile.gameObject;
@@ -301,7 +300,7 @@ public class GridManager : MonoBehaviour
         topRight = oripos + orirot.normalized * new Vector3(oriscale.x / 2, 0, -oriscale.z / 2);
         bottomRight = oripos + orirot.normalized * new Vector3(oriscale.x / 2, 0, oriscale.z / 2);
         bottomLeft = oripos + orirot.normalized * new Vector3(-oriscale.x / 2, 0, oriscale.z / 2);
-        corners = new List<Vector3> { topLeft, topRight, bottomRight, bottomLeft };
+        return  new List<Vector3> { topLeft, topRight, bottomRight, bottomLeft };
         /*
         //Debug Cubes
         var cu1 = GameObject.CreatePrimitive(PrimitiveType.Cube);

@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: 
   Description: 
-  buildingType: 0
+  buildingType: 1
   price: 0
-  size: {x: 0, y: 0}
-  isAvailable: 0
-  prefab: {fileID: 0}
+  size: {x: 2, y: 2}
+  isAvailable: 1
+  prefab: {fileID: 3768812779422924161, guid: 266c7dddd919a03459bfa59e5d23c614, type: 3}
   buildingPicture: {fileID: 0}
   scales: {x: 0, y: 0, z: 0}
   buyableBuilding: 0

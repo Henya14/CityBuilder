@@ -9,6 +9,8 @@ public class ResourceManager : MonoBehaviour
     //[SerializeField]
     //public List<Resource> resources = new List<Resource>();
     private bool m_logAsError=true;
+    [SerializeField]
+    private List<string> m_resourcesWithSpecialBuilding;
 
     // Start is called before the first frame update
     void Start()
@@ -16,6 +18,7 @@ public class ResourceManager : MonoBehaviour
         //ResourceImporter.Save();
         //resources=ResourceImporter.GetResources();
         ResourceImporter.GetResources(this);
+        if(m_resourcesWithSpecialBuilding == null) { m_resourcesWithSpecialBuilding=new();}
     }
 
     // Update is called once per frame
@@ -62,6 +65,13 @@ public class ResourceManager : MonoBehaviour
         var rawlist = GetRawResourceName();
         return GetAllResourceName()
                     .Where(res => !rawlist.Contains(res))
+                    .ToList();
+    }
+    public List<string> GetNotRawResourceNameWithoutSpecial()
+    {
+        var rawlist = GetRawResourceName();
+        return GetAllResourceName()
+                    .Where(res => !rawlist.Contains(res) && !m_resourcesWithSpecialBuilding.Contains(res))
                     .ToList();
     }
 }

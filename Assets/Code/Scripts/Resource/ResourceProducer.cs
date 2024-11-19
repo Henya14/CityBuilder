@@ -1,8 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Resources;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Tilemaps;
+using UnityEngine.WSA;
+using static UnityEngine.UI.GridLayoutGroup;
 
 public class ResourceProducer : ResourceStorage
 {
@@ -46,6 +51,57 @@ public class ResourceProducer : ResourceStorage
         m_needMore = new Dictionary<string, float>();
         if (!string.IsNullOrEmpty(Type))
             this.AssignToResource(Type);
+        else if (name.Contains("mine"))
+        {
+            Building building = this.gameObject.GetComponent<Building>();
+            if (building != null)
+            {//tile szel = 4
+                var rawmanager = FindObjectOfType<RawMaterialManager>();
+                m_produceOptions = new List<string>();
+                Vector3 topLeft, topRight, bottomLeft, bottomRight;
+                GameObject gameObject = this.gameObject;
+                Quaternion orirot;
+                Vector3 oripos, oriscale, sca;
+                Vector2Int bdata= building.GetBuildingData().size;
+                oriscale = new Vector3(4 * bdata.x, 0, 4 * bdata.y); //tile scale * builddata size
+                gameObject.transform.GetPositionAndRotation(out oripos, out orirot);
+
+                topLeft = oripos + orirot.normalized * new Vector3(-oriscale.x / 2, 0, -oriscale.z / 2);
+                topRight = oripos + orirot.normalized * new Vector3(oriscale.x / 2, 0, -oriscale.z / 2);
+                bottomRight = oripos + orirot.normalized * new Vector3(oriscale.x / 2, 0, oriscale.z / 2);
+                bottomLeft = oripos + orirot.normalized * new Vector3(-oriscale.x / 2, 0, oriscale.z / 2);
+                m_produceOptions = rawmanager.OverlapedRawMaterials(new List<Vector3> { topLeft, topRight, bottomRight, bottomLeft }.Select(c => new Vector2(c.x, c.z)).ToList<Vector2>());
+                /*
+                var gridmanager = FindObjectOfType<GridManager>();
+                foreach (var pos in building.gridPositions)
+                {
+                    var tile = gridmanager.GetTileAtPosition(new Vector3Int(pos.x,0,pos.z));
+                    if (tile == null) Debug.Log($"Not Found: {pos.x}, {pos.y}, {pos.z}");
+                    else
+                    {
+                        var ovlrm = rawmanager.OverlapedRawMaterials(gridmanager.GetTileCorners(tile).Select(c => new Vector2(c.x, c.z)).ToList<Vector2>());
+                        if (ovlrm != null)
+                        {
+                            foreach (var c in ovlrm)
+                            {
+                                if (!m_produceOptions.Contains(c))
+                                { m_produceOptions.Add(c); }
+                            }
+                        }
+                    }
+                }
+                */
+                Type = m_produceOptions[0];
+                this.AssignToResource(Type);
+            }
+        }
+        else
+        {
+            m_produceOptions = FindObjectOfType<ResourceManager>().GetNotRawResourceNameWithoutSpecial();
+            Type = m_produceOptions[0];
+            this.AssignToResource(Type);
+        }
+        
         //Subscribe to hour or minute change
         TimeManager.OnMinuteChanged += this.Produce;
         Switch();

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Resource : MonoBehaviour
 {
-
+    //Price?
     [SerializeField] //To see in inspector
     public static float epsilon = 0.001F;
 
