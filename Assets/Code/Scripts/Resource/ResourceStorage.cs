@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class ResourceStorage : MonoBehaviour
+public class ResourceStorage : MonoBehaviour, TransportationStart
 {
     private ResourceManager resourceManager;
     [SerializeField] //To see in inspector
@@ -108,6 +108,18 @@ public class ResourceStorage : MonoBehaviour
         else
         {
             Debug.Log($"{this.name} storage is destroyed but FAILED to find Resource");
+        }
+    }
+
+    public bool Transfer(string type, float amount)
+    {
+        if (m_resource.ResourceName.Equals(type))
+        {
+            return TakeResource(amount);
+        }
+        else
+        {
+            return false ;
         }
     }
 }

@@ -9,7 +9,7 @@ using UnityEngine.Tilemaps;
 using UnityEngine.WSA;
 using static UnityEngine.UI.GridLayoutGroup;
 
-public class ResourceProducer : ResourceStorage
+public class ResourceProducer : ResourceStorage, TransportationDestination
 {
     [SerializeField] public string Type = null;
 
@@ -61,7 +61,7 @@ public class ResourceProducer : ResourceStorage
                 Vector3 topLeft, topRight, bottomLeft, bottomRight;
                 GameObject gameObject = this.gameObject;
                 Quaternion orirot;
-                Vector3 oripos, oriscale, sca;
+                Vector3 oripos, oriscale;
                 Vector2Int bdata= building.GetBuildingData().size;
                 oriscale = new Vector3(4 * bdata.x, 0, 4 * bdata.y); //tile scale * builddata size
                 gameObject.transform.GetPositionAndRotation(out oripos, out orirot);
@@ -324,4 +324,9 @@ public class ResourceProducer : ResourceStorage
         m_produceOptions.Add(newOption);
     }
 
+    public bool Deliver(string type, float amount)
+    {
+        this.AddResourceForProcess(new KeyValuePair<string, float>(type, amount));
+        return true;
+    }
 }
