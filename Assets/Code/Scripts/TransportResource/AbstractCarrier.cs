@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AbstractCarrier : MonoBehaviour
+public abstract class AbstractCarrier : MonoBehaviour
 {
     [SerializeField]
     private float m_cpacity;
@@ -45,7 +45,7 @@ public class AbstractCarrier : MonoBehaviour
         m_status = CarrierStatus.Setup;    
     }
 
-    public void Transport() { }
+    public abstract void Transport();
     public bool SetRoute(Route route)
     {
         if (Status != CarrierStatus.Setup)
@@ -72,6 +72,21 @@ public class AbstractCarrier : MonoBehaviour
             CarriedAmount = amount;
             return true;
         }
+
+    }
+    protected void NextStatus()
+    {
+        if (m_status != CarrierStatus.CompletedRoute)
+            m_status += 1;
+    }
+    protected bool Restart()
+    {
+        if (m_status == CarrierStatus.CompletedRoute){
+            m_status = CarrierStatus.Setup;
+            Transport();
+            return true;
+        }
+        return false;
 
     }
 }

@@ -306,6 +306,10 @@ public class ResourceProducer : ResourceStorage, TransportationDestination
                 else
                 {
                     m_cycleUntilReCheck--;
+                    foreach(var item in Resource.GetRecipe()) //Use ingerdient
+                    {
+                        m_forProcessing[item.Key] -= (item.Value / 60);
+                    }
                 }
             }
             else
@@ -324,9 +328,13 @@ public class ResourceProducer : ResourceStorage, TransportationDestination
         m_produceOptions.Add(newOption);
     }
 
-    public bool Deliver(string type, float amount)
+    public new bool Deliver(string type, float amount)
     {
         this.AddResourceForProcess(new KeyValuePair<string, float>(type, amount));
         return true;
+    }
+    public new bool Acceptable(string type)
+    {
+        return Resource.GetRecipe().ContainsKey(type);
     }
 }

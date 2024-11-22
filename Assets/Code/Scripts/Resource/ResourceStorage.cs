@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class ResourceStorage : MonoBehaviour, TransportationStart
+public class ResourceStorage : MonoBehaviour, TransportationStart, TransportationDestination
 {
     private ResourceManager resourceManager;
     [SerializeField] //To see in inspector
@@ -121,5 +121,21 @@ public class ResourceStorage : MonoBehaviour, TransportationStart
         {
             return false ;
         }
+    }
+
+    public bool Deliver(string type, float amount)
+    {
+        if(m_resource.ResourceName.Equals(type)) { return AddResource(amount);}
+        else return false;
+    }
+
+    public string GetResourceType()
+    {
+        return m_resource.ResourceName;
+    }
+
+    public bool Acceptable(string type)
+    {
+        return m_resource.ResourceName.Equals(type);
     }
 }
