@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement name="info-box-container" style="flex-grow: 1; width: auto; height: auto; align-self: auto; flex-direction: column; background-color: rgba(206, 255, 186, 0.43); justify-content: flex-start; align-items: stretch; overflow: visible; position: absolute; left: 0; top: 0; max-width: none; max-height: none; font-size: 19px; min-width: 200px; -unity-font-style: bold; border-top-width: 5px; border-right-width: 5px; border-bottom-width: 5px; border-left-width: 5px; border-top-left-radius: 31px; border-top-right-radius: 31px; border-bottom-right-radius: 31px; border-bottom-left-radius: 31px; margin-top: 10px; margin-left: 10px; border-left-color: rgba(99, 99, 99, 0.68); border-right-color: rgba(99, 99, 99, 0.68); border-top-color: rgba(99, 99, 99, 0.68); border-bottom-color: rgba(99, 99, 99, 0.68); padding-top: 10px; padding-right: 10px; padding-bottom: 10px; padding-left: 10px;">
+        <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="balance-text" style="width: auto;" />
+        <ui:Label tabindex="-1" text="Electricity:" parse-escape-sequences="true" display-tooltip-when-elided="true" name="eletricity-label">
+            <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="electricity-text" style="left: 125px; right: auto; position: relative;" />
+        </ui:Label>
+        <ui:Label tabindex="-1" text="Coal:" parse-escape-sequences="true" display-tooltip-when-elided="true" name="coal-label">
+            <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="coal-text" style="left: 125px;" />
+        </ui:Label>
+        <ui:Label tabindex="-1" text="Wood:" parse-escape-sequences="true" display-tooltip-when-elided="true" name="wood-label">
+            <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="wood-text" style="left: 125px;" />
+        </ui:Label>
+    </ui:VisualElement>
+</ui:UXML>

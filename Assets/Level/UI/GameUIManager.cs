@@ -42,6 +42,13 @@ public class GameUIManager : MonoBehaviour
     List<Label> labels = new List<Label>();
     Button saveButton;
 
+    //For new Resource part
+    [SerializeField]
+    private bool hideOldInfo;
+    VisualElement oldInfoContainer;
+    VisualElement resourceView;
+
+
     List<Button> gameModeSelectorButtons = new List<Button>();
     public GameMode selectedGameMode { get; set; } = GameMode.SelectionMode;
 
@@ -94,6 +101,12 @@ public class GameUIManager : MonoBehaviour
         //taxLabels.ForEach(SetupLabel);
 
         taxLabels.ForEach(labels.Add);
+
+        oldInfoContainer = root.Q<VisualElement>("info-box-container");
+        resourceView = root.Q<VisualElement>("ResourceView");
+        if (hideOldInfo)
+        {
+        }
     }
     void Start()
     {
@@ -140,6 +153,17 @@ public class GameUIManager : MonoBehaviour
         taxesButton.clicked += TaxesMenu;
 
         UpdateTaxes();
+        if (hideOldInfo)
+        {
+            oldInfoContainer.visible = false;
+            resourceView.visible = true;
+            FindObjectOfType<ResourceManagerUIManager>().SetRoot(ref resourceView);
+        }
+        else
+        {
+            oldInfoContainer.visible = true;
+            resourceView.visible = false;
+        }
     }
 
     private void Update()

@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="resources-container" style="flex-grow: 1; width: 300px;">
+        <ui:Label tabindex="-1" text="Resources" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Resource-Title" />
+        <ui:ListView focusable="true" name="resource-list" style="height: 419px;" />
+    </ui:VisualElement>
+</ui:UXML>
