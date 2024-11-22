@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -13,7 +14,7 @@ public class ResourceUIManager : MonoBehaviour
         Resource = this.GetComponent<Resource>();
         root = this.GetComponentInParent<ResourceManagerUIManager>().AddChildren();
         ResName = root.Q<Label>("ResourceName");
-        ResName.text = Resource.ResourceName;
+        ResName.text = Resource.ResourceName+":";
         ResAmount = root.Q<Label>("ResourceAmount");
         ResAmount.text = Resource.GetAmount().ToString();
     }
@@ -21,9 +22,10 @@ public class ResourceUIManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Resource != null && root!=null)
-        {
-            ResAmount.text = Resource.GetAmount().ToString();
+        if (Resource != null && root != null) { 
+            ResAmount.text = ((float)Mathf.Floor(Resource.GetAmount() * 100) / 100)
+            //ResAmount.text = Math.Round((double)Resource.GetAmount(),2, MidpointRounding.ToEven)
+                .ToString("F2");
         }
         
     }

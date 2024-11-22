@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="resource-item" style="flex-grow: 1; flex-direction: row; height: 66px;">
-        <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ResourceName" style="flex-direction: row; width: 50%;" />
-        <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ResourceAmount" style="flex-direction: row; flex-basis: auto; width: 50%;" />
+        <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ResourceName" style="flex-direction: row; width: 45%; -unity-font-style: bold;" />
+        <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="ResourceAmount" style="flex-direction: row; flex-basis: auto; width: 50%; -unity-font-style: bold; background-color: rgba(255, 255, 255, 0.24); -unity-text-align: upper-right;" />
     </ui:VisualElement>
 </ui:UXML>
