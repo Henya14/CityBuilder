@@ -15,13 +15,22 @@ public class ResourceStorage : MonoBehaviour, TransportationStart, Transportatio
     [SerializeField] //To see in inspector
     private float m_capacity = 20.0F;
     public float Capacity { get { return m_capacity; } }
-    
+    protected int m_number;
 
+    protected static int m_counter = 0;
     void Start()
     {
+        m_number = m_counter;
+        m_counter++;
         resourceManager = FindObjectOfType<ResourceManager>();
+        AssignToResource(resourceManager.GetAllResourceName()[0]);
     }
-    
+    protected virtual void NewName(string newName)
+    {
+        string name = newName + " Storage " + m_number.ToString();
+        this.gameObject.name = name;
+        this.GetComponent<SelectableObject>().SetDescription(name);
+    }
 
     public bool AssignToResource(string resource)
     {
@@ -55,6 +64,7 @@ public class ResourceStorage : MonoBehaviour, TransportationStart, Transportatio
 
         Debug.Log($"Storage({this.name}) succesfully assigned to new resource ({m_resource.ResourceName})");
         m_amount = 0.0F;
+        NewName(resource);
         return true;
     }
 

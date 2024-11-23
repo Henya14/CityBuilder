@@ -45,12 +45,16 @@ public class ResourceProducer : ResourceStorage, TransportationDestination
     // Start is called before the first frame update
     void Start()
     {
+        m_number = m_counter;
+        m_counter++;
         TurnOff();
         m_cycleUntilReCheck = 0;
         m_forProcessing = new Dictionary<string, float>();
         m_needMore = new Dictionary<string, float>();
         if (!string.IsNullOrEmpty(Type))
+        {
             this.AssignToResource(Type);
+        }
         else if (name.Contains("mine"))
         {
             Building building = this.gameObject.GetComponent<Building>();
@@ -238,6 +242,9 @@ public class ResourceProducer : ResourceStorage, TransportationDestination
                 m_needMore.Remove(res);
             }
         }
+        //If its turned on then try produce
+        if (TurnedOn) RunProducer();
+
     }
     public new bool AssignToResource(string resource)
     {
@@ -317,6 +324,13 @@ public class ResourceProducer : ResourceStorage, TransportationDestination
                 RunProducer();
             }
         }
+
+    }
+    protected override void NewName(string newName)
+    {
+        string name = newName + " Producer " + m_number.ToString();
+        this.gameObject.name = name;
+        this.GetComponent<SelectableObject>().SetDescription(name);
 
     }
     public void AddOptions(string newOption)

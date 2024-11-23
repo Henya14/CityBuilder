@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -47,6 +48,8 @@ public class GameUIManager : MonoBehaviour
     private bool hideOldInfo;
     VisualElement oldInfoContainer;
     VisualElement resourceView;
+
+    VisualElement infoinsidecontainer;
 
 
     List<Button> gameModeSelectorButtons = new List<Button>();
@@ -104,9 +107,8 @@ public class GameUIManager : MonoBehaviour
 
         oldInfoContainer = root.Q<VisualElement>("info-box-container");
         resourceView = root.Q<VisualElement>("ResourceView");
-        if (hideOldInfo)
-        {
-        }
+
+        infoinsidecontainer = root.Q<VisualElement>("info-inside-container");
     }
     void Start()
     {
@@ -158,6 +160,7 @@ public class GameUIManager : MonoBehaviour
             oldInfoContainer.visible = false;
             resourceView.visible = true;
             FindObjectOfType<ResourceManagerUIManager>().SetRoot(ref resourceView);
+            FindObjectOfType<ResourceProducerStorageUIManager>().SetRoot(ref infoinsidecontainer);
         }
         else
         {
@@ -301,6 +304,18 @@ public class GameUIManager : MonoBehaviour
     {
         if (selectedObject != null)
         {
+            if (selectedObject.GetGameObject().name.Contains("Storage"))
+            {
+                //infoinsidecontainer.hierarchy.Add(AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Level/UI/ResourceStorageInfoView.uxml").Instantiate());
+            }
+            else if (selectedObject.GetGameObject().name.Contains("Producer"))
+            {
+                //infoinsidecontainer.hierarchy.Add(AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Level/UI/ResourceProducerInfoView.uxml").Instantiate());
+            }
+            else
+            {
+                //infoinsidecontainer.hierarchy.Clear();
+            }
             var displayText = selectedObject.GetDescription();
             infoContainer.style.display = DisplayStyle.Flex;
             var tile = selectedObject.GetGameObject().GetComponent<Tile>();

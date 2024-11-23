@@ -31,7 +31,6 @@ public class ResourceManagerUIManager : MonoBehaviour
             this.root = root;
             title = root.Q<Label>("Resource-Title");
             list = root.Q<ListView>("resource-list");
-            MakeChildren();
         }
 
     }
@@ -43,14 +42,5 @@ public class ResourceManagerUIManager : MonoBehaviour
         list.hierarchy.Add(ui);
 
         return ui;
-    }
-    private void MakeChildren()
-    {
-        Debug.Log("TESZT: " );
-        children = new List<VisualElement>();
-        foreach(var name in ResourceManager.GetComponentsInChildren<Resource>())
-        {
-            Debug.Log("TESZT: "+name.ResourceName);
-        } 
     }
 }
