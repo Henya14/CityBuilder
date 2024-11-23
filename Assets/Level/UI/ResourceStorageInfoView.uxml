@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="resource-building-info-container" style="flex-grow: 1;">
-        <ui:VisualElement name="resource-info-container" style="flex-grow: 1; flex-direction: row;">
+        <ui:VisualElement name="resource-info-container" style="flex-grow: 1; flex-direction: row; max-height: 80px;">
             <ui:Label tabindex="-1" text="Resource: " parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold;" />
             <ui:VisualElement style="flex-grow: 1; flex-direction: column;">
                 <ui:VisualElement style="flex-grow: 1; flex-direction: row; justify-content: space-between;">
@@ -11,9 +11,9 @@
                 <ui:Button text="Change" parse-escape-sequences="true" display-tooltip-when-elided="true" name="change-resource-button" />
             </ui:VisualElement>
         </ui:VisualElement>
-    </ui:VisualElement>
-    <ui:VisualElement style="flex-grow: 1; flex-direction: row; justify-content: space-between;">
-        <ui:Label tabindex="-1" text="Stored:" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold;" />
-        <ui:Label tabindex="-1" text="y / x" parse-escape-sequences="true" display-tooltip-when-elided="true" name="stored-amount-per-capacity" />
+        <ui:VisualElement style="flex-grow: 1; flex-direction: row; justify-content: space-between; max-height: 40px;">
+            <ui:Label tabindex="-1" text="Stored:" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold;" />
+            <ui:Label tabindex="-1" text="y / x" parse-escape-sequences="true" display-tooltip-when-elided="true" name="stored-amount-per-capacity" />
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

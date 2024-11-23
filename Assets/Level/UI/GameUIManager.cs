@@ -50,7 +50,7 @@ public class GameUIManager : MonoBehaviour
     VisualElement resourceView;
 
     VisualElement infoinsidecontainer;
-
+    private ResourceProducerStorageUIManager resourceProducerStorageUI;
 
     List<Button> gameModeSelectorButtons = new List<Button>();
     public GameMode selectedGameMode { get; set; } = GameMode.SelectionMode;
@@ -160,7 +160,8 @@ public class GameUIManager : MonoBehaviour
             oldInfoContainer.visible = false;
             resourceView.visible = true;
             FindObjectOfType<ResourceManagerUIManager>().SetRoot(ref resourceView);
-            FindObjectOfType<ResourceProducerStorageUIManager>().SetRoot(ref infoinsidecontainer);
+            resourceProducerStorageUI = FindObjectOfType<ResourceProducerStorageUIManager>();
+            resourceProducerStorageUI.SetRoot(ref infoinsidecontainer);
         }
         else
         {
@@ -304,17 +305,9 @@ public class GameUIManager : MonoBehaviour
     {
         if (selectedObject != null)
         {
-            if (selectedObject.GetGameObject().name.Contains("Storage"))
+            if (hideOldInfo)
             {
-                //infoinsidecontainer.hierarchy.Add(AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Level/UI/ResourceStorageInfoView.uxml").Instantiate());
-            }
-            else if (selectedObject.GetGameObject().name.Contains("Producer"))
-            {
-                //infoinsidecontainer.hierarchy.Add(AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Level/UI/ResourceProducerInfoView.uxml").Instantiate());
-            }
-            else
-            {
-                //infoinsidecontainer.hierarchy.Clear();
+                resourceProducerStorageUI.CurrentSelected(selectedObject.GetGameObject());
             }
             var displayText = selectedObject.GetDescription();
             infoContainer.style.display = DisplayStyle.Flex;

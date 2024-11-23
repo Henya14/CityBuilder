@@ -1,15 +1,17 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <ui:Template name="ResourceStorageInfoView" src="project://database/Assets/Level/UI/ResourceStorageInfoView.uxml?fileID=9197481963319205126&amp;guid=b151c967afd50e6499521fa22d62885a&amp;type=3" />
-    <ui:VisualElement style="flex-grow: 1;">
+    <ui:VisualElement name="producer-root-container" style="flex-grow: 1;">
         <ui:Instance template="ResourceStorageInfoView" />
-        <ui:VisualElement style="flex-grow: 1; flex-direction: row; justify-content: space-between;">
-            <ui:Label tabindex="-1" text="Status:" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold;" />
-            <ui:Label tabindex="-1" text="TurnodOn/OFF/Running..." parse-escape-sequences="true" display-tooltip-when-elided="true" name="producer-status-info-label" />
+        <ui:VisualElement name="only-producer-container" style="flex-grow: 1;">
+            <ui:VisualElement style="flex-grow: 1; flex-direction: row; justify-content: space-between; max-height: 40px;">
+                <ui:Label tabindex="-1" text="Status:" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold;" />
+                <ui:Label tabindex="-1" text="TurnodOn/OFF/Running..." parse-escape-sequences="true" display-tooltip-when-elided="true" name="producer-status-info-label" />
+            </ui:VisualElement>
+            <ui:VisualElement name="reason-info-container" style="flex-grow: 1; flex-direction: row; justify-content: space-between; max-height: 40px;">
+                <ui:Label tabindex="-1" text="Reason:" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold;" />
+                <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="reason-info-label" />
+            </ui:VisualElement>
+            <ui:Button text="Turn On" parse-escape-sequences="true" display-tooltip-when-elided="true" name="turn-on-off-button" style="max-height: 40px;" />
         </ui:VisualElement>
-        <ui:VisualElement name="reason-info-container" style="flex-grow: 1; flex-direction: row; justify-content: space-between;">
-            <ui:Label tabindex="-1" text="Reason:" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold;" />
-            <ui:Label tabindex="-1" text="Label" parse-escape-sequences="true" display-tooltip-when-elided="true" name="reason-info-label" />
-        </ui:VisualElement>
-        <ui:Button text="Turn On" parse-escape-sequences="true" display-tooltip-when-elided="true" name="turn-on-off-button" />
     </ui:VisualElement>
 </ui:UXML>
