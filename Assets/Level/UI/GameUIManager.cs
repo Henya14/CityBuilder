@@ -51,6 +51,7 @@ public class GameUIManager : MonoBehaviour
 
     VisualElement infoinsidecontainer;
     private ResourceProducerStorageUIManager resourceProducerStorageUI;
+    private TransportationUIManager transportationUI;
 
     List<Button> gameModeSelectorButtons = new List<Button>();
     public GameMode selectedGameMode { get; set; } = GameMode.SelectionMode;
@@ -162,6 +163,8 @@ public class GameUIManager : MonoBehaviour
             FindObjectOfType<ResourceManagerUIManager>().SetRoot(ref resourceView);
             resourceProducerStorageUI = FindObjectOfType<ResourceProducerStorageUIManager>();
             resourceProducerStorageUI.SetRoot(ref infoinsidecontainer);
+            transportationUI = FindObjectOfType<TransportationUIManager>();
+            transportationUI.SetRoot(ref infoinsidecontainer);
         }
         else
         {
@@ -308,6 +311,7 @@ public class GameUIManager : MonoBehaviour
             if (hideOldInfo)
             {
                 resourceProducerStorageUI.CurrentSelected(selectedObject.GetGameObject());
+                transportationUI.CurrentSelected(selectedObject.GetGameObject());
             }
             var displayText = selectedObject.GetDescription();
             infoContainer.style.display = DisplayStyle.Flex;
