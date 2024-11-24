@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="resources-container" style="flex-grow: 1; width: 227px; background-color: rgba(115, 115, 105, 0.38);">
         <ui:Label tabindex="-1" text="Resources" parse-escape-sequences="true" display-tooltip-when-elided="true" name="Resource-Title" style="-unity-font-style: bold; font-size: 20px; -unity-text-align: upper-center;" />
-        <ui:ListView focusable="true" name="resource-list" style="height: 419px; width: 100%;" />
+        <ui:ListView focusable="true" name="resource-list" style="height: auto; width: 100%;" />
     </ui:VisualElement>
 </ui:UXML>

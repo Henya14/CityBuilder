@@ -35,6 +35,11 @@ public class LandCarrier : AbstractCarrier
             }
         }
     }
+
+    public override bool CanTransportBetween(TransportationStart start, TransportationDestination destination)
+    {
+        return true; //TODO check if there is road connect them
+    }
     private void NextStep()
     {
         switch(Status)

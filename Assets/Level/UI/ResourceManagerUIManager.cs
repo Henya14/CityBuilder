@@ -39,7 +39,8 @@ public class ResourceManagerUIManager : MonoBehaviour
 
         VisualTreeAsset uiAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Level/UI/ResourceItem.uxml");
         VisualElement ui = uiAsset.Instantiate();
-        list.hierarchy.Add(ui);
+        VisualElement con = list.Q<VisualElement>("unity-content-container");
+        con.hierarchy.Add(ui);
 
         return ui;
     }

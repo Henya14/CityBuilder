@@ -79,7 +79,7 @@ public abstract class AbstractCarrier : MonoBehaviour
         if (m_status != CarrierStatus.CompletedRoute)
             m_status += 1;
     }
-    protected bool Restart()
+    public bool Restart()
     {
         if (m_status == CarrierStatus.CompletedRoute){
             m_status = CarrierStatus.Setup;
@@ -89,6 +89,7 @@ public abstract class AbstractCarrier : MonoBehaviour
         return false;
 
     }
+    public abstract bool CanTransportBetween(TransportationStart start, TransportationDestination destination);
 }
 
 public enum CarrierStatus

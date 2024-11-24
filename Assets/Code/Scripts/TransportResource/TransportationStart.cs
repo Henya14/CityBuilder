@@ -6,4 +6,5 @@ public interface TransportationStart
 {
     public bool Transfer(string type, float amount);
     public string GetResourceType();
+    public GameObject GetGameObject();
 }

@@ -148,4 +148,8 @@ public class ResourceStorage : MonoBehaviour, TransportationStart, Transportatio
     {
         return m_resource.ResourceName.Equals(type);
     }
+    public GameObject GetGameObject()
+    {
+        return this.gameObject;
+    }
 }

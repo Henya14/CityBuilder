@@ -12,6 +12,7 @@ public class ResourceProducerStorageUIManager : MonoBehaviour
     private VisualElement root;
     private VisualElement parent;
 
+    private VisualElement selectorContainer;
     private Button preButton;
     private Button nextButton;
     private Label selectedResourceLabel;
@@ -53,8 +54,11 @@ public class ResourceProducerStorageUIManager : MonoBehaviour
         this.parent = parent;
         VisualElement element = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(Location).Instantiate();
         root = element.Q<VisualElement>("producer-root-container");
-        root.visible = false;
+        root.style.display = DisplayStyle.None;
         parent.hierarchy.Add(root);
+
+
+        selectorContainer = root.Q<VisualElement>("resource-selector-container");
         preButton = root.Q<Button>("previous-resource-button");
         preButton.clicked += OnPrevClick;
         nextButton = root.Q<Button>("next-resource-button");
@@ -86,20 +90,19 @@ public class ResourceProducerStorageUIManager : MonoBehaviour
         }
         else
         {
+            onlyProducerContainer.style.display = DisplayStyle.None;
+
             ResourceStorage storage = go.GetComponent<ResourceStorage>();
             if(storage != null)
             {
                 SetStorageInfo(storage);
-                ProdicerVisibleOff();
             }
             else
             {
-                StorageVisibleOff();
-                ProdicerVisibleOff();
+
                 this.producer = null;
                 this.storage = null;
-                onlyProducerContainer.visible = false;
-                root.visible = false;
+                root.style.display = DisplayStyle.None;
                 return;
             }
         }
@@ -119,8 +122,8 @@ public class ResourceProducerStorageUIManager : MonoBehaviour
         DispalyReason();
         DisplayTurnButtonText();
 
-        onlyProducerContainer.visible = true;
-        root.visible=true;
+        onlyProducerContainer.style.display = DisplayStyle.Flex;
+        root.style.display = DisplayStyle.Flex;
 
     }
     private void SetStorageInfo(ResourceStorage storage)
@@ -134,8 +137,8 @@ public class ResourceProducerStorageUIManager : MonoBehaviour
         currentIdx = resources.IndexOf(storage.Resource.ResourceName);
         DispalyResource();
 
-        onlyProducerContainer.visible=false;
-        root.visible = true;
+        onlyProducerContainer.style.display = DisplayStyle.None;
+        root.style.display = DisplayStyle.Flex;
 
     }
     private void SetAmountPerCapacity()
@@ -191,17 +194,19 @@ public class ResourceProducerStorageUIManager : MonoBehaviour
     {
         if(resources.Count == 1)
         {
-            preButton.visible = false;
-            nextButton.visible = false;
-            changeResourceButton.visible = false;
-            selectedResourceLabel.visible = false;
+
+            selectorContainer.style.justifyContent = Justify.FlexEnd;
+            preButton.style.display = DisplayStyle.None;
+            nextButton.style.display = DisplayStyle.None;
+            changeResourceButton.style.display = DisplayStyle.None;
         }
         else
         {
-            preButton.visible = true;
-            nextButton.visible = true;
-            changeResourceButton.visible = true;
-            selectedResourceLabel.visible = true;
+
+            selectorContainer.style.justifyContent = Justify.SpaceBetween;
+            preButton.style.display = DisplayStyle.Flex;
+            nextButton.style.display = DisplayStyle.Flex;
+            changeResourceButton.style.display = DisplayStyle.Flex;
         }
         selectedResourceLabel.text = resources[currentIdx];
     }
@@ -212,12 +217,12 @@ public class ResourceProducerStorageUIManager : MonoBehaviour
             string reason = producer.Reason;
             if (string.IsNullOrEmpty(reason))
             {
-                reasonInfoContainer.visible = false;
+                reasonInfoContainer.style.display = DisplayStyle.None;
             }
             else
             {
                 reasonInfoLabel.text = reason;
-                reasonInfoContainer.visible = true;
+                reasonInfoContainer.style.display = DisplayStyle.Flex;
 
             }
         }
@@ -249,19 +254,5 @@ public class ResourceProducerStorageUIManager : MonoBehaviour
             else
                 turnOnOffButton.text = "Turn On";
         }
-    }
-    private void StorageVisibleOff()
-    {
-        preButton.visible = false;
-        nextButton.visible = false;
-        changeResourceButton.visible = false;
-
-    }
-    private void ProdicerVisibleOff()
-    {
-
-        reasonInfoContainer.visible = false;
-        onlyProducerContainer.visible = false;
-        root.visible = false;
     }
 }

@@ -1,14 +1,14 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="resource-building-info-container" style="flex-grow: 1;">
-        <ui:VisualElement name="resource-info-container" style="flex-grow: 1; flex-direction: row; max-height: 80px;">
+        <ui:VisualElement name="resource-info-container" style="flex-grow: 1; flex-direction: row; max-height: 80px; justify-content: space-between;">
             <ui:Label tabindex="-1" text="Resource: " parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold;" />
-            <ui:VisualElement style="flex-grow: 1; flex-direction: column;">
-                <ui:VisualElement style="flex-grow: 1; flex-direction: row; justify-content: space-between;">
+            <ui:VisualElement style="flex-grow: 1; flex-direction: column; align-items: flex-end;">
+                <ui:VisualElement name="resource-selector-container" style="flex-grow: 1; flex-direction: row; justify-content: space-between; align-self: center; align-items: stretch; width: 100%;">
                     <ui:Button text="&lt;" parse-escape-sequences="true" display-tooltip-when-elided="true" name="previous-resource-button" />
-                    <ui:Label tabindex="-1" text="Resource-Name" parse-escape-sequences="true" display-tooltip-when-elided="true" name="selected-resource-label" />
+                    <ui:Label tabindex="-1" text="Resource-Name" parse-escape-sequences="true" display-tooltip-when-elided="true" name="selected-resource-label" style="align-self: auto; align-items: flex-end;" />
                     <ui:Button text="&gt;" parse-escape-sequences="true" display-tooltip-when-elided="true" name="next-resource-button" />
                 </ui:VisualElement>
-                <ui:Button text="Change" parse-escape-sequences="true" display-tooltip-when-elided="true" name="change-resource-button" />
+                <ui:Button text="Change" parse-escape-sequences="true" display-tooltip-when-elided="true" name="change-resource-button" style="align-items: stretch; align-self: center; width: 100%;" />
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement style="flex-grow: 1; flex-direction: row; justify-content: space-between; max-height: 40px;">
