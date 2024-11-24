@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 
 public class Route : MonoBehaviour
 {
@@ -18,8 +19,10 @@ public class Route : MonoBehaviour
     private bool m_onRepeat;
     public bool OnRepeat { get { return m_onRepeat; } set {  m_onRepeat = value; } }
     [SerializeField]
+    private int m_counter;
+    [SerializeField]
     private int m_repeatTime;
-    public int RepeatTime { get; set; } 
+    public int RepeatTime { get { return m_repeatTime; } set { m_repeatTime = value; } } 
     [SerializeField]
     private string m_type;
     public string Type { get { return m_type; } }
@@ -45,9 +48,9 @@ public class Route : MonoBehaviour
             return abstractCarrier.CanTransportBetween(start, destination);
         return false;
     }
-    public static void CreateRoute(TransportationStart start, TransportationDestination destination, AbstractCarrier abstractCarrier, bool repeat, int repeattime, GameObject parent)
+    public static Route CreateRoute(TransportationStart start, TransportationDestination destination, AbstractCarrier abstractCarrier, bool repeat, int repeattime, GameObject parent)
     {
-        if(!CanBeMade(start, destination, abstractCarrier)) return;
+        if (!CanBeMade(start, destination, abstractCarrier)) return null;
         var o = new GameObject("Route: "+start.GetGameObject().name+" -> "+destination.GetGameObject().name );
         o.transform.parent = parent.transform;
         Route route = o.AddComponent<Route>();
@@ -57,7 +60,7 @@ public class Route : MonoBehaviour
         route.m_repeatTime = repeattime;
         route.m_carrier = abstractCarrier.gameObject;
         route.m_type = start.GetResourceType();
-        route.StartCarrier();
+        return route;
 
     }
     public void SetCarrier(GameObject carrier)
@@ -67,16 +70,21 @@ public class Route : MonoBehaviour
             m_carrier = carrier;
         }
     }
-    public void StartCarrier()
+    public bool StartCarrier(float amount)
     {
-        if (m_carrier == null) return;
+        var ret = false;
+        if (m_carrier == null) return ret;
         m_carrier = Instantiate(m_carrier);
+        m_carrier.transform.parent = this.transform;
+        m_carrier.GetComponent<AbstractCarrier>().SetRoute(this);
+        ret = m_carrier.GetComponent<AbstractCarrier>().WantedAmount(amount);
         m_carrier.GetComponent<AbstractCarrier>().Transport();
         if (OnRepeat)
         {
-            m_repeatTime = RepeatTime;
-            TimeManager.OnMinuteChanged += RepeatChecker;
+            m_counter = RepeatTime;
+            TimeManager.OnMinuteChanged += CounterCheck;
         }
+        return ret;
     }
 
     public bool SetStation()
@@ -92,22 +100,22 @@ public class Route : MonoBehaviour
         }
         return false;
     }
-    private void RepeatChecker()
+    private void CounterCheck()
     {
-        if(m_repeatTime<=0)
+        if (m_counter <= 0)
         {
             ReStartCarrier();
         }
         else
         {
-            m_repeatTime--;
+            m_counter--;
         }
     }
     private void ReStartCarrier()
     {
         if(m_carrier.GetComponent<AbstractCarrier>().Restart())
         {
-            m_repeatTime=RepeatTime;
+            m_counter = RepeatTime;
         }
     }
 }

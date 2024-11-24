@@ -6,7 +6,9 @@
             <ui:VisualElement name="route-data-container" style="flex-grow: 1; min-height: auto; min-width: auto; height: 87px;">
                 <ui:DropdownField label="Destination: " index="-1" name="destination-dropdown" style="justify-content: flex-start; -unity-font-style: bold;" />
                 <ui:DropdownField label="Carrier:" index="-1" name="carrier-dropdown" style="-unity-font-style: bold;" />
-                <ui:Slider picking-mode="Ignore" label="Amount:" value="42" high-value="100" name="amount-slider" style="-unity-font-style: bold;" />
+                <ui:Slider picking-mode="Ignore" label="Amount:" value="42" high-value="100" name="amount-slider" style="-unity-font-style: bold;">
+                    <ui:Label tabindex="-1" text="0.00" parse-escape-sequences="true" display-tooltip-when-elided="true" name="slected-amount" style="min-height: auto; min-width: 40px; -unity-text-align: upper-right;" />
+                </ui:Slider>
                 <ui:VisualElement name="repeat-container" style="flex-grow: 1; min-height: auto; min-width: auto; flex-direction: row; align-items: center; justify-content: space-between; align-self: auto; height: 35px;">
                     <ui:Label tabindex="-1" text="Repeat:" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold; align-self: auto; align-items: auto; justify-content: flex-start; width: 45%; margin-left: 4px;" />
                     <ui:Toggle name="repeat-toggle" style="justify-content: flex-start; align-items: center; align-self: auto; flex-direction: column; width: 45%; -unity-text-align: upper-left;" />

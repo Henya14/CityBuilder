@@ -27,6 +27,8 @@ public class TransportationUIManager : MonoBehaviour
     private DropdownField destinationDropdown;
     private DropdownField carrierDropdown;
     private Slider amountSlider;
+    private Label amountLabel;
+    private FloatField amountFloatField;
 
     private VisualElement repeatContainer;
     private Toggle repeatToggle;
@@ -60,6 +62,8 @@ public class TransportationUIManager : MonoBehaviour
         destinationDropdown = root.Q<DropdownField>("destination-dropdown");
         carrierDropdown = root.Q<DropdownField>("carrier-dropdown");
         amountSlider = root.Q<Slider>("amount-slider");
+        amountLabel = root.Q<Label>("amount-label");
+        amountFloatField = root.Q<FloatField>("amount-float-field");
         repeatContainer = root.Q<VisualElement>("repeat-container");
         repeatToggle = root.Q<Toggle>("repeat-toggle");
         createRouteButton = root.Q<Button>("create-route-button");
@@ -68,7 +72,38 @@ public class TransportationUIManager : MonoBehaviour
         {
             CarrierChanged(evt.newValue);
         });
+        amountSlider.lowValue = 0;
+        amountSlider.RegisterValueChangedCallback(v =>
+        {
+            if(v.newValue != amountFloatField.value)
+            { 
+                amountFloatField.value = v.newValue;
+                amountLabel.text = ((float)Mathf.Floor(v.newValue * 100) / 100).ToString("F2");
+            }
+        });
+        amountFloatField.RegisterValueChangedCallback(evt =>
+        {
+            if (evt.newValue != amountSlider.value)
+            {
+                amountSlider.value = (Mathf.Clamp(evt.newValue, 0, amountSlider.highValue));
+            }
+        });
+
+        createRouteButton.clicked += CreateRouteButton_clicked;
     }
+
+    private void CreateRouteButton_clicked()
+    {
+        Debug.LogWarning(amountSlider.value);
+        TransportationDestination destination = destinations.Find(t => t.GetGameObject().name.Equals(destinationDropdown.value));
+        AbstractCarrier carrier = transportHUB.GetCarriers().Find(c => c.name.Equals(carrierDropdown.value)).GetComponent<AbstractCarrier>();
+        Route route = Route.CreateRoute(transportationStart, destination, carrier, repeatToggle.value, 60, transportHUB.gameObject);
+        if(route != null)
+        {
+            _ = route.StartCarrier(amountSlider.value);
+        }
+    }
+
     public void CurrentSelected(GameObject go)
     {
         transportationStart = go.GetComponent<TransportationStart>();
@@ -107,7 +142,9 @@ public class TransportationUIManager : MonoBehaviour
         foreach (var carrier in transportHUB.GetCarriers())
         {
             if (carrier.name.Equals(name)){
-                SetCarrier(carrier.GetComponent<AbstractCarrier>());
+                AbstractCarrier abstractCarrier = carrier.GetComponent<AbstractCarrier>();
+                amountSlider.highValue=abstractCarrier.Capacity;
+                SetCarrier(abstractCarrier);
                 return;
             }
         }
@@ -117,7 +154,7 @@ public class TransportationUIManager : MonoBehaviour
         destinations = new();
         destinations = FindObjectsOfType<MonoBehaviour>().OfType<TransportationDestination>()
             .Where(destination => 
-                abstractCarrier.CanTransportBetween(transportationStart, destination)
+                Route.CanBeMade(transportationStart, destination, abstractCarrier)
                 && !transportationStart.GetGameObject().Equals(destination.GetGameObject())
                 )
             .ToList();
