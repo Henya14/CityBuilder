@@ -30,6 +30,8 @@ public class Route : MonoBehaviour
         } }
     [SerializeField]
     private int m_counter;
+    public int Counter { get { return m_counter; } }
+
     [SerializeField]
     private int m_repeatTime;
     public int RepeatTime { get { return m_repeatTime; } set { m_repeatTime = value; } } 
@@ -50,6 +52,8 @@ public class Route : MonoBehaviour
     {
         if (!OnRepeat && m_carrier!= null && m_carrier.GetComponent<AbstractCarrier>().Status == CarrierStatus.CompletedRoute)
             Destroy(m_carrier);
+        if(!(this.name.Contains(m_start.GetGameObject().name) && this.name.Contains(m_destination.GetGameObject().name)))
+            Destroy(this.gameObject);
     }
     public static bool CanBeMade(TransportationStart start, TransportationDestination destination, AbstractCarrier abstractCarrier)
     {

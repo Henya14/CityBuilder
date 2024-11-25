@@ -118,6 +118,13 @@ public class SelectionManager : MonoBehaviour, SelectableObject
         manager.ObjectSelected(this, null);
     
     }
+    void OnMouseDown()
+    {
+        GetGridManager()?.ObjectSelectedAtPosition(GetGridPosition());
+
+        var manager = FindObjectOfType<GameUIManager>();
+        manager.ObjectClicked(this, null);
+    }
 
     void OnMouseExit()
     {

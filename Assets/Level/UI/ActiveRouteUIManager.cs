@@ -17,6 +17,7 @@ public class ActiveRouteUIManager : MonoBehaviour
     private Label routeNameLabel;
 
     private Toggle onRepeatToggle;
+    private ProgressBar repeatProgress;
 
     private ProgressBar routeProgress;
     // Start is called before the first frame update
@@ -35,9 +36,11 @@ public class ActiveRouteUIManager : MonoBehaviour
 
         routeNameLabel = root.Q<Label>("route-name");
         onRepeatToggle = root.Q<Toggle>("on-repeat-toggle");
+        repeatProgress = root.Q<ProgressBar>("repeat-progress");
         routeProgress = root.Q<ProgressBar>("route-progress");
         routeProgress.lowValue = (float)CarrierStatus.Setup;
         routeProgress.highValue = (float)CarrierStatus.CompletedRoute;
+        repeatProgress.lowValue = 0;
 
         Hide();
     }
@@ -81,16 +84,28 @@ public class ActiveRouteUIManager : MonoBehaviour
             ProgressUpdate();
 
         }
+        if(route ==null)
+        {
+            Destroy(this);
+        }
     }
     private void ProgressUpdate()
     {
         if (route != null)
         {
+            repeatProgress.highValue = route.RepeatTime;
+            repeatProgress.value = route.RepeatTime-route.Counter;
 
             if (route.GetComponentInChildren<AbstractCarrier>() != null)
                 routeProgress.value = (float)route.GetComponentInChildren<AbstractCarrier>().Status;
             else 
                 Hide();
         }
+    }
+    private void OnDestroy()
+    {
+        Hide();
+        root.Clear();
+
     }
 }

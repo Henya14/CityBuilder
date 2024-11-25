@@ -2,8 +2,9 @@
     <ui:VisualElement name="active-route-container" style="flex-grow: 1;">
         <ui:Label tabindex="-1" text="Route name" parse-escape-sequences="true" display-tooltip-when-elided="true" name="route-name" style="-unity-font-style: bold-and-italic;" />
         <ui:VisualElement style="flex-grow: 1; flex-direction: row; margin-left: 0; min-height: auto; min-width: auto; justify-content: flex-end;">
-            <ui:Toggle label="Repeat: " name="on-repeat-toggle" style="-unity-font-style: bold; align-items: center; max-width: none; width: auto;" />
-            <ui:ProgressBar value="22" name="route-progress" style="justify-content: center; width: 30%;" />
+            <ui:Toggle label="Repeat: " name="on-repeat-toggle" style="-unity-font-style: bold; align-items: center; max-width: none; width: auto; justify-content: flex-start; align-self: stretch;" />
+            <ui:ProgressBar value="22" name="repeat-progress" style="justify-content: center; width: 30%;" />
         </ui:VisualElement>
+        <ui:ProgressBar value="22" title="Progres.." name="route-progress" style="justify-content: center; width: 50%; padding-left: 0; align-self: center;" />
     </ui:VisualElement>
 </ui:UXML>

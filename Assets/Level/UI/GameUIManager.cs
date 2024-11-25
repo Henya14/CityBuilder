@@ -49,6 +49,7 @@ public class GameUIManager : MonoBehaviour
     VisualElement oldInfoContainer;
     VisualElement resourceView;
 
+    Label resourceBuildingLabel;
     VisualElement infoinsidecontainer;
     private ResourceProducerStorageUIManager resourceProducerStorageUI;
     private TransportationUIManager transportationUI;
@@ -109,6 +110,7 @@ public class GameUIManager : MonoBehaviour
         oldInfoContainer = root.Q<VisualElement>("info-box-container");
         resourceView = root.Q<VisualElement>("ResourceView");
 
+        resourceBuildingLabel = root.Q<Label>("resource-building-label");
         infoinsidecontainer = root.Q<VisualElement>("info-inside-container");
     }
     void Start()
@@ -288,6 +290,18 @@ public class GameUIManager : MonoBehaviour
             }
         }
     }
+    public void ObjectClicked(SelectableObject selectedObject, Dictionary<Vector3, List<Vector3Int>> placingPositionsWithGridPositions)
+    {
+        switch (selectedGameMode)
+        {
+            case GameMode.SelectionMode:
+                ObjectClickedInSelectionMode(selectedObject);
+                break;
+            default:
+                break;
+        }
+
+    }
 
     public void ObjectSelected(SelectableObject selectedObject, Dictionary<Vector3, List<Vector3Int>> placingPositionsWithGridPositions)
     {
@@ -308,15 +322,39 @@ public class GameUIManager : MonoBehaviour
 
     }
 
-    void ObjectSelectedInSelectionMode(SelectableObject selectedObject)
+    void ObjectClickedInSelectionMode(SelectableObject selectedObject)
     {
         if (selectedObject != null)
         {
             if (hideOldInfo)
             {
-                resourceProducerStorageUI.CurrentSelected(selectedObject.GetGameObject());
-                transportationUI.CurrentSelected(selectedObject.GetGameObject());
+                if(selectedObject.GetSelectableObjectType() == SelectableObjectType.Building)
+                {
+                    resourceProducerStorageUI.CurrentSelected(selectedObject.GetGameObject());
+                    transportationUI.CurrentSelected(selectedObject.GetGameObject());
+                    resourceBuildingLabel.text = selectedObject.GetGameObject().name;
+                    infoinsidecontainer.style.display = DisplayStyle.Flex;
+                    resourceBuildingLabel.style.display = DisplayStyle.Flex;
+                    infoContainer.style.display = DisplayStyle.Flex;
+                }
+                else
+                {
+                    infoinsidecontainer.style.display = DisplayStyle.None;
+                    resourceBuildingLabel.style.display = DisplayStyle.None;
+                }
             }
+
+        }
+        else
+        {
+            infoContainer.style.display = DisplayStyle.None;
+            infoContainerText.text = "";
+        }
+    }
+    void ObjectSelectedInSelectionMode(SelectableObject selectedObject)
+    {
+        if (selectedObject != null)
+        {
             var displayText = selectedObject.GetDescription();
             infoContainer.style.display = DisplayStyle.Flex;
             var tile = selectedObject.GetGameObject().GetComponent<Tile>();

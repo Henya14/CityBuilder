@@ -132,6 +132,11 @@ public class LandCarrier : AbstractCarrier
     {
         
     }
+    private void OnDestroy()
+    {
+        if(Route != null)
+            Destroy(Route.gameObject);
+    }
 }
 
 public enum LandCarrierTypes
