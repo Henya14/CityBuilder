@@ -17,7 +17,17 @@ public class Route : MonoBehaviour
     public TransportationDestination Destination { get { return m_destination; } }
     [SerializeField]
     private bool m_onRepeat;
-    public bool OnRepeat { get { return m_onRepeat; } set {  m_onRepeat = value; } }
+    public bool OnRepeat { get { return m_onRepeat; } set {  m_onRepeat = value;
+            if(value)
+            {
+                m_counter = m_repeatTime;
+                TimeManager.OnMinuteChanged += CounterCheck;
+            }
+            else
+            {
+                TimeManager.OnMinuteChanged -= CounterCheck;
+            }
+        } }
     [SerializeField]
     private int m_counter;
     [SerializeField]
@@ -38,7 +48,8 @@ public class Route : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (!OnRepeat && m_carrier!= null && m_carrier.GetComponent<AbstractCarrier>().Status == CarrierStatus.CompletedRoute)
+            Destroy(m_carrier);
     }
     public static bool CanBeMade(TransportationStart start, TransportationDestination destination, AbstractCarrier abstractCarrier)
     {
@@ -104,7 +115,10 @@ public class Route : MonoBehaviour
     {
         if (m_counter <= 0)
         {
-            ReStartCarrier();
+            if(OnRepeat)
+            {
+                ReStartCarrier();
+            }
         }
         else
         {

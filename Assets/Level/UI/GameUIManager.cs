@@ -165,6 +165,10 @@ public class GameUIManager : MonoBehaviour
             resourceProducerStorageUI.SetRoot(ref infoinsidecontainer);
             transportationUI = FindObjectOfType<TransportationUIManager>();
             transportationUI.SetRoot(ref infoinsidecontainer);
+            taxesHud.style.display = DisplayStyle.None;
+            saveButton.style.display = DisplayStyle.None;
+            taxesButton.style.display = DisplayStyle.None;
+            buildingsButton.style.display = DisplayStyle.None;
         }
         else
         {

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -27,13 +28,15 @@ public class TransportationUIManager : MonoBehaviour
     private DropdownField destinationDropdown;
     private DropdownField carrierDropdown;
     private Slider amountSlider;
-    private Label amountLabel;
     private FloatField amountFloatField;
 
     private VisualElement repeatContainer;
     private Toggle repeatToggle;
 
     private Button createRouteButton;
+
+    private ListView activeRoutesList;
+    private VisualElement activeRoutesListContainer;
 
     void Start() {
         transportHUB = GetComponent<TransportHUB>();
@@ -62,11 +65,12 @@ public class TransportationUIManager : MonoBehaviour
         destinationDropdown = root.Q<DropdownField>("destination-dropdown");
         carrierDropdown = root.Q<DropdownField>("carrier-dropdown");
         amountSlider = root.Q<Slider>("amount-slider");
-        amountLabel = root.Q<Label>("amount-label");
         amountFloatField = root.Q<FloatField>("amount-float-field");
         repeatContainer = root.Q<VisualElement>("repeat-container");
         repeatToggle = root.Q<Toggle>("repeat-toggle");
         createRouteButton = root.Q<Button>("create-route-button");
+        activeRoutesList = root.Q<ListView>("active-routes-list");
+        activeRoutesListContainer = activeRoutesList.Q<VisualElement>("unity-content-container");
 
         carrierDropdown.RegisterCallback<ChangeEvent<string>>((evt) =>
         {
@@ -75,18 +79,25 @@ public class TransportationUIManager : MonoBehaviour
         amountSlider.lowValue = 0;
         amountSlider.RegisterValueChangedCallback(v =>
         {
+            if(v.previousValue == v.newValue) { return; }
             if(v.newValue != amountFloatField.value)
             { 
                 amountFloatField.value = v.newValue;
-                amountLabel.text = ((float)Mathf.Floor(v.newValue * 100) / 100).ToString("F2");
+                //amountLabel.text = ((float)Mathf.Floor(v.newValue * 100) / 100).ToString("F2");
             }
         });
         amountFloatField.RegisterValueChangedCallback(evt =>
         {
-            if (evt.newValue != amountSlider.value)
+            if (evt.previousValue == evt.newValue) { return; }
+            //if (evt.newValue > amountSlider.highValue || evt.newValue < amountSlider.lowValue)
+            //{
+            //    amountFloatField.SetValueWithoutNotify (Mathf.Clamp(evt.newValue, amountSlider.lowValue, amountSlider.highValue));
+            //}
+            else if (evt.newValue != amountSlider.value)
             {
-                amountSlider.value = (Mathf.Clamp(evt.newValue, 0, amountSlider.highValue));
+                amountSlider.value = (Mathf.Clamp(evt.newValue, amountSlider.lowValue, amountSlider.highValue));
             }
+
         });
 
         createRouteButton.clicked += CreateRouteButton_clicked;
@@ -100,7 +111,11 @@ public class TransportationUIManager : MonoBehaviour
         Route route = Route.CreateRoute(transportationStart, destination, carrier, repeatToggle.value, 60, transportHUB.gameObject);
         if(route != null)
         {
+            var routeUI = route.AddComponent<ActiveRouteUIManager>();
+            routeUI.SetRoot(ref activeRoutesListContainer);
+            routeUI.SetRoute(route);
             _ = route.StartCarrier(amountSlider.value);
+            UpdateActiveList();
         }
     }
 
@@ -126,6 +141,7 @@ public class TransportationUIManager : MonoBehaviour
             ShowNewRouteDataContainer();
         }
         ShowRoot();
+        UpdateActiveList();
 
     }
     private void HideRoot()
@@ -177,6 +193,17 @@ public class TransportationUIManager : MonoBehaviour
     {
         routeDataContainer.style.display = DisplayStyle.None;
         noDestinationLabel.style.display = DisplayStyle.Flex;
+    }
+    public ListView GetActiveRoutesList()
+    {
+        return activeRoutesList;
+    }
+    public void UpdateActiveList()
+    {
+        foreach( var v in FindObjectsOfType<ActiveRouteUIManager>())
+        {
+            v.ShowIfNameContains(transportationStart.GetGameObject().name);
+        }
     }
 
 }

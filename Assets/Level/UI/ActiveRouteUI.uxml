@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="active-route-container" style="flex-grow: 1;">
+        <ui:Label tabindex="-1" text="Route name" parse-escape-sequences="true" display-tooltip-when-elided="true" name="route-name" style="-unity-font-style: bold-and-italic;" />
+        <ui:VisualElement style="flex-grow: 1; flex-direction: row; margin-left: 0; min-height: auto; min-width: auto; justify-content: flex-end;">
+            <ui:Toggle label="Repeat: " name="on-repeat-toggle" style="-unity-font-style: bold; align-items: center; max-width: none; width: auto;" />
+            <ui:ProgressBar value="22" name="route-progress" style="justify-content: center; width: 30%;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

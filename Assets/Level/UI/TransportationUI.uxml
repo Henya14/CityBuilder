@@ -1,13 +1,13 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="transportation-container" style="flex-grow: 1; min-width: 400px; min-height: 400px;">
-        <ui:VisualElement name="new-route-container" style="flex-grow: 1; flex-direction: column;">
+        <ui:VisualElement name="new-route-container" style="flex-grow: 1; flex-direction: column; min-height: 230px; max-height: 230px;">
             <ui:Label tabindex="-1" text="Add new Route" parse-escape-sequences="true" display-tooltip-when-elided="true" style="align-self: auto; -unity-font-style: bold; font-size: 16px; -unity-text-align: upper-center;" />
             <ui:Label tabindex="-1" text="No suitable destination found" parse-escape-sequences="true" display-tooltip-when-elided="true" name="no-destination-label" style="-unity-text-align: upper-center; -unity-font-style: bold; display: none; overflow: visible;" />
             <ui:VisualElement name="route-data-container" style="flex-grow: 1; min-height: auto; min-width: auto; height: 87px;">
                 <ui:DropdownField label="Destination: " index="-1" name="destination-dropdown" style="justify-content: flex-start; -unity-font-style: bold;" />
                 <ui:DropdownField label="Carrier:" index="-1" name="carrier-dropdown" style="-unity-font-style: bold;" />
                 <ui:Slider picking-mode="Ignore" label="Amount:" value="42" high-value="100" name="amount-slider" style="-unity-font-style: bold;">
-                    <ui:Label tabindex="-1" text="0.00" parse-escape-sequences="true" display-tooltip-when-elided="true" name="slected-amount" style="min-height: auto; min-width: 40px; -unity-text-align: upper-right;" />
+                    <ui:FloatField value="42,2" name="amount-float-field" style="min-width: 50px; -unity-text-align: upper-center;" />
                 </ui:Slider>
                 <ui:VisualElement name="repeat-container" style="flex-grow: 1; min-height: auto; min-width: auto; flex-direction: row; align-items: center; justify-content: space-between; align-self: auto; height: 35px;">
                     <ui:Label tabindex="-1" text="Repeat:" parse-escape-sequences="true" display-tooltip-when-elided="true" style="-unity-font-style: bold; align-self: auto; align-items: auto; justify-content: flex-start; width: 45%; margin-left: 4px;" />
@@ -16,7 +16,7 @@
                 <ui:Button text="Create" parse-escape-sequences="true" display-tooltip-when-elided="true" name="create-route-button" style="align-self: auto;" />
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="active-routes-container" style="flex-grow: 1;">
+        <ui:VisualElement name="active-routes-container" style="flex-grow: 1; min-height: 150px;">
             <ui:Label tabindex="-1" text="Active Routes" parse-escape-sequences="true" display-tooltip-when-elided="true" style="align-self: center; -unity-font-style: bold;" />
             <ui:ListView focusable="true" name="active-routes-list" />
         </ui:VisualElement>
