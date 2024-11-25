@@ -160,22 +160,28 @@ public class GameUIManager : MonoBehaviour
         UpdateTaxes();
         if (hideOldInfo)
         {
-            oldInfoContainer.visible = false;
-            resourceView.visible = true;
+            resourceView.style.display = DisplayStyle.Flex;
             FindObjectOfType<ResourceManagerUIManager>().SetRoot(ref resourceView);
             resourceProducerStorageUI = FindObjectOfType<ResourceProducerStorageUIManager>();
             resourceProducerStorageUI.SetRoot(ref infoinsidecontainer);
             transportationUI = FindObjectOfType<TransportationUIManager>();
             transportationUI.SetRoot(ref infoinsidecontainer);
+            oldInfoContainer.style.display = DisplayStyle.None;
             taxesHud.style.display = DisplayStyle.None;
             saveButton.style.display = DisplayStyle.None;
             taxesButton.style.display = DisplayStyle.None;
             buildingsButton.style.display = DisplayStyle.None;
+            moralityViewToggle.style.display = DisplayStyle.None;
         }
         else
         {
-            oldInfoContainer.visible = true;
-            resourceView.visible = false;
+            oldInfoContainer.style.display = DisplayStyle.Flex;
+            taxesHud.style.display = DisplayStyle.Flex;
+            saveButton.style.display = DisplayStyle.Flex;
+            taxesButton.style.display = DisplayStyle.Flex;
+            buildingsButton.style.display = DisplayStyle.Flex;
+            moralityViewToggle.style.display = DisplayStyle.Flex;
+            resourceView.style.display = DisplayStyle.None;
         }
     }
 

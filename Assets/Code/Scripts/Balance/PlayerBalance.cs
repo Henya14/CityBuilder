@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class PlayerBalance : MonoBehaviour
 {
+    [SerializeField]
+    ResourceManager resourcemanager;
     public static PlayerBalance instance;
     private void Awake()
     {
@@ -249,5 +251,9 @@ public class PlayerBalance : MonoBehaviour
                 quests.RemoveAt(i);
             }
         }
+    }
+    public ResourceManager GetResourceManager()
+    {
+        return resourcemanager;
     }
 }

@@ -11,11 +11,13 @@ using UnityEngine.UIElements;
 public static class ResourceImporter
 {
     [SerializeField]
-    public static string resourceFolderPath = "MaterialDatas/";
-    public static List<RawMaterialWithRearity> GetRawMaterials()
+    public static string resourceFolderPath = "MaterialDatas/RawMaterials.json-ResourceRecipes.json";
+    public static List<RawMaterialWithRearity> GetRawMaterials(string path_to_rawresource_json)
     {
+        var path = path_to_rawresource_json;
+        if (string.IsNullOrEmpty(path_to_rawresource_json)) path = "MaterialDatas/RawMaterials.json";
         var raw = new List<RawMaterialWithRearity>();
-        raw = Load<RawMaterialWithRearity>(resourceFolderPath + "RawMaterials.json");
+        raw = Load<RawMaterialWithRearity>(path);
         return raw;
     }
     /*
@@ -29,9 +31,11 @@ public static class ResourceImporter
         }
         return res;
     }*/
-    public static void GetResources(Component component)
+    public static void GetResources(Component component, string path_to_resourcerecipe_json)
     {
-        var raw = Load<ResourceRecipe>(resourceFolderPath + "ResourceRecipes.json");
+        var path = path_to_resourcerecipe_json;
+        if (string.IsNullOrEmpty(path_to_resourcerecipe_json)) path = "MaterialDatas/ResourceRecipes.json";
+        var raw = Load<ResourceRecipe>(path);
         foreach (var r in raw)
         {
             

@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class ResourceManager : MonoBehaviour
 {
+    [SerializeField] private string m_pathOfResourceRecipeFile;
     //[SerializeField]
     //public List<Resource> resources = new List<Resource>();
     private bool m_logAsError=true;
@@ -17,7 +18,7 @@ public class ResourceManager : MonoBehaviour
     {
         //ResourceImporter.Save();
         //resources=ResourceImporter.GetResources();
-        ResourceImporter.GetResources(this);
+        ResourceImporter.GetResources(this, m_pathOfResourceRecipeFile);
         if(m_resourcesWithSpecialBuilding == null) { m_resourcesWithSpecialBuilding=new();}
     }
 

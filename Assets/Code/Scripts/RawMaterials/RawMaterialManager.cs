@@ -9,6 +9,7 @@ using static UnityEditor.PlayerSettings;
 
 public class RawMaterialManager : MonoBehaviour
 {
+    [SerializeField] private string m_pathOfRawResourceFile;
     [SerializeField] private int narrowBy = 100;
     [SerializeField] private List<RawMaterialWithRearity> rawMaterials;
     private Dictionary<Rect,string> rawMaterialPlaces;
@@ -35,7 +36,7 @@ public class RawMaterialManager : MonoBehaviour
         //Beolvasas
         rawMaterials = new List<RawMaterialWithRearity>();
         rawMaterialPlaces = new Dictionary<Rect, string>();
-        rawMaterials = ResourceImporter.GetRawMaterials();
+        rawMaterials = ResourceImporter.GetRawMaterials(m_pathOfRawResourceFile);
         var resourceManager = FindAnyObjectByType<ResourceManager>();
         foreach (var rawMaterial in rawMaterials)
         {
