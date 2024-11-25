@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Quest", menuName = "Quests/Earn3Wood")]
-
 public class Earn3Wood : Quest
 {
     public override void CheckTheQuest()
@@ -21,5 +20,9 @@ public class Earn3Wood : Quest
                 }
             }
         }
+    }
+    public override string GetHint()
+    {
+        return "To Get 3 Wood place a WoodProducer next to a road and wait";
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEditor.VersionControl;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 public enum GameMode
@@ -48,6 +49,9 @@ public class GameUIManager : MonoBehaviour
     private bool hideOldInfo;
     VisualElement oldInfoContainer;
     VisualElement resourceView;
+    ListView hintList;
+    VisualElement hintContainer;
+    Button exitButton;
 
     Label resourceBuildingLabel;
     VisualElement infoinsidecontainer;
@@ -112,6 +116,11 @@ public class GameUIManager : MonoBehaviour
 
         resourceBuildingLabel = root.Q<Label>("resource-building-label");
         infoinsidecontainer = root.Q<VisualElement>("info-inside-container");
+
+        hintList = root.Q<ListView>("hint-list");
+        hintContainer = hintList.Q<VisualElement>("unity-content-container");
+
+        exitButton = root.Q<Button>("exit-button");
     }
     void Start()
     {
@@ -157,15 +166,21 @@ public class GameUIManager : MonoBehaviour
         PlayerBalance.OnPlayerStatsChanged += UpdateBalanceText;
         taxesButton.clicked += TaxesMenu;
 
+        exitButton.clicked += ExitClicked;
+
         UpdateTaxes();
         if (hideOldInfo)
         {
             resourceView.style.display = DisplayStyle.Flex;
+            hintList.style.display = DisplayStyle.Flex;
+            exitButton.style.display = DisplayStyle.Flex;
             FindObjectOfType<ResourceManagerUIManager>().SetRoot(ref resourceView);
             resourceProducerStorageUI = FindObjectOfType<ResourceProducerStorageUIManager>();
             resourceProducerStorageUI.SetRoot(ref infoinsidecontainer);
             transportationUI = FindObjectOfType<TransportationUIManager>();
             transportationUI.SetRoot(ref infoinsidecontainer);
+            FindObjectOfType<QuestUIManager>().SetRoot(ref hintContainer);
+            FindObjectOfType<QuestUIManager>().SetExit(ref exitButton);
             oldInfoContainer.style.display = DisplayStyle.None;
             taxesHud.style.display = DisplayStyle.None;
             saveButton.style.display = DisplayStyle.None;
@@ -182,9 +197,14 @@ public class GameUIManager : MonoBehaviour
             buildingsButton.style.display = DisplayStyle.Flex;
             moralityViewToggle.style.display = DisplayStyle.Flex;
             resourceView.style.display = DisplayStyle.None;
+            hintList.style.display = DisplayStyle.None;
+            exitButton.style.display = DisplayStyle.None;
         }
     }
-
+    private void ExitClicked()
+    {
+        SceneManager.LoadScene("NewMenu");
+    }
     private void Update()
     {
         if ((questText.style.display == DisplayStyle.Flex) && (Time.time >= timeWhenDisappear))

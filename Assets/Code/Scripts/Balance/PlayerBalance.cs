@@ -42,7 +42,7 @@ public class PlayerBalance : MonoBehaviour
     static int electricity;
     static int coal;
 
-    [SerializeField] List<Quest> quests;
+    [SerializeField]public List<Quest> quests;
     [SerializeField] List<Quest> doneQuests;
 
     [SerializeField] public static int Balance { 
@@ -140,9 +140,18 @@ public class PlayerBalance : MonoBehaviour
     public List<string> GetDoneQuests() { return doneQuests.ConvertAll(x => x.name); }
 
     void Start() {
+        foreach (var quest in quests)
+        {
+            quest.Reset();
+        }
 
         TimeManager.OnHourChanged += CalcTaxes;
-        TimeManager.OnHourChanged += CheckQuests;
+        //TimeManager.OnHourChanged += CheckQuests;
+        //TimeManager.OnMinuteChanged += CheckQuests;
+    }
+    private void Update()
+    {
+        CheckQuests();
     }
 
     private void CalcTaxes() {
