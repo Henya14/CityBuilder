@@ -15,6 +15,7 @@ using UnityEngine.UIElements;
 
 public class BuildModeManager : MonoBehaviour
 {
+    [SerializeField] string resourceBuildingsFolderPath;
     private BuildingData selectedBuildingData;
     private NavigationManager navigationManager;
     private GameUIManager gameUIManager;
@@ -144,12 +145,22 @@ public class BuildModeManager : MonoBehaviour
     public List<BuildingData> LoadBuildingDatasAndReturnAvailable()
     {
         buildingDatas = Resources.LoadAll<BuildingData>("Buildings").ToList();
+        buildingDatas.AddRange(LoadResourceBuildings());
         buildingDatas = buildingDatas.Select(bd =>
         {
             bd.isAvailable = UnityEngine.Random.Range(0, 2) == 1 ? true : false;
             return bd;
         }).ToList();
         return buildingDatas.Where(bd => !bd.BuyableBuilding).ToList();
+    }
+    private List<BuildingData> LoadResourceBuildings()
+    {
+        var resbuildings = new List<BuildingData>();
+        if(string.IsNullOrEmpty(resourceBuildingsFolderPath))
+            return resbuildings;
+
+        resbuildings = Resources.LoadAll<BuildingData>(resourceBuildingsFolderPath).ToList();
+        return resbuildings;
     }
 
     public void BuildingDataSelected(BuildingData buildingData)

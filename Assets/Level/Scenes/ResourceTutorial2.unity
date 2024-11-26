@@ -305,6 +305,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7a4523f1af0e9942832b6aa18e85a73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  resourceBuildingsFolderPath: ResourceBuildings/Tutorial2
   debugSpherePrefab: {fileID: 8964427670939829494, guid: defa4935887e3bc469e8cf79e52fb69e, type: 3}
   twoWayStraight: {fileID: 6515529762217398849, guid: a115091087a2c714aad07754c30a268d, type: 3}
   twoWayCurvy: {fileID: 6515529762217398849, guid: df6a32d1296f0414ab77fd29fabef8a0, type: 3}
@@ -679,7 +680,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1da67125ae7049241ba98d78047eb22e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_pathOfResourceRecipeFile: TutorialDatas/Tutorial1/T1_ResourceRecipes.json
+  m_pathOfResourceRecipeFile: TutorialDatas/Tutorial2/T2_ResourceRecipes.json
   m_resourcesWithSpecialBuilding:
   - Wood
   - Plank
