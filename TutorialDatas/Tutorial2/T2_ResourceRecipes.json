@@ -1,0 +1,32 @@
+{
+    "list": [
+        {
+            "name": "Plank",
+            "description": "plank desc...",
+            "amount_per_hour": 1.5,
+            "recipe": [
+                {
+                    "key": "Wood",
+                    "value": 1.0
+                }
+            ]
+        },
+        {
+            "name": "Wood",
+            "description": "Cut forest for this...",
+            "amount_per_hour": 3,
+            "recipe": []
+        },
+        {
+            "name": "Brick",
+            "description": "Made from clay...",
+            "amount_per_hour": 3,
+            "recipe": [
+                {
+                    "key": "Clay",
+                    "value": 1.5
+                }
+            ]
+        }
+    ]
+}

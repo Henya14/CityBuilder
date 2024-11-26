@@ -10,7 +10,9 @@ public class MapGenarator : MonoBehaviour
 {
    public enum DrawMode { NoiseMap, ColorMap, Mesh };
    public DrawMode drawMode;
-   const int mapChunkSize = 241;
+    [SerializeField]
+    [Range(1, 241)] 
+   int mapChunkSize = 241;
    [Range(0,6)]
    public int levelOfDetail;
    [SerializeField] int seed;

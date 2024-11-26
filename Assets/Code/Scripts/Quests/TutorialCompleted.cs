@@ -12,7 +12,7 @@ public class TutorialCompleted : Quest
         if (PlayerBalance.instance.quests.Count == 1)
         {
 
-            questText = "Tutorial Completed!";
+            questText = "Tutorial Completed!\n You can exit now...";
             isQuestIsDone = true;
         }
     }
