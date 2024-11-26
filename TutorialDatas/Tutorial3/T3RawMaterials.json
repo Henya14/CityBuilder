@@ -3,7 +3,7 @@
         {
             "Type": "Iron",
             "Rearity": 0.1,
-            "GatheredAmountPerHour": 1.5,
+            "GatheredAmountPerHour": 1.0,
             "Color": {
                 "r": 0.5490195751190186,
                 "g": 0.5490195751190186,

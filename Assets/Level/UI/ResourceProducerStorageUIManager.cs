@@ -233,13 +233,13 @@ public class ResourceProducerStorageUIManager : MonoBehaviour
         {
             string text = "";
             if (!producer.TurnedOn)
-                text = "NOT Running";
+                text = "NOT Operating";
             else
             {
-                if (producer.IsRunning)
-                    text = "Running";
+                if (producer.IsOperating)
+                    text = "Operating";
                 else
-                    text = "NOT Running";
+                    text = "NOT Operating";
             }
 
             producerStatusInfoLabel.text = text;

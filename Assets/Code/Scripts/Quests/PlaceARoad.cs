@@ -17,6 +17,6 @@ public class PlaceARoad : Quest
     }
     public override string GetHint()
     {
-        return "Place a road using build menu";
+        return "Place a road to build buildings next to it (use build menu)";
     }
 }

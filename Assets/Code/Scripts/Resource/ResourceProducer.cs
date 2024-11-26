@@ -18,8 +18,8 @@ public class ResourceProducer : ResourceStorage, TransportationDestination
     public bool TurnedOn { get { return m_turnedOn; } private set { m_turnedOn = value; } }
 
     [SerializeField] //To see in inspector
-    private bool m_isRunning;
-    public bool IsRunning { get { return m_isRunning; } private set { m_isRunning = value; } }
+    private bool m_isOperating;
+    public bool IsOperating { get { return m_isOperating; } private set { m_isOperating = value; } }
 
     [SerializeField] //To see in inspector
     private bool m_somethingMissing;
@@ -149,7 +149,7 @@ public class ResourceProducer : ResourceStorage, TransportationDestination
     public void TurnOff()
     {
         TurnedOn = false;
-        IsRunning = false;
+        IsOperating = false;
         Reason = "Turned OFF";
     }
     public bool AssignToCurrentType()
@@ -163,21 +163,21 @@ public class ResourceProducer : ResourceStorage, TransportationDestination
             CheckRecipe();
             if (SomethingMissing)
             {
-                IsRunning = false;
+                IsOperating = false;
                 Reason = "Something missing for the recipe";
             }
             else
             {
                 Reason = string.Empty;
                 m_cycleUntilReCheck = 60;
-                IsRunning = true;
+                IsOperating = true;
             }
         }
         else
         {
 
             Reason = string.Empty;
-            IsRunning = true;
+            IsOperating = true;
         }
 
     }
@@ -299,7 +299,7 @@ public class ResourceProducer : ResourceStorage, TransportationDestination
         {
             return;
         }
-        if(Resource != null && IsRunning)
+        if(Resource != null && IsOperating)
         {
             if (m_cycleUntilReCheck > 0)
             {
@@ -307,7 +307,7 @@ public class ResourceProducer : ResourceStorage, TransportationDestination
                 bool isFull = !base.AddResource(rate); //If Add not successfull that means it full
                 if (isFull)
                 {
-                    IsRunning = false;
+                    IsOperating = false;
                     Reason = "Storage full";
                 }
                 else
