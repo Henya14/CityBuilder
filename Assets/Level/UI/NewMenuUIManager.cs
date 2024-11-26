@@ -45,11 +45,11 @@ public class NewMenuUIManager : MonoBehaviour
     }
     void SecondTutorial()
     {
-        SceneManager.LoadScene("Main2");
+        SceneManager.LoadScene("ResourceTutorial2");
     }
     void ThirdTutorial()
     {
-        SceneManager.LoadScene("Main2");
+        SceneManager.LoadScene("ResourceTutorial3");
     }
 
 

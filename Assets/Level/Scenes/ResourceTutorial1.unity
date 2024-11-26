@@ -183,7 +183,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e99ca9b20506c96438c8e31b267ae15e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  transportHUB: {fileID: 0}
+  transportHUB: {fileID: 70874112}
 --- !u!1 &101748210
 GameObject:
   m_ObjectHideFlags: 0
