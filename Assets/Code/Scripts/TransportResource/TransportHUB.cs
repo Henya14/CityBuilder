@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class TransportHUB : MonoBehaviour
@@ -21,10 +23,17 @@ public class TransportHUB : MonoBehaviour
     {
         
     }
-    public bool MakeRoute(GameObject carrier)
+    public Route MakeRoute(TransportationStart start, TransportationDestination destination, GameObject abstractCarrier, bool repeat, int repeattime)
     {
-        if(carrier == null || !transports.Contains(carrier)) return false;
-        return false; 
+        if(abstractCarrier == null || !transports.Contains(abstractCarrier)) return null;
 
+        Route route = Route.CreateRoute(start, destination, abstractCarrier, repeat, repeattime, this.gameObject);
+        return route; 
+
+    }
+    public bool StartCarrier(Route route, float amount)
+    {
+        if(route == null || GetComponentsInChildren<Route>().Where( ro => ro.Equals(route)).ToList().Count==0) return false;
+        return route.StartCarrier(amount);
     }
 }

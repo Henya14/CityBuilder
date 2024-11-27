@@ -40,6 +40,8 @@ public class Route : MonoBehaviour
     public string Type { get { return m_type; } }
     [SerializeField]
     private GameObject m_carrier;
+    public GameObject Carrier { get { return m_carrier; } }
+    public bool HasCarrier => m_carrier != null;
 
     // Start is called before the first frame update
     void Start()
@@ -63,9 +65,10 @@ public class Route : MonoBehaviour
             return abstractCarrier.CanTransportBetween(start, destination);
         return false;
     }
-    public static Route CreateRoute(TransportationStart start, TransportationDestination destination, AbstractCarrier abstractCarrier, bool repeat, int repeattime, GameObject parent)
+    public static Route CreateRoute(TransportationStart start, TransportationDestination destination, GameObject abstractCarrier, bool repeat, int repeattime, GameObject parent)
     {
-        if (!CanBeMade(start, destination, abstractCarrier)) return null;
+        if(abstractCarrier.GetComponent<AbstractCarrier>() == null) return null;
+        if (!CanBeMade(start, destination, abstractCarrier.GetComponent<AbstractCarrier>())) return null;
         var o = new GameObject("Route: "+start.GetGameObject().name+" -> "+destination.GetGameObject().name );
         o.transform.parent = parent.transform;
         Route route = o.AddComponent<Route>();
@@ -73,7 +76,7 @@ public class Route : MonoBehaviour
         route.m_destination = destination;
         route.m_onRepeat = repeat;
         route.m_repeatTime = repeattime;
-        route.m_carrier = abstractCarrier.gameObject;
+        route.m_carrier = abstractCarrier;
         route.m_type = start.GetResourceType();
         return route;
 

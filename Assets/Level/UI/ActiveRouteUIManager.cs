@@ -96,8 +96,8 @@ public class ActiveRouteUIManager : MonoBehaviour
             repeatProgress.highValue = route.RepeatTime;
             repeatProgress.value = route.RepeatTime-route.Counter;
 
-            if (route.GetComponentInChildren<AbstractCarrier>() != null)
-                routeProgress.value = (float)route.GetComponentInChildren<AbstractCarrier>().Status;
+            if (route.HasCarrier)
+                routeProgress.value = (float)route.Carrier.GetComponent<AbstractCarrier>().Status;
             else 
                 Hide();
         }

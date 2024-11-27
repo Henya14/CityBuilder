@@ -105,15 +105,17 @@ public class TransportationUIManager : MonoBehaviour
 
     private void CreateRouteButton_clicked()
     {
+
         TransportationDestination destination = destinations.Find(t => t.GetGameObject().name.Equals(destinationDropdown.value));
-        AbstractCarrier carrier = transportHUB.GetCarriers().Find(c => c.name.Equals(carrierDropdown.value)).GetComponent<AbstractCarrier>();
-        Route route = Route.CreateRoute(transportationStart, destination, carrier, repeatToggle.value, 60, transportHUB.gameObject);
+        GameObject abstractcarrier = transportHUB.GetCarriers().Find(c => c.name.Equals(carrierDropdown.value));
+        Route route = transportHUB.MakeRoute(transportationStart, destination, abstractcarrier, repeatToggle.value, 60);
         if(route != null)
         {
             var routeUI = route.AddComponent<ActiveRouteUIManager>();
             routeUI.SetRoot(ref activeRoutesListContainer);
             routeUI.SetRoute(route);
-            _ = route.StartCarrier(amountSlider.value);
+
+            _ = transportHUB.StartCarrier(route,amountSlider.value);
             UpdateActiveList();
         }
     }
