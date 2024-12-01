@@ -90,7 +90,7 @@ public class ResourceStorage : MonoBehaviour, TransportationStart, Transportatio
         return true;
         
     }
-    public bool TakeResource(float amount)
+    public virtual bool TakeResource(float amount)
     {
         if (m_resource == null)
         {

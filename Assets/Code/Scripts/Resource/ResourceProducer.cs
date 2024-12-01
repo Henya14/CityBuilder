@@ -312,6 +312,7 @@ public class ResourceProducer : ResourceStorage, TransportationDestination
                 }
                 else
                 {
+                    Reason = string.Empty;
                     m_cycleUntilReCheck--;
                     foreach(var item in Resource.GetRecipe()) //Use ingerdient
                     {
@@ -344,11 +345,21 @@ public class ResourceProducer : ResourceStorage, TransportationDestination
 
     public new bool Deliver(string type, float amount)
     {
+        if(Acceptable(type) == false) return false;
         this.AddResourceForProcess(new KeyValuePair<string, float>(type, amount));
         return true;
     }
     public new bool Acceptable(string type)
     {
         return Resource.GetRecipe().ContainsKey(type);
+    }
+    public override bool TakeResource(float amount)
+    {
+        var ret = base.TakeResource(amount);
+        if (ret && TurnedOn)
+        {
+            IsOperating=true;
+        }
+        return ret;
     }
 }

@@ -18,8 +18,8 @@ public class ResourceManager : MonoBehaviour
     {
         //ResourceImporter.Save();
         //resources=ResourceImporter.GetResources();
-        ResourceImporter.GetResources(this, m_pathOfResourceRecipeFile);
-        if(m_resourcesWithSpecialBuilding == null) { m_resourcesWithSpecialBuilding=new();}
+        //ResourceImporter.GetResources(this, m_pathOfResourceRecipeFile);
+        ResourceImporter.LoadResources(this, m_pathOfResourceRecipeFile);
     }
 
     // Update is called once per frame
@@ -48,6 +48,12 @@ public class ResourceManager : MonoBehaviour
         var o = new GameObject(rawResource.Type);
         o.transform.parent = this.transform;
         Resource.CreateComponent(o, rawResource.Type, "", rawResource.GatheredAmountPerHour, new Dictionary<string, float>());
+    }
+    public void AddNewResource(string name,string description, float amount_per_hour, Dictionary<string, float> recipe)
+    {
+        var o = new GameObject(name);
+        o.transform.parent = this.transform;
+        Resource.CreateComponent(o, name, description,amount_per_hour, recipe);
     }
     public List<string> GetAllResourceName()
     {

@@ -31,6 +31,17 @@ public static class ResourceImporter
         }
         return res;
     }*/
+    public static void LoadResources(ResourceManager resourceManager, string path_to_resourcerecipe_json)
+    {
+        var path = path_to_resourcerecipe_json;
+        if (string.IsNullOrEmpty(path_to_resourcerecipe_json)) path = "MaterialDatas/ResourceRecipes.json";
+        var raw = Load<ResourceRecipe>(path);
+        foreach (var r in raw)
+        {
+            resourceManager.AddNewResource( r.name, r.description, r.amount_per_hour, r.GetRecipe());
+        }
+
+    }
     public static void GetResources(Component component, string path_to_resourcerecipe_json)
     {
         var path = path_to_resourcerecipe_json;

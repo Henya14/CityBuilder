@@ -41,7 +41,7 @@ public class Resource : MonoBehaviour
         res.Parameters(resname, description, amount_per_hour, recipe);
         res.AddComponent<ResourceUIManager>();
     }
-    public void Parameters(string resname, string description, float amount_per_hour, Dictionary<string, float> recipe)
+    private void Parameters(string resname, string description, float amount_per_hour, Dictionary<string, float> recipe)
     {
         m_resname = resname;
         m_description = description;
