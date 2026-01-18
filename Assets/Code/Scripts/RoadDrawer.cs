@@ -135,6 +135,7 @@ public class RoadDrawer : MonoBehaviour
     private List<GameObject> roadMeshes = new List<GameObject>();
     private Dictionary<string, RoadData> roadPointDatasForRoads = new Dictionary<string, RoadData>();
 
+    private GameUIManager uiManager;
     public RoadData GetRoadDataForRoad(string roadName)
     {
         return roadPointDatasForRoads[roadName];
@@ -157,6 +158,7 @@ public class RoadDrawer : MonoBehaviour
     {
         splineContainer = gameObject.AddComponent<SplineContainer>();
         raycastLayerMask = LayerMask.GetMask("Ground");
+        uiManager = FindObjectOfType<GameUIManager>();
     }
 
     public void EnableDrawing(int roadWidth)
@@ -176,7 +178,13 @@ public class RoadDrawer : MonoBehaviour
     int pointIdx = 0;
     void Update()
     {
-        if (isDrawingRoad)
+
+        if (uiManager != null && uiManager.IsMouseOverUI())
+        {
+            Debug.Log("Mouse over UI");
+        }
+     
+        if (isDrawingRoad && uiManager != null && !uiManager.IsMouseOverUI())
         {
             LastMousePosition = Input.mousePosition;
             Vector2 view = FindObjectOfType<Camera>().ScreenToViewportPoint(Input.mousePosition);
@@ -703,7 +711,7 @@ public class RoadDrawer : MonoBehaviour
             for (int i = 0; i < batchDatas.Count; i++)
             {
                 var batch = batchDatas[i];
-                Color color = colors.ElementAt(random.NextInt(0, colors.Count));
+                
                 foreach (var emptyTileDatas in batch.emptyTileDatas)
                 {
                     SetPositionOfEmptyTiles(emptyTileDatas);
@@ -727,10 +735,10 @@ public class RoadDrawer : MonoBehaviour
              for (int i = 0; i < batchDatas.Count; i++)
             {
                 var batch = batchDatas[i];
-                
+                Color color = colors.ElementAt(random.NextInt(0, colors.Count));
                 foreach (var emptyTileDatas in batch.emptyTileDatas)
                 {
-                    batch = AddTilesToGame(emptyTileList, roadMesh, batch, emptyTileDatas);
+                    batch = AddTilesToGame(emptyTileList, roadMesh, batch, emptyTileDatas, "right", color);
                     //yield return new WaitForSeconds(0.2f);
                 }
                 yield return null;
@@ -738,7 +746,7 @@ public class RoadDrawer : MonoBehaviour
         }
     }
 
-    private BatchData AddTilesToGame(List<GameObject> emptyTileList, GameObject roadMesh, BatchData batch, List<EmptyTileData> emptyTileDatas, string side = "right")
+    private BatchData AddTilesToGame(List<GameObject> emptyTileList, GameObject roadMesh, BatchData batch, List<EmptyTileData> emptyTileDatas, string side = "right", Color color = default)
     {
         foreach (var emptyTileData in emptyTileDatas)
         {
@@ -753,8 +761,8 @@ public class RoadDrawer : MonoBehaviour
             // {
             //     shadowCopy.transform.position = new Vector3(emptyTileData.position.x, 115.0f, emptyTileData.position.z);
             // }
-            //emptyTileInstance.GetComponentInChildren<Highlight>().SetHighlightColor(color);
-            //emptyTileInstance.GetComponentInChildren<Highlight>().ToggleHighlight(true);
+            emptyTileInstance.GetComponentInChildren<Highlight>().SetHighlightColor(color);
+            emptyTileInstance.GetComponentInChildren<Highlight>().ToggleHighlight(true);
             if (batch.tileObjects == default)
             {
                 batch.tileObjects = new List<GameObject>();

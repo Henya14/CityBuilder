@@ -42,15 +42,15 @@ public class BuildModeManager : MonoBehaviour
         var gridPositions = new List<Vector3Int>();
         placingPositionsWithGridPositions.Values.ToList().ForEach(v => gridPositions.AddRange(v));
         gridPositions = gridPositions.Select(p => new Vector3Int(p.x, p.y + 1, p.z)).ToList();
-
         var (selectedBuilding, go) = CreateBuildingFromBuildingData(selectedBuildingData);
         if (selectedBuilding == null || selectedBuilding is Road) return;
         List<Vector3> placePositions = new List<Vector3>();
         Dictionary<(Vector3, Quaternion), List<Vector3Int>> updatedPlacingPositionsWithGridPositions = new Dictionary<(Vector3, Quaternion), List<Vector3Int>>();
         foreach (var prefabPlacePosition in placingPositionsWithGridPositions.Keys)
         {
-
-            var (gamePosition, rotation) = selectedObject.GetGridManager().GetGamePositionAndRotationForGridPosition(placingPositionsWithGridPositions[prefabPlacePosition][0]);
+            var placingGridBasePosition = placingPositionsWithGridPositions[prefabPlacePosition][0];
+            var placingGridPosition = new Vector3Int(placingGridBasePosition.x, placingGridBasePosition.y + 1, placingGridBasePosition.z);
+            var (gamePosition, rotation) = selectedObject.GetGridManager().GetGamePositionAndRotationForGridPosition(placingGridPosition);
             var gamePositionY = gamePosition.y;
             var placePosition = new Vector3(prefabPlacePosition.x, gamePositionY, prefabPlacePosition.z);
             placePositions.Add(placePosition);
@@ -117,8 +117,8 @@ public class BuildModeManager : MonoBehaviour
 
                     neighbourSelectableObject = neigbour.Value.GetSelectionManagerForGridPosition(new Vector3Int());
                 }
-
-                if (neighbourSelectableObject.GetSelectableObjectType() == SelectableObjectType.Road || selectedBuilding is Road)
+                // not all buildings have a selectable object type
+                if (neighbourSelectableObject.GetSelectableObjectType() != null && neighbourSelectableObject.GetSelectableObjectType() == SelectableObjectType.Road || selectedBuilding is Road)
                 {
                     weights.TryAdd(neighbourSelectableObject, neighbourWeights);
                 }
@@ -197,14 +197,12 @@ public class BuildModeManager : MonoBehaviour
         gridmgCount = SetUpEmptyTilesForBatches(roadData.batchesOnLeft, tilesToRoadPoints, gridmgCount);
         SetUpEmptyTilesForBatches(roadData.batchesOnRight, tilesToRoadPoints, gridmgCount);
     }
-
+    List<Rect> resourceRectagles;
     private int SetUpEmptyTilesForBatches(List<List<BatchData>> batchDatasList, Dictionary<RoadPointData, List<SelectableObject>> tilesToRoadPoints, int gridmgCount)
     {
-         var emptyTileBuildingData = buildingDatas.First(bd => bd.BuildingName == "Empty Tile");
+        var emptyTileBuildingData = buildingDatas.First(bd => bd.BuildingName == "Empty Tile");
         foreach (var batchDatas in batchDatasList)
         {
-
-
             foreach (var batchData in batchDatas)
             {
                 gridmgCount++;
