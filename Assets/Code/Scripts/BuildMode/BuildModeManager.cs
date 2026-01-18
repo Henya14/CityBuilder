@@ -217,7 +217,12 @@ public class BuildModeManager : MonoBehaviour
 
 
                     var y = 0;
-                    gridManager.AddBuildingToGrid(tilesToRoadPoints[tiles[0].closestRoadPointData][0].GetGameObject().GetComponent<Road>(), new List<Vector3Int>() {
+                    var tilesClosestRoadPointData = tiles[0].closestRoadPointData;
+                    var roadPoints = tilesToRoadPoints[tilesClosestRoadPointData];
+                    var closestRoadPoint = roadPoints.OrderBy(rp => (rp.GetGameObject().transform.position - tiles[0].position).sqrMagnitude).First();
+                    
+                    var roadToAdd = closestRoadPoint.GetGameObject().GetComponent<Road>();
+                    gridManager.AddBuildingToGrid(roadToAdd, new List<Vector3Int>() {
                         new Vector3Int(x, 1 , -1)
                     });
                     foreach (var tile in tiles)
@@ -252,7 +257,7 @@ public class BuildModeManager : MonoBehaviour
         List<List<SelectableObject>> roadPointSelectebleObjects = new List<List<SelectableObject>>(roadData.roadPoints.Count);
         for (int i = 0; i < roadData.roadPoints.Count; i++)
         {
-            var roadPoint = roadData.roadPoints[i];
+            RoadPointData roadPoint = roadData.roadPoints[i];
             int pointsToCreate = (int)roadPoint.roadWidth + 1;
             bool shouldUseMiddlePointOfRoad = pointsToCreate % 2 == 1;
             int pointsToCreateOnLeft = (int)Math.Floor((double)pointsToCreate / 2);
