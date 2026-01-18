@@ -194,11 +194,11 @@ public class BuildModeManager : MonoBehaviour
 
    
         int gridmgCount = 0;
-        gridmgCount = SetUpEmptyTilesForBatches(roadData.batchesOnLeft, tilesToRoadPoints, gridmgCount);
-        SetUpEmptyTilesForBatches(roadData.batchesOnRight, tilesToRoadPoints, gridmgCount);
+        gridmgCount = SetUpEmptyTilesForBatches(roadData.batchesOnLeft, tilesToRoadPoints, gridmgCount, roadData.roadMesh);
+        SetUpEmptyTilesForBatches(roadData.batchesOnRight, tilesToRoadPoints, gridmgCount, roadData.roadMesh);
     }
     List<Rect> resourceRectagles;
-    private int SetUpEmptyTilesForBatches(List<List<BatchData>> batchDatasList, Dictionary<RoadPointData, List<SelectableObject>> tilesToRoadPoints, int gridmgCount)
+    private int SetUpEmptyTilesForBatches(List<List<BatchData>> batchDatasList, Dictionary<RoadPointData, List<SelectableObject>> tilesToRoadPoints, int gridmgCount, GameObject roadGameObject)
     {
         var emptyTileBuildingData = buildingDatas.First(bd => bd.BuildingName == "Empty Tile");
         foreach (var batchDatas in batchDatasList)
@@ -206,7 +206,7 @@ public class BuildModeManager : MonoBehaviour
             foreach (var batchData in batchDatas)
             {
                 gridmgCount++;
-                var gridManager = gameObject.AddComponent<GridManager>();
+                var gridManager = roadGameObject.AddComponent<GridManager>();
 
                 gameUIManager.AddGridManager(gridManager);
                 gridManager.number = gridmgCount;

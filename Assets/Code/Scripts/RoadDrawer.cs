@@ -368,6 +368,7 @@ public class RoadDrawer : MonoBehaviour
 
         RemoveRoadMeshes();
         var road = new GameObject(currentRoadName);
+        road.tag = "RoadMeshes";
         roadMeshes.Add(road);
         var mesh = road.AddComponent<RoadMesh>();
 

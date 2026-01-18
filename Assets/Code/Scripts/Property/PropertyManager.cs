@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Pool;
 
 public enum HouseLevel
 {
@@ -16,6 +18,9 @@ public class PropertyManager : MonoBehaviour
     [SerializeField] List<GameObject> level1Propeties;
     [SerializeField] List<GameObject> level2Propeties;
     [SerializeField] List<GameObject> level3Propeties;
+
+    [SerializeField] bool shouldAddDebugLabels = true;
+    [SerializeField] GameObject debugLabelPrefab;
 
     [SerializeField] PropertyType propertyType;
     NavigationManager navigationManager;
@@ -307,13 +312,23 @@ public class PropertyManager : MonoBehaviour
     GameObject PlaceBuilding(Vector3Int key, GameObject prefab, Vector3 roadPosition, GridManager gridManager)
     {
         var dc = Instantiate(prefab);
-
+        
         dc.name = $"{propertyType.ToString()} Property  {(float)key.x / 2 - 5}, {(float)key.z / 2 - 5}";
+    
         dc.transform.parent = this.transform;
         dc.transform.localScale = new Vector3(3.5f, 3.5f, 3.5f);
         var pos = gridManager.GetGamePositionAndRotationForGridPosition(key).Item1;
         dc.transform.position = new Vector3(pos.x - 0.25f, 0.0f, pos.z + 0.25f);
         dc.transform.LookAt(roadPosition);
+        if (shouldAddDebugLabels)
+        {
+            var debugLabel = Instantiate(debugLabelPrefab, dc.transform);
+            debugLabel.name = "DebugLabel";
+            debugLabel.transform.position += new Vector3(0, 1.5f, 0);
+            debugLabel.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+            var debugLabelScript = debugLabel.GetComponent<DebugLabel>();
+            debugLabelScript.Init($"{propertyType} Property\n {(float)key.x / 2 - 5}, {(float)key.z / 2 - 5}");
+        }
         // // 1,0,0 rotate right 90
         // if (roadDir.x == 1)
         // {
