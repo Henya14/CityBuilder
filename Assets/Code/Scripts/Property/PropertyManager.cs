@@ -68,11 +68,27 @@ public class PropertyManager : MonoBehaviour
                                 WeightToNeighbour = 1
                             });
                             nextToRoad = true;
-                            
+
                             nhbDir = selectionManager.GetGameObject().transform.position;
-                            
+
                             Debug.Log($"nhb dir: {nhbDir.x}, {nhbDir.z}");
                             break;
+                        }
+                    }
+
+                    if (!nextToRoad)
+                    {
+                        //Check if has down neighbour that is road
+                        var selectionManager = CheckIfHasDownNeighbourThatIsRoad(position, gridManager);
+                        if (selectionManager != default)
+                        {
+                            nextToRoad = true;
+                            neighbourDictionary.Add(selectionManager, new NeighbourWeights
+                            {
+                                WeightFromNeighbour = 1,
+                                WeightToNeighbour = 1
+                            });
+                            nhbDir = selectionManager.GetGameObject().transform.position;
                         }
                     }
 
@@ -106,7 +122,7 @@ public class PropertyManager : MonoBehaviour
                                 case HouseLevel.None:
                                     break;
                                 default:
-                                    
+
                                     var propertyObject = Construct(position, hlvl, nhbDir, gridManager);
                                     //Add script based on given property type 
                                     var description = "";
@@ -146,6 +162,25 @@ public class PropertyManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    private SelectionManager CheckIfHasDownNeighbourThatIsRoad(Vector3Int position, GridManager gridManager)
+    {
+        var downPos = position + new Vector3Int(0, 0, -1);
+        var buildings = gridManager.GetNeigbouringBuildingsForPosition(position);
+        var downNeighbourBuilding = buildings[downPos];
+        while (downNeighbourBuilding != null)
+        {
+            if (downNeighbourBuilding is Road)
+            {
+                var selectionManager = downNeighbourBuilding.GetSelectionManagerForGridPosition(new Vector3Int());
+                return selectionManager;
+            }
+            buildings = gridManager.GetNeigbouringBuildingsForPosition(downPos);
+            downPos += new Vector3Int(0, 0, -1);
+            downNeighbourBuilding = buildings[downPos];
+        }
+        return default;
     }
     // public void loadProperties(List<PropertySaveData> properties)
     // {
@@ -309,7 +344,8 @@ public class PropertyManager : MonoBehaviour
         return dc;
     }
 
-    public void AddGridManager(GridManager gridManager) {
+    public void AddGridManager(GridManager gridManager)
+    {
         gridManagers.Add(gridManager);
     }
     //TODO Kivenni a random fgveket ha m�r nincs benn�k hasznos�that�
