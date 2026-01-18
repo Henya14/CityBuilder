@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Pool;
 
 public enum HouseLevel
 {
@@ -16,6 +18,9 @@ public class PropertyManager : MonoBehaviour
     [SerializeField] List<GameObject> level1Propeties;
     [SerializeField] List<GameObject> level2Propeties;
     [SerializeField] List<GameObject> level3Propeties;
+
+    [SerializeField] bool shouldAddDebugLabels = true;
+    [SerializeField] GameObject debugLabelPrefab;
 
     [SerializeField] PropertyType propertyType;
     NavigationManager navigationManager;
@@ -68,11 +73,27 @@ public class PropertyManager : MonoBehaviour
                                 WeightToNeighbour = 1
                             });
                             nextToRoad = true;
-                            
+
                             nhbDir = selectionManager.GetGameObject().transform.position;
-                            
+
                             Debug.Log($"nhb dir: {nhbDir.x}, {nhbDir.z}");
                             break;
+                        }
+                    }
+
+                    if (!nextToRoad)
+                    {
+                        //Check if has down neighbour that is road
+                        var selectionManager = CheckIfHasDownNeighbourThatIsRoad(position, gridManager);
+                        if (selectionManager != default)
+                        {
+                            nextToRoad = true;
+                            neighbourDictionary.Add(selectionManager, new NeighbourWeights
+                            {
+                                WeightFromNeighbour = 1,
+                                WeightToNeighbour = 1
+                            });
+                            nhbDir = selectionManager.GetGameObject().transform.position;
                         }
                     }
 
@@ -106,7 +127,7 @@ public class PropertyManager : MonoBehaviour
                                 case HouseLevel.None:
                                     break;
                                 default:
-                                    
+
                                     var propertyObject = Construct(position, hlvl, nhbDir, gridManager);
                                     //Add script based on given property type 
                                     var description = "";
@@ -146,6 +167,25 @@ public class PropertyManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    private SelectionManager CheckIfHasDownNeighbourThatIsRoad(Vector3Int position, GridManager gridManager)
+    {
+        var downPos = position + new Vector3Int(0, 0, -1);
+        var buildings = gridManager.GetNeigbouringBuildingsForPosition(position);
+        var downNeighbourBuilding = buildings[downPos];
+        while (downNeighbourBuilding != null)
+        {
+            if (downNeighbourBuilding is Road)
+            {
+                var selectionManager = downNeighbourBuilding.GetSelectionManagerForGridPosition(new Vector3Int());
+                return selectionManager;
+            }
+            buildings = gridManager.GetNeigbouringBuildingsForPosition(downPos);
+            downPos += new Vector3Int(0, 0, -1);
+            downNeighbourBuilding = buildings[downPos];
+        }
+        return default;
     }
     // public void loadProperties(List<PropertySaveData> properties)
     // {
@@ -272,13 +312,23 @@ public class PropertyManager : MonoBehaviour
     GameObject PlaceBuilding(Vector3Int key, GameObject prefab, Vector3 roadPosition, GridManager gridManager)
     {
         var dc = Instantiate(prefab);
-
+        
         dc.name = $"{propertyType.ToString()} Property  {(float)key.x / 2 - 5}, {(float)key.z / 2 - 5}";
+    
         dc.transform.parent = this.transform;
         dc.transform.localScale = new Vector3(3.5f, 3.5f, 3.5f);
         var pos = gridManager.GetGamePositionAndRotationForGridPosition(key).Item1;
         dc.transform.position = new Vector3(pos.x - 0.25f, 0.0f, pos.z + 0.25f);
         dc.transform.LookAt(roadPosition);
+        if (shouldAddDebugLabels)
+        {
+            var debugLabel = Instantiate(debugLabelPrefab, dc.transform);
+            debugLabel.name = "DebugLabel";
+            debugLabel.transform.position += new Vector3(0, 1.5f, 0);
+            debugLabel.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+            var debugLabelScript = debugLabel.GetComponent<DebugLabel>();
+            debugLabelScript.Init($"{propertyType} Property\n {(float)key.x / 2 - 5}, {(float)key.z / 2 - 5}");
+        }
         // // 1,0,0 rotate right 90
         // if (roadDir.x == 1)
         // {
@@ -309,7 +359,8 @@ public class PropertyManager : MonoBehaviour
         return dc;
     }
 
-    public void AddGridManager(GridManager gridManager) {
+    public void AddGridManager(GridManager gridManager)
+    {
         gridManagers.Add(gridManager);
     }
     //TODO Kivenni a random fgveket ha m�r nincs benn�k hasznos�that�

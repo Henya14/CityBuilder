@@ -54,36 +54,50 @@ public class GameUIManager : MonoBehaviour
     //private ResidentManager residentManager;
     [SerializeField] VisualTreeAsset buildingListElementTemplate;
 
+    private UIDocument uIDocument;
+    private List<VisualElement> uielements = new List<VisualElement>();
+
 
     private float timeToAppear = 10f;
     private float timeWhenDisappear;
+    private bool isMouseOverUI = false;
 
     const string SELECTED_BUTTON_CLASS_NAME = "selected";
+
+    private T getUIElementAndAddToUiElementsAndAddMouseListener<T>(string name, VisualElement root) where T : VisualElement
+    {
+        var element = root.Q<T>(name);
+        uielements.Add(element);
+        element.RegisterCallback<MouseEnterEvent>(OnMouseEnterUI);
+        element.RegisterCallback<MouseLeaveEvent>(OnMouseLeaveUI);
+        return element;
+    }
     private void OnEnable()
     {
-        VisualElement root = GetComponent<UIDocument>().rootVisualElement;
-        selectionModeButton = root.Q<Button>("selection-mode-button");
-        buildModeButton = root.Q<Button>("building-mode-button");
-        navigationModeButton = root.Q<Button>("navigation-mode-button");
-        infoContainer = root.Q<VisualElement>("info-text-container");
-        infoContainerText = root.Q<Label>("info-text-label");
-        buildingList = root.Q<ListView>("building-list");
-        balanceLabel = root.Q<Label>("balance-text");
-        electricityLabel = root.Q<Label>("electricity-text");
-        coalLabel = root.Q<Label>("coal-text");
-        woodLabel = root.Q<Label>("wood-text");
-        timeStartStopButton = root.Q<Button>("time-start-stop-button");
-        timeForwardButton = root.Q<Button>("time-forward-button");
-        timeTextField = root.Q<Label>("time-text-field");
-        moralityViewToggle = root.Q<Toggle>("morality-toggle");
-        buildingsButton = root.Q<Button>("buildings-button");
-        buildingHud = root.Q<VisualElement>("building-hud-container");
+        uIDocument = GetComponent<UIDocument>();
+        VisualElement root = uIDocument.rootVisualElement;
+        selectionModeButton = getUIElementAndAddToUiElementsAndAddMouseListener<Button>("selection-mode-button", root);
+        buildModeButton = getUIElementAndAddToUiElementsAndAddMouseListener<Button>("building-mode-button", root);
+        navigationModeButton = getUIElementAndAddToUiElementsAndAddMouseListener<Button>("navigation-mode-button", root);
+        infoContainer = getUIElementAndAddToUiElementsAndAddMouseListener<VisualElement>("info-text-container", root);
+        infoContainerText = getUIElementAndAddToUiElementsAndAddMouseListener<Label>("info-text-label", root);
+        buildingList = getUIElementAndAddToUiElementsAndAddMouseListener<ListView>("building-list", root);
+        balanceLabel = getUIElementAndAddToUiElementsAndAddMouseListener<Label>("balance-text", root);
+        electricityLabel = getUIElementAndAddToUiElementsAndAddMouseListener<Label>("electricity-text", root);
+        coalLabel = getUIElementAndAddToUiElementsAndAddMouseListener<Label>("coal-text", root);
+        woodLabel = getUIElementAndAddToUiElementsAndAddMouseListener<Label>("wood-text", root);
+        timeStartStopButton = getUIElementAndAddToUiElementsAndAddMouseListener<Button>("time-start-stop-button", root);
+        timeForwardButton = getUIElementAndAddToUiElementsAndAddMouseListener<Button>("time-forward-button", root);
+        timeTextField = getUIElementAndAddToUiElementsAndAddMouseListener<Label>("time-text-field", root);
+        moralityViewToggle = getUIElementAndAddToUiElementsAndAddMouseListener<Toggle>("morality-toggle", root);
+        buildingsButton = getUIElementAndAddToUiElementsAndAddMouseListener<Button>("buildings-button", root);
+        buildingHud = getUIElementAndAddToUiElementsAndAddMouseListener<VisualElement>("building-hud-container", root);
+        saveButton = getUIElementAndAddToUiElementsAndAddMouseListener<Button>("save-button", root);
+        questText = getUIElementAndAddToUiElementsAndAddMouseListener<Label>("quest-text", root);
+        taxesButton = getUIElementAndAddToUiElementsAndAddMouseListener<Button>("taxes-button", root);
+        taxesHud = getUIElementAndAddToUiElementsAndAddMouseListener<VisualElement>("tax-box-container", root);
 
-        saveButton = root.Q<Button>("save-button");
-        
-        questText = root.Q<Label>("quest-text");
-        taxesButton = root.Q<Button>("taxes-button");
-        taxesHud = root.Q<VisualElement>("tax-box-container");
+
 
         var taxButtons = root.Query<Button>(null, "tax-button");
         taxButtons.ForEach(SetupButton);
@@ -112,7 +126,7 @@ public class GameUIManager : MonoBehaviour
         propertyManagers = FindObjectsOfType<PropertyManager>().ToList();
 
         roadDrawer.RoadCreated += RoadCreated;
-        
+
         //residentManager = FindObjectOfType<ResidentManager>();
 
         timeStartStopButton.clicked += OnTimeStartStopButtonClicked;
@@ -150,7 +164,8 @@ public class GameUIManager : MonoBehaviour
         }
     }
 
-    private void RoadCreated(RoadData roadData) {
+    private void RoadCreated(RoadData roadData)
+    {
         buildModeManager.RoadCreated(roadData);
     }
     void OnSelectionModeButtonClicked()
@@ -215,12 +230,16 @@ public class GameUIManager : MonoBehaviour
     void OnBuildingSelected(IEnumerable<object> selectedItems)
     {
         var selectedBuilding = buildingList.selectedItem as BuildingData;
-        if (selectedBuilding == default) {
+        if (selectedBuilding == default)
+        {
             return;
         }
-        if(selectedBuilding.buildingType == BuildingType.Road) {
+        if (selectedBuilding.buildingType == BuildingType.Road)
+        {
             roadDrawer?.EnableDrawing(selectedBuilding.size.x);
-        } else {
+        }
+        else
+        {
             roadDrawer?.DisableDrawing();
         }
         if (selectedBuilding == null)
@@ -316,7 +335,8 @@ public class GameUIManager : MonoBehaviour
         TimeManager.instance.ChangeTimerSpeed();
     }
 
-    public void UpdateTimer() {
+    public void UpdateTimer()
+    {
         timeTextField.text = $"{TimeManager.Hour:00}:{TimeManager.Minute:00}";
     }
 
@@ -420,23 +440,40 @@ public class GameUIManager : MonoBehaviour
 
     }
 
-    public void AddGridManager(GridManager gridManager) {
+    public void AddGridManager(GridManager gridManager)
+    {
         gridManagers.Add(gridManager);
         propertyManagers.ForEach(propertyManager => propertyManager.AddGridManager(gridManager));
     }
 
-    public void RemoveGridManager(GridManager gridManager) {
+    public void RemoveGridManager(GridManager gridManager)
+    {
         gridManagers.Remove(gridManager);
     }
 
-    public void SetRoadDataForRoad(string roadName, RoadData roadData) 
+    public void SetRoadDataForRoad(string roadName, RoadData roadData)
     {
         roadDrawer.SetRoadDataForRoad(roadName, roadData);
     }
 
-    public RoadData GetRoadDataForRoad(string roadName) 
+    public RoadData GetRoadDataForRoad(string roadName)
     {
         return roadDrawer.GetRoadDataForRoad(roadName);
+    }
+
+    private void OnMouseEnterUI(MouseEnterEvent evt)
+    {
+        isMouseOverUI = true;
+    }
+
+    private void OnMouseLeaveUI(MouseLeaveEvent evt)
+    {
+        isMouseOverUI = false;
+    }
+
+    public bool IsMouseOverUI()
+    {
+        return isMouseOverUI;
     }
 
 }

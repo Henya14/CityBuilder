@@ -135,6 +135,7 @@ public class RoadDrawer : MonoBehaviour
     private List<GameObject> roadMeshes = new List<GameObject>();
     private Dictionary<string, RoadData> roadPointDatasForRoads = new Dictionary<string, RoadData>();
 
+    private GameUIManager uiManager;
     public RoadData GetRoadDataForRoad(string roadName)
     {
         return roadPointDatasForRoads[roadName];
@@ -157,6 +158,7 @@ public class RoadDrawer : MonoBehaviour
     {
         splineContainer = gameObject.AddComponent<SplineContainer>();
         raycastLayerMask = LayerMask.GetMask("Ground");
+        uiManager = FindObjectOfType<GameUIManager>();
     }
 
     public void EnableDrawing(int roadWidth)
@@ -176,7 +178,13 @@ public class RoadDrawer : MonoBehaviour
     int pointIdx = 0;
     void Update()
     {
-        if (isDrawingRoad)
+
+        if (uiManager != null && uiManager.IsMouseOverUI())
+        {
+            Debug.Log("Mouse over UI");
+        }
+     
+        if (isDrawingRoad && uiManager != null && !uiManager.IsMouseOverUI())
         {
             LastMousePosition = Input.mousePosition;
             Vector2 view = FindObjectOfType<Camera>().ScreenToViewportPoint(Input.mousePosition);
@@ -342,9 +350,9 @@ public class RoadDrawer : MonoBehaviour
     IEnumerator FireRoadCreatedEvent(string currentRoadName, GameObject roadMesh, List<RoadPointData> splineRoadPoints, List<List<BatchData>> batchesOnRight, List<List<BatchData>> batchesOnLeft)
     {
         var emptyTilesOnRight = new List<GameObject>();
-        yield return DrawBathces(batchesOnRight, emptyTilesOnRight, roadMesh);
+        yield return DrawBathces(batchesOnRight, emptyTilesOnRight, roadMesh, "right");
         var emptyTilesOnLeft = new List<GameObject>();
-        yield return DrawBathces(batchesOnLeft, emptyTilesOnLeft, roadMesh);
+        yield return DrawBathces(batchesOnLeft, emptyTilesOnLeft, roadMesh, "left");
 
 
         RoadCreated?.Invoke(roadPointDatasForRoads[currentRoadName]);
@@ -360,6 +368,7 @@ public class RoadDrawer : MonoBehaviour
 
         RemoveRoadMeshes();
         var road = new GameObject(currentRoadName);
+        road.tag = "RoadMeshes";
         roadMeshes.Add(road);
         var mesh = road.AddComponent<RoadMesh>();
 
@@ -424,8 +433,8 @@ public class RoadDrawer : MonoBehaviour
         {
             StopCoroutine(leftBatchDrawerCorutine);
         }
-        rightBatchDrawerCorutine = StartCoroutine(DrawBathces(batchesOnRight, emptyTileList, roadMeshes[0]));
-        leftBatchDrawerCorutine = StartCoroutine(DrawBathces(batchesOnLeft, emptyTileList, roadMeshes[0]));
+        rightBatchDrawerCorutine = StartCoroutine(DrawBathces(batchesOnRight, emptyTileList, roadMeshes[0], "right"));
+        leftBatchDrawerCorutine = StartCoroutine(DrawBathces(batchesOnLeft, emptyTileList, roadMeshes[0], "left"));
 
     }
 
@@ -561,6 +570,74 @@ public class RoadDrawer : MonoBehaviour
 
     }
 
+    private List<List<BatchData>> RemoveCollidingBatchTiles(List<List<BatchData>> batchDatas)
+    {
+
+        LayerMask layerMask = LayerMask.GetMask("ShadowRealm");
+        
+        List<List<BatchData>> cleanedBatchDatas = new List<List<BatchData>>();
+        for (int k = batchDatas.Count - 1; k >= 0; k--)
+        {
+            var batches = batchDatas[k];
+            for (int j = batches.Count - 1; j >= 0; j--)
+            {
+                var batch = batches[j];
+                foreach (var emptyTileDatas in batch.emptyTileDatas)
+                {
+                    var indiciesToRemove = new List<int>();
+                    for (int i = emptyTileDatas.Count - 1; i >= 0; i--)
+                    {
+                        var emptyTileData = emptyTileDatas[i];
+                        var result = new Collider[10];
+                        int hitCount = Physics.OverlapBoxNonAlloc(emptyTileData.position, new Vector3(1.8f, 30.0f, 1.8f),result, emptyTileData.rotation, layerMask);
+                        var shadowCollider = emptyTileData.gameObject.transform.Find("ShadowCopy").GetComponent<Collider>();
+                        foreach(var collider in result)
+                        {
+                          if (collider == shadowCollider)
+                          {
+                            hitCount--;
+                          }
+                        }
+
+                        if (hitCount > 0)
+                        {
+                            
+                            indiciesToRemove.Add(i); 
+                        }
+                    }
+                    
+                    foreach (var index in indiciesToRemove)
+                    {
+                        emptyTileDatas[index].gameObject.SetActive(false);
+                        emptyTileDatas.RemoveAt(index);
+                    }
+                }
+
+                batches[j] = new BatchData
+                {
+                    batchIndex = batch.batchIndex,
+                    emptyTileDatas = new List<List<EmptyTileData>>( batch.emptyTileDatas.Where(etd => etd.Count > 0).ToList()),
+                    tileObjects = new List<GameObject>(batch.tileObjects.Where(to => to != null).ToList())
+                };
+            }
+            batches = batches.Where(b => b.emptyTileDatas.Count > 0).ToList();
+            batchDatas[k] = batches;
+        }
+        var returnList = batchDatas.Where(bd => bd.Count > 0).ToList();
+        var ses = batchDatas.Where(bd => bd.Count(bdi => bdi.emptyTileDatas.Count > 0) > 0).ToList();
+        return returnList;
+    }
+    
+    private string StringifyList<T>(List<T> list)
+    {
+        var stringList = new List<string>();
+        foreach (var item in list)
+        {
+            stringList.Add(item.ToString());
+        }
+        return string.Join(", ", stringList);
+    }
+
     private void GetRoadPointAndMiddlePointForPointConnectingToOtherRoad(List<Vector3> points, float roadWidth, (string roadName, RoadPointData closestRoadPoint) roadNameAndClosesRoadPointData, bool isLastPoint, out RoadPointData lastRoadData, out Vector3 middleRoadPoint, out bool shouldSwitchSides)
     {
         shouldSwitchSides = false;
@@ -625,9 +702,8 @@ public class RoadDrawer : MonoBehaviour
         };
     }
 
-    IEnumerator DrawBathces(List<List<BatchData>> listOfBatchDatas, List<GameObject> emptyTileList, GameObject roadMesh)
+    IEnumerator DrawBathces(List<List<BatchData>> listOfBatchDatas, List<GameObject> emptyTileList, GameObject roadMesh, string side)
     {
-        yield return new WaitForSeconds(0.1f);
         var colors = new List<Color> { Color.red, Color.blue, Color.black, Color.white, Color.grey, Color.green, Color.yellow };
         Unity.Mathematics.Random random = new Unity.Mathematics.Random((uint)DateTime.Now.Millisecond + 1);
         foreach (var batchDatas in listOfBatchDatas)
@@ -636,34 +712,68 @@ public class RoadDrawer : MonoBehaviour
             for (int i = 0; i < batchDatas.Count; i++)
             {
                 var batch = batchDatas[i];
-                Color color = colors.ElementAt(random.NextInt(0, colors.Count));
+                
                 foreach (var emptyTileDatas in batch.emptyTileDatas)
                 {
                     SetPositionOfEmptyTiles(emptyTileDatas);
-                    foreach (var emptyTileData in emptyTileDatas)
-                    {
-
-                        var emptyTileInstance = Instantiate(emptyTilePrefab, roadMesh.transform);
-                        //emptyTileInstance.par
-                        emptyTileInstance.transform.position = emptyTileData.position;
-                        emptyTileInstance.transform.rotation = emptyTileData.rotation;
-                        //emptyTileInstance.GetComponentInChildren<Highlight>().SetHighlightColor(color);
-                        //emptyTileInstance.GetComponentInChildren<Highlight>().ToggleHighlight(true);
-                        if (batch.tileObjects == default)
-                        {
-                            batch.tileObjects = new List<GameObject>();
-                        }
-                        batch.tileObjects.Add(emptyTileInstance);
-                        emptyTileData.gameObject = emptyTileInstance;
-                        emptyTileList.Add(emptyTileInstance);
-                    }
-
-
+                    batch = AddTilesToGame(emptyTileList, roadMesh, batch, emptyTileDatas);
+                    //yield return new WaitForSeconds(0.05f);
                 }
-
             }
-            yield return null;
         }
+        yield return null;
+        listOfBatchDatas = RemoveCollidingBatchTiles(listOfBatchDatas);
+        foreach (Transform child in roadMesh.transform)
+        {
+            if (child.gameObject.tag == side)
+            {
+                Destroy(child.gameObject);
+            }
+        }
+        yield return null;
+        foreach (var batchDatas in listOfBatchDatas)
+        {
+             for (int i = 0; i < batchDatas.Count; i++)
+            {
+                var batch = batchDatas[i];
+                Color color = colors.ElementAt(random.NextInt(0, colors.Count));
+                foreach (var emptyTileDatas in batch.emptyTileDatas)
+                {
+                    batch = AddTilesToGame(emptyTileList, roadMesh, batch, emptyTileDatas, "right", color);
+                    //yield return new WaitForSeconds(0.2f);
+                }
+                yield return null;
+            }
+        }
+    }
+
+    private BatchData AddTilesToGame(List<GameObject> emptyTileList, GameObject roadMesh, BatchData batch, List<EmptyTileData> emptyTileDatas, string side = "right", Color color = default)
+    {
+        foreach (var emptyTileData in emptyTileDatas)
+        {
+
+            var emptyTileInstance = Instantiate(emptyTilePrefab, roadMesh.transform);
+            //emptyTileInstance.par
+            emptyTileInstance.transform.position = emptyTileData.position;
+            emptyTileInstance.transform.rotation = emptyTileData.rotation;
+            emptyTileInstance.gameObject.tag = side;
+            // var shadowCopy = emptyTileInstance.gameObject.transform.Find("ShadowCopy");
+            // if (shadowCopy != null)
+            // {
+            //     shadowCopy.transform.position = new Vector3(emptyTileData.position.x, 115.0f, emptyTileData.position.z);
+            // }
+            emptyTileInstance.GetComponentInChildren<Highlight>().SetHighlightColor(color);
+            emptyTileInstance.GetComponentInChildren<Highlight>().ToggleHighlight(true);
+            if (batch.tileObjects == default)
+            {
+                batch.tileObjects = new List<GameObject>();
+            }
+            batch.tileObjects.Add(emptyTileInstance);
+            emptyTileData.gameObject = emptyTileInstance;
+            emptyTileList.Add(emptyTileInstance);
+        }
+
+        return batch;
     }
 
     List<List<BatchData>> GetBestBatching(List<List<BatchData>> forwardBatches, List<List<BatchData>> backwardBatches)

@@ -539,8 +539,10 @@ public class GridManager : MonoBehaviour
     public (Vector3, Quaternion) GetGamePositionAndRotationForGridPosition(Vector3Int gridPosition)
     {
         var tilePositionIndex = new Vector3Int(gridPosition.x, 0, gridPosition.z);
-        var tilePosition = tileMap[tilePositionIndex].gameObject.transform.position;
-        var tileRotation = tileMap[tilePositionIndex].gameObject.transform.rotation;
+        //find pivot if exists and use its position and rotation
+        var tileWithPivot = tileMap[tilePositionIndex].gameObject.transform.Find("Pivot");
+        var tilePosition = tileWithPivot != null ? tileWithPivot.position : tileMap[tilePositionIndex].gameObject.transform.position;
+        var tileRotation = tileWithPivot != null ? tileWithPivot.rotation : tileMap[tilePositionIndex].gameObject.transform.rotation;
         float x = tilePosition.x;
         float y = gridPosition.y * tileSize;
         float z = tilePosition.z;

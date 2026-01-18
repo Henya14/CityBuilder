@@ -17,6 +17,8 @@ public class CamControl : MonoBehaviour
     public Vector3 minSecondaryCamPosition;
     [SerializeField] float zoomScale;
 
+    private GameUIManager uiManager;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -32,10 +34,15 @@ public class CamControl : MonoBehaviour
             secondaryPosition.z <= maxSecondaryCamPosition.z && secondaryPosition.z >= minSecondaryCamPosition.z
             ))
                 secondaryPosition=minSecondaryCamPosition;
+        uiManager = FindObjectOfType<GameUIManager>();
     }
     // Update is called once per frame
     void Update()
     {
+        if (uiManager != null && uiManager.IsMouseOverUI())
+        {
+            return;
+        }
         //Switch viewmode
         if (Input.GetKeyDown(KeyCode.F))
         {
