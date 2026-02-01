@@ -196,6 +196,15 @@ public class BuildModeManager : MonoBehaviour
         int gridmgCount = 0;
         gridmgCount = SetUpEmptyTilesForBatches(roadData.batchesOnLeft, tilesToRoadPoints, gridmgCount, roadData.roadMesh);
         SetUpEmptyTilesForBatches(roadData.batchesOnRight, tilesToRoadPoints, gridmgCount, roadData.roadMesh);
+         //remove empty tiles gameobjects in children
+        var emptyRoadTiles = roadData.roadMesh.GetComponentsInChildren<Transform>().ToList();
+        foreach (var t in emptyRoadTiles)
+        {
+            if (t.gameObject.name.Contains("Clone"))
+            {
+                Destroy(t.gameObject);
+            }
+        }
     }
     List<Rect> resourceRectagles;
     private int SetUpEmptyTilesForBatches(List<List<BatchData>> batchDatasList, Dictionary<RoadPointData, List<SelectableObject>> tilesToRoadPoints, int gridmgCount, GameObject roadGameObject)
@@ -229,7 +238,6 @@ public class BuildModeManager : MonoBehaviour
                     {
                         var gridPos = new Vector3Int(x, 0, y);
                         var (obj, go) = CreateBuildingFromBuildingData(emptyTileBuildingData, tile.gameObject, $"Tile x: {x} y: {y}");
-
                         obj.PlaceAtPosition(new Dictionary<(Vector3, Quaternion), List<Vector3Int>>()
                         {
                             { (tile.position, tile.rotation), new List<Vector3Int> {gridPos} },
@@ -247,6 +255,8 @@ public class BuildModeManager : MonoBehaviour
                 }
             }
         }
+       
+
         return gridmgCount;
     }
 

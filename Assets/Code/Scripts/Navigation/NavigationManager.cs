@@ -15,12 +15,10 @@ public class NavigationManager : MonoBehaviour
     [SerializeField] GameObject carPrefab;
     BuildingAdjacencyGraph adjacencyGraph = new BuildingAdjacencyGraph();
     List<SelectableObject> selectedObjects = new List<SelectableObject>();
-    GridManager gridManager;
     SelectableObject selectableObject;
     // Start is called before the first frame update
     void Start()
     {
-        gridManager = FindObjectOfType<GridManager>();
     }
 
     // Update is called once per frame
@@ -138,21 +136,32 @@ public class NavigationManager : MonoBehaviour
     }
     public void StartCarOnRoute(List<GraphSearchNode<SelectableObject>> route)
     {
-        List<Direction> dirs;
-        GetDirectionsForRoute(route, out dirs);
-        //PlaceCarAtPosition(route[0].GraphNode.Value.GetGridPosition(), dirs);
+        //List<Direction> dirs;
+        //GetDirectionsForRoute(route, out dirs);
+        PlaceCarAtPosition(route[0].GraphNode.Value.GetGridPosition(), route);
+        
     }
-    public void PlaceCarAtPosition(Vector3Int gridPosition, List<Direction> directions)
+    public void PlaceCarAtPosition(Vector3Int gridPosition, List<GraphSearchNode<SelectableObject>> route)
     {
         var car = Instantiate(carPrefab);
-
-
+        var gridManager = route[0].GraphNode.Value.GetGridManager();
         var carGamePosition = gridManager.GetSelectionCenter(new List<Vector3Int> { gridPosition });
         carGamePosition.y = gridManager.GetGamePositionAndRotationForGridPosition(new Vector3Int(0, 1, 0)).Item1.y;
         car.transform.position = carGamePosition;
-        car.GetComponent<CarNavigation>().CurrentGridPosition = gridPosition;
-        car.GetComponent<CarNavigation>().SetDirections(directions);
+        car.GetComponent<CarNavigation>().InitializeRoute(route);
     }
+
+    // public void PlaceCarAtPositionOLD(Vector3Int gridPosition, List<Direction> directions)
+    // {
+    //     var car = Instantiate(carPrefab);
+
+    //     var gridManager = route[0].GraphNode.Value.GetGridManager();
+    //     var carGamePosition = gridManager.GetSelectionCenter(new List<Vector3Int> { gridPosition });
+    //     carGamePosition.y = gridManager.GetGamePositionAndRotationForGridPosition(new Vector3Int(0, 1, 0)).Item1.y;
+    //     car.transform.position = carGamePosition;
+    //     car.GetComponent<CarNavigation>().CurrentGridPosition = gridPosition;
+    //     car.GetComponent<CarNavigation>().SetDirections(directions);
+    // }
 
     public void DeselectObjects()
     {

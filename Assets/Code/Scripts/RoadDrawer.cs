@@ -348,7 +348,10 @@ public class RoadDrawer : MonoBehaviour
     }
 
     IEnumerator FireRoadCreatedEvent(string currentRoadName, GameObject roadMesh, List<RoadPointData> splineRoadPoints, List<List<BatchData>> batchesOnRight, List<List<BatchData>> batchesOnLeft)
-    {
+    {   
+        if (rightBatchDrawerCorutine != null) StopCoroutine(rightBatchDrawerCorutine);
+        if (leftBatchDrawerCorutine != null) StopCoroutine(leftBatchDrawerCorutine);
+       
         var emptyTilesOnRight = new List<GameObject>();
         yield return DrawBatches(batchesOnRight, emptyTilesOnRight, roadMesh, "right");
         var emptyTilesOnLeft = new List<GameObject>();
@@ -537,7 +540,7 @@ public class RoadDrawer : MonoBehaviour
         for (int i = 0; i < splineRoadPoints.Count; i++)
         {
 
-            //DrawRoadGuidingPoints(splineRoadPoints[i]);
+            DrawRoadGuidingPoints(splineRoadPoints[i]);
             //leftSpline.Add(new BezierKnot(roadPointData.leftRoadPoint), TangentMode.AutoSmooth);
             //rightSpline.Add(new BezierKnot(roadPointData.rightRoadPoint), TangentMode.AutoSmooth);
             //middleSpline.Add(new BezierKnot(roadPointData.middleRoadPoint), TangentMode.AutoSmooth);
@@ -572,7 +575,7 @@ public class RoadDrawer : MonoBehaviour
         var (forwardRightBatches, backwardRightBatches) = BatchEmptyTiles(emptyTilesOnRight, roadSectionIndexes.Count);
         var (forwardLeftBatches, backwardLeftBatches) = BatchEmptyTiles(emptyTilesOnLeft, roadSectionIndexes.Count);
 
-        var batchesOnRight = GetBestBatching(forwardRightBatches, forwardRightBatches);
+        var batchesOnRight = GetBestBatching(forwardRightBatches, backwardRightBatches);
         var batchesOnLeft = GetBestBatching(forwardLeftBatches, backwardLeftBatches);
 
 
@@ -746,7 +749,8 @@ public class RoadDrawer : MonoBehaviour
             for (int i = 0; i < batchDatas.Count; i++)
             {
                 var batch = batchDatas[i];
-                Color color = colors.ElementAt(random.NextInt(0, colors.Count));
+                //Color color = colors.ElementAt(random.NextInt(0, colors.Count));
+                Color color = Color.white;
                 foreach (var emptyTileDatas in batch.emptyTileDatas)
                 {
                     batch = AddTilesToGame(emptyTileList, roadMesh, batch, emptyTileDatas, "right", color);
@@ -764,6 +768,7 @@ public class RoadDrawer : MonoBehaviour
 
             var emptyTileInstance = Instantiate(emptyTilePrefab, roadMesh.transform);
             //emptyTileInstance.par
+            
             emptyTileInstance.transform.position = emptyTileData.position;
             emptyTileInstance.transform.rotation = emptyTileData.rotation;
             emptyTileInstance.gameObject.tag = side;
@@ -773,7 +778,7 @@ public class RoadDrawer : MonoBehaviour
             //     shadowCopy.transform.position = new Vector3(emptyTileData.position.x, 115.0f, emptyTileData.position.z);
             // }
             emptyTileInstance.GetComponentInChildren<Highlight>().SetHighlightColor(color);
-            emptyTileInstance.GetComponentInChildren<Highlight>().ToggleHighlight(true);
+            emptyTileInstance.GetComponentInChildren<Highlight>().ToggleHighlight(false);
             if (batch.tileObjects == default)
             {
                 batch.tileObjects = new List<GameObject>();
@@ -788,6 +793,8 @@ public class RoadDrawer : MonoBehaviour
 
     List<List<BatchData>> GetBestBatching(List<List<BatchData>> forwardBatches, List<List<BatchData>> backwardBatches)
     {
+        
+        //return forwardBatches;
         List<List<BatchData>> batchData = new List<List<BatchData>>();
         var batchIndex = 0;
         for (int i = 0; i < forwardBatches.Count; i++)
@@ -857,6 +864,10 @@ public class RoadDrawer : MonoBehaviour
 
     private (List<List<BatchData>>, List<List<BatchData>>) BatchEmptyTiles(List<List<EmptyTileData>> emptyTiles, int numberOfSections)
     {
+        // return empty tiles as single batches
+        // return (new List<List<BatchData>> { new List<BatchData> { new BatchData { emptyTileDatas = emptyTiles, batchIndex = 0, tileObjects = new List<GameObject>() } } },
+        //         new List<List<BatchData>> { new List<BatchData> { new BatchData { emptyTileDatas = emptyTiles, batchIndex = 0, tileObjects = new List<GameObject>() } } });
+
         List<BatchData>[] forwardBatches = new List<BatchData>[numberOfSections];
         forwardBatches[0] = new List<BatchData>() { new BatchData { emptyTileDatas = new List<List<EmptyTileData>> { emptyTiles[0] }, batchIndex = 0, tileObjects = new List<GameObject>() } };
         List<BatchData>[] backwardBatches = new List<BatchData>[numberOfSections];

@@ -9,9 +9,11 @@ public class DebugLabel : MonoBehaviour
     private Camera mainCamera;
 
     private string labelText = "Debug Label";
+    
 
     [SerializeField] private bool isBillboard = true;
     [SerializeField] private Color textColor = Color.white;
+    [SerializeField] private bool visible = true;
 
     // Start is called before the first frame update
     void Start()
@@ -23,7 +25,10 @@ public class DebugLabel : MonoBehaviour
             SetText(labelText);
         }
         mainCamera = Camera.main;
-
+        if (!visible && textMesh != null)
+        {
+            textMesh.enabled = false;
+        }
     }
 
     // Update is called once per frame
@@ -50,7 +55,8 @@ public class DebugLabel : MonoBehaviour
         
         if (textMesh != null)
         {
-            textMesh.text = text;
+            labelText = text;
+            textMesh.text = labelText;
         }
     }
 }
