@@ -39,6 +39,7 @@ public static class NoiseGenerator
                     float noiseSampleCoordinateX = (x - halfWidth) / scale * frequency + randomOffsetForIterations[i].x;
                     float noiseSampleCoordinateY = (y - halfHeight) / scale * frequency + randomOffsetForIterations[i].y;
                     float noiseValue = 2 * Mathf.PerlinNoise(noiseSampleCoordinateX, noiseSampleCoordinateY) - 1.0f;
+                    //float noiseValue = 2 * (float)randomGenerator.NextDouble() - 1.0f;
                     noiseValue *= amplitude;
                     noiseMap[x, y] += noiseValue;
 

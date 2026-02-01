@@ -37,7 +37,7 @@ public class SelectionManager : MonoBehaviour, SelectableObject
     
     SelectableObjectType type;
 
-    public void Init(Vector3Int gridPosition, string description, SelectableObjectType type, GridManager gridManager = default) 
+    public void Init(Vector3Int gridPosition, string description, SelectableObjectType type, GridManager gridManager) 
     {
         this.gridPosition = gridPosition;
         Description = description;

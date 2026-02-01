@@ -49,6 +49,12 @@ public class BuildingAdjacencyGraph
             if (neighbour.Value.WeightToNeighbour != GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT)
             {
                 neighbourNode.AddConnection(node, neighbour.Value.WeightToNeighbour);
+                if (node.Value.GetGameObject() != null && node.Value.GetGameObject().GetComponent<Road>() != null)
+                {
+                    var road = node.Value.GetGameObject().GetComponent<Road>();
+                    road.baseWeight = neighbour.Value.WeightToNeighbour;
+                    road.Weight = road.baseWeight;
+                }
             }
         }
     }

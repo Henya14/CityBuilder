@@ -48,6 +48,7 @@ public class MapGenarator : MonoBehaviour
                {
                   TerrainType terrainType = terrainTypes[i];
                   colorMap[y * mapChunkSize + x] = terrainType.color;
+                  //colorMap[y * mapChunkSize + x] = Color.Lerp(Color.black, Color.white, height);
                   break;
                }
             }

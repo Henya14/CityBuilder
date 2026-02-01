@@ -148,7 +148,7 @@ public class PropertyManager : MonoBehaviour
                                     }
                                     property.PropertyGameObject = propertyObject;
                                     var selectionManager = propertyObject.AddComponent<SelectionManager>();
-                                    selectionManager.Init(position, description, SelectableObjectType.ZoneBuilding);
+                                    selectionManager.Init(position, description, SelectableObjectType.ZoneBuilding, gridManager);
                                     property.SelectionManager = selectionManager;
                                     var highlight = propertyObject.AddComponent<Highlight>();
                                     highlight.SetRenderers(new List<Renderer> { propertyObject.GetComponent<Renderer>() });
