@@ -145,6 +145,11 @@ public class RoadDrawer : MonoBehaviour
     {
         roadPointDatasForRoads[roadName] = roadData;
     }
+
+    public List<RoadData> GetAllRoadData()
+    {
+        return roadPointDatasForRoads.Values.ToList();
+    }
     private string currentRoadName = GetRoadNameForIndex(roadIndex);
     public float roadPointClosenessDelta = 5.0f;
     public bool closeToOtherRoad = false;

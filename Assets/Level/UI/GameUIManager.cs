@@ -461,6 +461,11 @@ public class GameUIManager : MonoBehaviour
         return roadDrawer.GetRoadDataForRoad(roadName);
     }
 
+    public List<RoadData> GetAllRoadData()
+    {
+        return roadDrawer.GetAllRoadData();
+    }
+
     private void OnMouseEnterUI(MouseEnterEvent evt)
     {
         isMouseOverUI = true;
