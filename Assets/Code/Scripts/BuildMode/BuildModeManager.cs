@@ -204,15 +204,6 @@ public class BuildModeManager : MonoBehaviour
             {
                 Destroy(rc.gameObject);
             }
-            else
-            {
-                var roadPoint = rc.GetComponent<Road>();
-                if (roadPoint == null)
-                {
-                    return;
-                }
-
-            }
         }
     }
     List<Rect> resourceRectagles;

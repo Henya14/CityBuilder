@@ -327,7 +327,8 @@ public class PropertyManager : MonoBehaviour
             debugLabel.transform.position += new Vector3(0, 1.5f, 0);
             debugLabel.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
             var debugLabelScript = debugLabel.GetComponent<DebugLabel>();
-            debugLabelScript.Init($"{propertyType} Property\n {(float)key.x / 2 - 5}, {(float)key.z / 2 - 5}");
+            // debugLabelScript.Init($"{propertyType} Property\n {(float)key.x / 2 - 5}, {(float)key.z / 2 - 5}");
+            debugLabelScript.Init($"");
         }
         // // 1,0,0 rotate right 90
         // if (roadDir.x == 1)

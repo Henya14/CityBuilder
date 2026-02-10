@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class Road : AbstractBuildingType
 {
-    [SerializeField] int capacity = 2;
+    [SerializeField] public int capacity { get; set; } = 2;
     [SerializeField] public float baseWeight = 10f;
     private float _weight = 0f;
     private string _roadName;
@@ -59,6 +59,20 @@ public class Road : AbstractBuildingType
         IncrementUsage(1);
     }
 
+    public bool ContainsCar(CarNavigation car)
+    {
+        return carsOnRoad.Contains(car);
+    }
+
+    public CarNavigation GetCarAtIndex(int index)
+    {
+        if (index >= 0 && index < carsOnRoad.Count)
+        {
+            return carsOnRoad[index];
+        }
+        return null;
+    }
+
     public void RemoveCarFromRoad(CarNavigation car)
     {
         if (carsOnRoad.Contains(car))
@@ -66,6 +80,11 @@ public class Road : AbstractBuildingType
             carsOnRoad.Remove(car);
             IncrementUsage(-1);
         }
+    }
+
+    public int GetIndexOfCar(CarNavigation car)
+    {
+        return carsOnRoad.IndexOf(car);
     }
 
     private List<Road> yieldsToRoads = new List<Road>();
@@ -113,8 +132,7 @@ public class Road : AbstractBuildingType
 
     public void IncrementUsage(int amount)
     {
-        currentUsage += amount;
-        currentUsage = Mathf.Clamp(currentUsage, 0, capacity);
+        currentUsage = carsOnRoad.Count;
         RefreshDebugLabel();
     }
 
@@ -133,7 +151,7 @@ public class Road : AbstractBuildingType
 
     public bool isAtCapacity()
     {
-        return currentUsage >= capacity;
+        return carsOnRoad.Count >= capacity;
     }
 
     // public override void SetNeighbourForPosition(Vector3Int position, Vector3Int neighbourPosition, AbstractBuildingType neighbour)

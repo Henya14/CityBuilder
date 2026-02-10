@@ -138,7 +138,12 @@ public class NavigationManager : MonoBehaviour
     {
         //List<Direction> dirs;
         //GetDirectionsForRoute(route, out dirs);
-        PlaceCarAtPosition(route[0].GraphNode.Value.GetGridPosition(), route);
+        var getCurrentCarNumbersInGame = FindObjectsOfType<CarNavigation>().Count();
+        if (getCurrentCarNumbersInGame < 100)
+        {
+            
+            PlaceCarAtPosition(route[0].GraphNode.Value.GetGridPosition(), route);
+        }
         
     }
     public void PlaceCarAtPosition(Vector3Int gridPosition, List<GraphSearchNode<SelectableObject>> route)

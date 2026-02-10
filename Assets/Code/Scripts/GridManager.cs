@@ -540,7 +540,7 @@ public class GridManager : MonoBehaviour
     {
         var tilePositionIndex = new Vector3Int(gridPosition.x, 0, gridPosition.z);
         //find pivot if exists and use its position and rotation
-        var tileWithPivot = tileMap[tilePositionIndex].gameObject.transform.Find("Pivot");
+        var tileWithPivot = tileMap[tilePositionIndex].gameObject.transform;
         var tilePosition = tileWithPivot != null ? tileWithPivot.position : tileMap[tilePositionIndex].gameObject.transform.position;
         var tileRotation = tileWithPivot != null ? tileWithPivot.rotation : tileMap[tilePositionIndex].gameObject.transform.rotation;
         float x = tilePosition.x;
