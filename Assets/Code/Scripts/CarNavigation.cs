@@ -3,11 +3,53 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 
+
+
+
 public class CarNavigation : MonoBehaviour
 {
+
+    public delegate void OnReachedDestination(CarNavigation car);
+    public event OnReachedDestination ReachedDestination;
     [SerializeField] float speed = 1.0f;
     [SerializeField] float onedirectionDistance = 0.5f;
     public Vector3Int CurrentGridPosition { get; set; }
+
+    private bool _goingToWork;
+    private bool _goingToShop;
+    private bool _goingHome;
+    public bool GoingToWork
+    {
+        get { return _goingToWork; }
+        set
+        {
+            _goingToWork = value;
+            _goingToShop = value == true ? false : _goingToShop;
+            _goingHome = value == true ? false : _goingHome;
+        }
+    }
+
+    public bool GoingToShop
+    {
+        get { return _goingToShop; }
+        set
+        {
+            _goingToShop = value;
+            _goingToWork = value == true ? false : _goingToWork;
+            _goingHome = value == true ? false : _goingHome;
+        }
+    }
+
+    public bool GoingHome
+    {
+        get { return _goingHome; }
+        set
+        {
+            _goingHome = value;
+            _goingToWork = value == true ? false : _goingToWork;
+            _goingToShop = value == true ? false : _goingToShop;
+        }
+    }
 
     Direction facingDirection = Direction.West;
     Queue<Direction> directions = null;
@@ -47,7 +89,7 @@ public class CarNavigation : MonoBehaviour
         currentRouteIndex = 0;
         started = true;
         var destinationNode = route[route.Count - 1].GraphNode.Value.GetGameObject();
-        gameObject.name = $"Car to {destinationNode.name}";
+        gameObject.name = $"Car to {destinationNode.name} {gameObject.GetInstanceID()}";
     }
 
     // Update is called once per frame
@@ -56,7 +98,7 @@ public class CarNavigation : MonoBehaviour
         if (debugLabel != null)
         {
             debugLabel.SetText("");
-            //debugLabel.SetText($"Car Navigation\nReached: {reachedGoal}\nMovingToNext: {movingToNextPoint}\nCurrentIndex: {currentRouteIndex}/{_route.Count}");
+            // debugLabel.SetText($"Car Navigation\nReached: {reachedGoal}\nMovingToNext: {movingToNextPoint}\nCurrentIndex: {currentRouteIndex}/{_route.Count}");
         }
         if (!started)
         {
@@ -69,8 +111,8 @@ public class CarNavigation : MonoBehaviour
             return;
         }
 
-        var currentNode = Route[currentRouteIndex].GraphNode.Value.GetGameObject();
-        var nextNode = currentRouteIndex + 1 < Route.Count ? Route[currentRouteIndex + 1].GraphNode.Value.GetGameObject() : null;
+        currentNode = Route[currentRouteIndex].GraphNode.Value.GetGameObject();
+        nextNode = currentRouteIndex + 1 < Route.Count ? Route[currentRouteIndex + 1].GraphNode.Value.GetGameObject() : null;
 
         var currentRoad = currentNode.GetComponent<Road>();
         var nextRoad = nextNode != null ? nextNode.GetComponent<Road>() : null;
@@ -87,26 +129,23 @@ public class CarNavigation : MonoBehaviour
 
         if (waitingOnNextRoad)
         {
-            if(nextRoad.isAtCapacity())
+            movingToNextPoint = false;
+            if (nextRoad.isAtCapacity())
             {
                 // Still waiting for space on next road
-                movingToNextPoint = false;
                 return;
-            } 
+            }
 
             if (currentRoad != null && currentRoad.GetIndexOfCar(this) != 0)
             {
                 return;
             }
-            currentRoad?.RemoveCarFromRoad(this);
-            nextRoad.AddCarToRoad(this);
-            waitingOnNextRoad = false;
-            currentRouteIndex++;
-            minDistanceToNextPoint = float.MaxValue;
+
+            nextRoad.AddCarWaitingToEnter(this, currentRoad?.GetYieldsToRoads() ?? null, currentRoad);
             return;
         }
 
-        if (!movingToNextPoint)
+        else if (!movingToNextPoint)
         {
             if (currentRoad != null && !currentRoad.ContainsCar(this))
             {
@@ -117,7 +156,7 @@ public class CarNavigation : MonoBehaviour
             movingToNextPoint = true;
         }
 
-        if (movingToNextPoint)
+        else if (movingToNextPoint)
         {
             var currentNodePosition = currentNode.transform.position;
             var nextNodePosition = nextNode.transform.position;
@@ -126,7 +165,7 @@ public class CarNavigation : MonoBehaviour
             var distanceToNextNode = Vector3.Distance(transform.position, nextNodePosition);
             var carIndexOnRoad = currentRoad != null ? currentRoad.GetIndexOfCar(this) : 0;
             var currentRoadCapacity = currentRoad != null ? currentRoad.capacity : 1;
-            var carDestination = vectorToNextNode * (currentRoadCapacity - carIndexOnRoad)/(float)currentRoadCapacity + currentNodePosition;
+            var carDestination = vectorToNextNode * (currentRoadCapacity - carIndexOnRoad) / (float)currentRoadCapacity + currentNodePosition;
 
 
             var carBeforeThisCar = currentRoad != null && carIndexOnRoad > 0 ? currentRoad.GetCarAtIndex(carIndexOnRoad - 1) : null;
@@ -141,21 +180,26 @@ public class CarNavigation : MonoBehaviour
                 else
                 {
                     // Safe distance, can speed up
-                    speed = Mathf.Lerp(speed, UnityEngine.Random.Range(1.5f, 4.5f), Time.deltaTime * 2f);
+                    speed = Mathf.Lerp(speed, UnityEngine.Random.Range(3.5f, 7.5f), Time.deltaTime * 2f);
                 }
-            } else
+            }
+            else
             {
                 // No car in front, can speed up to normal speed
-                speed = Mathf.Lerp(speed, UnityEngine.Random.Range(1.5f, 4.5f), Time.deltaTime * 2f);
+                speed = Mathf.Lerp(speed, UnityEngine.Random.Range(3.5f, 7.5f), Time.deltaTime * 2f);
             }
-            var distanceToNextCar = currentRoad != null && carIndexOnRoad > 0 ? Vector3.Distance(transform.position, currentRoad.GetCarAtIndex(carIndexOnRoad - 1).transform.position) / (float)currentRoadCapacity : float.MaxValue;
+
             var movementVector = (carDestination - transform.position).normalized * speed * Time.deltaTime;
             if (movementVector.magnitude > 0.01f)
             {
                 transform.position += movementVector;
+            }
+            // do not look at when destination behiond car
+            if (movementVector.magnitude > 0.01f)
+            {
                 transform.LookAt(carDestination);
-            } 
-            
+            }
+
             minDistanceToNextPoint = Mathf.Min(minDistanceToNextPoint, distanceToNextNode);
             //debugLabel.SetText($"Car Navigation\nReached: {reachedGoal}\nMovingToNext: {movingToNextPoint}\nCurrentIndex: {currentRouteIndex}/{_route.Count}\nDistanceToNextNode: {distanceToNextNode}\nDistance to destination: {Vector3.Distance(transform.position, carDestination)} \n Car index on road: {carIndexOnRoad}");
             VisualizeDestination(carDestination);
@@ -271,12 +315,26 @@ public class CarNavigation : MonoBehaviour
 
     void Remove()
     {
+        ReachedDestination?.Invoke(this);
         CleanupFromRoads();
         Destroy(gameObject);
     }
 
     void VisualizeDestination(Vector3 destination)
     {
-        Debug.DrawLine(transform.position, destination, Color.red, 1.0f);
+        //Debug.DrawLine(transform.position, destination, Color.red, 1.0f);
+    }
+
+    public void CarCanEnterRoad(Road previousRoad, Road nextRoad)
+    {
+        previousRoad?.RemoveCarFromRoad(this);
+        nextRoad.AddCarToRoad(this);
+        waitingOnNextRoad = false;
+        currentRouteIndex = _route.FindIndex(s => s.GraphNode.Value.GetGameObject() == nextRoad.gameObject);
+        if (currentRouteIndex == -1)
+        {
+            Debug.LogError("Current route does not contain the next road!");
+        }
+        minDistanceToNextPoint = float.MaxValue;
     }
 }

@@ -15,7 +15,7 @@
                 <ui:Label tabindex="-1" text="0" parse-escape-sequences="true" display-tooltip-when-elided="true" name="wood-text" style="left: 125px;" />
             </ui:Label>
         </ui:VisualElement>
-        <ui:VisualElement name="tax-box-container" style="flex-grow: 1; position: absolute; margin-top: 0; margin-left: 0; align-items: center; justify-content: center; margin-bottom: 0; margin-right: 0; left: auto; top: 50%; display: flex; right: 0;">
+        <ui:VisualElement name="tax-box-container" style="flex-grow: 1; position: absolute; margin-top: 0; margin-left: 0; align-items: center; justify-content: center; margin-bottom: 0; margin-right: 0; left: auto; top: 50%; display: none; right: 0;">
             <ui:VisualElement name="row-label" style="flex-grow: initial; flex-direction: row; align-items: flex-start; justify-content: space-around; flex-shrink: initial; align-self: stretch;">
                 <ui:Label tabindex="-1" text="Level 1" parse-escape-sequences="true" display-tooltip-when-elided="true" name="level1-label" />
                 <ui:Label tabindex="-1" text="Level 2" parse-escape-sequences="true" display-tooltip-when-elided="true" name="level2-label" />

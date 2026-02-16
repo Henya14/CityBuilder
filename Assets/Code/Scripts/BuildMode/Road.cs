@@ -1,13 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEditor.PackageManager;
 using UnityEngine;
 
 public class Road : AbstractBuildingType
 {
-    [SerializeField] public int capacity { get; set; } = 2;
+    [SerializeField] public int capacity { get; set; } = 3;
     [SerializeField] public float baseWeight = 10f;
     private float _weight = 0f;
     private string _roadName;
@@ -47,11 +48,67 @@ public class Road : AbstractBuildingType
         set
         {
             _currentUsage = value;
-            Weight = baseWeight + 10f * ((float)_currentUsage / capacity);
+            var newWeight = baseWeight + 10f * ((float)_currentUsage / capacity);
+            if (newWeight > Weight)
+            {
+                Weight = newWeight;
+            }
+            
+        }
+    }
+
+    private float degrationSpeed = 0.3f;
+    public void RefreshWeight(float timeSinceLastRecalculation)
+    {
+        if (Weight == GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT)
+        {
+            return;
+        }
+        var newWeight = Weight - degrationSpeed * timeSinceLastRecalculation;
+        newWeight = Mathf.Clamp(newWeight, 1.0f, float.MaxValue);
+        if (newWeight < Weight)        {
+            Weight = newWeight;
         }
     }
 
     private List<CarNavigation> carsOnRoad = new List<CarNavigation>();
+
+    public struct CarWaitingToEnter
+    {
+        public CarNavigation car;
+        public float timeEnteredQueue;
+        public List<Road> yieldsToRoads;
+        public Road onRoad;
+    }
+    private List<CarWaitingToEnter> carsWaitingToEnter = new List<CarWaitingToEnter>();
+
+
+    public void AddCarWaitingToEnter(CarNavigation car, List<Road> yieldsToRoads, Road onRoad)
+    {
+        if (carsWaitingToEnter.Exists(c => c.car == car))
+        {
+            return; // Car is already in the waiting list
+        }
+        carsWaitingToEnter.Add(new CarWaitingToEnter
+        {
+            car = car,
+            timeEnteredQueue = Time.time,
+            yieldsToRoads = yieldsToRoads,
+            onRoad = onRoad
+        });
+    }
+
+
+    public void RemoveCarWaitingToEnter(CarWaitingToEnter carWaiting)
+    {
+        carsWaitingToEnter.Remove(carWaiting);
+        carWaiting.car.CarCanEnterRoad(carWaiting.onRoad, this);
+    }
+
+    public List<Road> GetYieldsToRoads()
+    {
+        return yieldsToRoads;
+    }
 
     public void AddCarToRoad(CarNavigation car)
     {
@@ -101,17 +158,27 @@ public class Road : AbstractBuildingType
     /// Returns true if this road must yield because a road it yields to has active traffic.
     /// Used to enforce right-hand traffic priority at intersections.
     /// </summary>
-    public bool ShouldYield()
+    public bool ShouldYield(List<Road> yieldsToRoads = null, List<Road> otherRoads = null)
     {
-        foreach (var road in yieldsToRoads)
+        if (yieldsToRoads == null || otherRoads == null)
         {
-            if (road != null && road.currentUsage > 0)
+            return false;
+        }
+        if (yieldsToRoads.Count == 0)
+        {
+            return false;
+        }
+        foreach (var road in otherRoads)
+        {
+            if (yieldsToRoads.Contains(road) && road.carsOnRoad.Count > 0)
             {
                 return true;
             }
         }
+
         return false;
     }
+    
 
 
 
@@ -127,7 +194,53 @@ public class Road : AbstractBuildingType
     // Update is called once per frame
     void Update()
     {
-        VisualizeYieldsToRoads();
+        //VisualizeYieldsToRoads();
+        CheckIfCarsCanEnterInLine();
+        
+    }
+
+    public void CheckIfCarsCanEnterInLine()
+    {
+      
+      if (isAtCapacity())
+      {
+          return;
+      }
+      if (carsWaitingToEnter.Count == 0) {
+          return;
+      }
+
+        //RemoveCarWaitingToEnter(carsWaitingToEnter[0]);
+        for (int i = 0; i < carsWaitingToEnter.Count; i++)
+        {
+            var carWaiting = carsWaitingToEnter[i];
+            var road = carWaiting.onRoad;
+            var yieldsToRoads = carWaiting.yieldsToRoads;
+            var otherRoads = carsWaitingToEnter.ConvertAll(c => c.onRoad).Where(r => r != road).ToList();
+            var waitingTime = Time.time - carWaiting.timeEnteredQueue;
+            if (waitingTime > 5f)
+            {
+                Debug.LogWarning($"Car has been waiting to enter road {RoadName} for {waitingTime} seconds. Check if there is a traffic jam or if the yielding logic is too strict.");
+            }
+            if (road == null)
+            {
+                if (carsWaitingToEnter.Count(cwe => cwe.onRoad == null) == carsWaitingToEnter.Count)
+                {
+                   RemoveCarWaitingToEnter(carWaiting);
+                   break; // If all waiting cars are waiting to enter from a null road, allow the first one to enter to prevent deadlock
+                }
+                continue;
+            }
+            if (ShouldYield(yieldsToRoads, otherRoads))
+            {
+                continue;
+            }
+
+            RemoveCarWaitingToEnter(carWaiting);
+            break; // Only allow one car to enter per frame to prevent multiple cars entering at once when capacity allows for only one more car
+
+        }
+
     }
 
     public void IncrementUsage(int amount)
@@ -211,5 +324,9 @@ public class Road : AbstractBuildingType
                 
             }
         }
+    }
+
+    public float MaxWeight() {
+        return baseWeight + 10f;
     }
 }
