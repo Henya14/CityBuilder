@@ -293,7 +293,7 @@ public class GameUIManager : MonoBehaviour
         if (selectedObject != null)
         {
             var displayText = selectedObject.GetDescription();
-            infoContainer.style.display = DisplayStyle.Flex;
+            //infoContainer.style.display = DisplayStyle.Flex;
             var tile = selectedObject.GetGameObject().GetComponent<Tile>();
             if (tile != null)
             {
@@ -459,6 +459,11 @@ public class GameUIManager : MonoBehaviour
     public RoadData GetRoadDataForRoad(string roadName)
     {
         return roadDrawer.GetRoadDataForRoad(roadName);
+    }
+
+    public List<RoadData> GetAllRoadData()
+    {
+        return roadDrawer.GetAllRoadData();
     }
 
     private void OnMouseEnterUI(MouseEnterEvent evt)

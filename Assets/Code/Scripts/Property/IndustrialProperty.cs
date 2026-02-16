@@ -6,9 +6,10 @@ public class IndustrialProperty : AbstarctProperty
 {
     
     // Start is called before the first frame update
-    void Start()
+    protected override void Start()
     {
         this.PropertyType = PropertyType.Industrial;
+        base.Start();
     }
 
     // Update is called once per frame

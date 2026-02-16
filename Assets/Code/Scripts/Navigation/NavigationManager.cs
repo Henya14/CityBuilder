@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -15,17 +16,23 @@ public class NavigationManager : MonoBehaviour
     [SerializeField] GameObject carPrefab;
     BuildingAdjacencyGraph adjacencyGraph = new BuildingAdjacencyGraph();
     List<SelectableObject> selectedObjects = new List<SelectableObject>();
-    GridManager gridManager;
     SelectableObject selectableObject;
+    float timeSinceLastWeightRecalculation = 0f;
     // Start is called before the first frame update
     void Start()
     {
-        gridManager = FindObjectOfType<GridManager>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        timeSinceLastWeightRecalculation += Time.deltaTime;
+
+        if (timeSinceLastWeightRecalculation >= 1f)
+        {
+            RecalculateWeightsForRoads(timeSinceLastWeightRecalculation);
+            timeSinceLastWeightRecalculation = 0f;
+        }
         if (Input.GetMouseButtonDown(0))
         {
 
@@ -126,6 +133,11 @@ public class NavigationManager : MonoBehaviour
 
     public void FindShortestPathBeetweenTwoPoints(GraphNode<SelectableObject> start, GraphNode<SelectableObject> destination, out List<GraphSearchNode<SelectableObject>> route)
     {
+        if (start == null || destination == null)
+        {
+            route = null;
+            return;
+        }
         var algo = new DijkstraAlgorithm();
         var searchNodes = adjacencyGraph.GetGraphSearchNodes().Select(sn =>
         {
@@ -136,23 +148,128 @@ public class NavigationManager : MonoBehaviour
         start,
         destination);
     }
-    public void StartCarOnRoute(List<GraphSearchNode<SelectableObject>> route)
+
+    public float GetDistanceBetweenTwoNodes(GraphNode<SelectableObject> start, GraphNode<SelectableObject> destination)
     {
-        List<Direction> dirs;
-        GetDirectionsForRoute(route, out dirs);
-        //PlaceCarAtPosition(route[0].GraphNode.Value.GetGridPosition(), dirs);
+        if (start == null || destination == null)
+        {
+            return float.MaxValue;
+        }
+        var algo = new DijkstraAlgorithm();
+        var searchNodes = adjacencyGraph.GetGraphSearchNodes().Select(sn =>
+        {
+            sn.StraightLineDistanceToDestination = (start.Value.GetGridPosition() - sn.GraphNode.Value.GetGridPosition()).magnitude;
+            return sn;
+        }).ToList();
+        var route = algo.FindShortestPathToDestination(searchNodes,
+        start,
+        destination);
+        if (route == null) return float.MaxValue;
+        var distance = route.Max(r => r.CostToStart);
+        return (float)distance;
     }
-    public void PlaceCarAtPosition(Vector3Int gridPosition, List<Direction> directions)
+
+    public void RecalculateWeightsForRoads(float timeSinceLastRecalculation)
+    {
+        adjacencyGraph.GraphNodes.Where(n => n.Value.GetSelectableObjectType() == SelectableObjectType.Road).ToList().ForEach(roadNode =>
+        {
+            var road = roadNode.Value.GetGameObject().GetComponent<Road>();
+            road.RefreshWeight(timeSinceLastRecalculation);
+            var newWeight = road.Weight;
+            if (newWeight == GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT)
+            {
+                return;
+            }
+            roadNode.Connections.ForEach(c =>
+            {
+                if (c.Weight == GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT)
+                {
+                    return;
+                }
+                if (c.Destination == roadNode)
+                {
+
+                    c.Weight = (int)newWeight;
+                }
+            });
+
+        });
+        VisualizeConnections();
+    }
+
+    public void VisualizeConnections()
+    {
+        var allRoads = adjacencyGraph.GraphNodes.Where(n => n.Value.GetSelectableObjectType() == SelectableObjectType.Road).ToList();
+        if (allRoads.Count == 0)
+        {
+            return;
+        }
+        var connectionsEnumerable = adjacencyGraph.GraphNodes.Where(n => n.Value.GetSelectableObjectType() == SelectableObjectType.Road).SelectMany(n => n.Connections);
+        var maxWeight = connectionsEnumerable.Max(c => c.Weight);
+        var connections = connectionsEnumerable.ToList();
+        connections.ForEach(connection =>
+        {
+            var destination = connection.Destination;
+            var source = connection.Source;
+            var destinationRoad = destination.Value.GetGameObject().GetComponent<Road>();
+            var sourceRoad = source.Value.GetGameObject().GetComponent<Road>();
+            if (destinationRoad == null || sourceRoad == null)
+            {
+                return;
+            }
+            if (connection.Weight ==  GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT)
+            {
+                return;
+            }
+            var color = Color.Lerp(Color.green, Color.red, connection.Weight / destinationRoad.MaxWeight());
+            //var randomOffset = new Vector3(UnityEngine.Random.Range(-0.1f, 0.1f), UnityEngine.Random.Range(-0.1f, 0.1f), UnityEngine.Random.Range(-0.1f, 0.1f));
+            var randomOffset = Vector3.zero;
+            Debug.DrawLine(source.Value.GetGameObject().transform.position + randomOffset, destination.Value.GetGameObject().transform.position + randomOffset, color, 1.0f);
+            // add arrows
+                var direction = (destination.Value.GetGameObject().transform.position - source.Value.GetGameObject().transform.position).normalized;
+                var arrowHeadPosition = destination.Value.GetGameObject().transform.position - direction * 0.5f + randomOffset;
+                Debug.DrawLine(arrowHeadPosition, arrowHeadPosition + Quaternion.Euler(0, 150, 0) * direction * 0.2f, color, 1.0f);
+                Debug.DrawLine(arrowHeadPosition, arrowHeadPosition + Quaternion.Euler(0, -150, 0) * direction * 0.2f, color, 1.0f);
+        });
+    }
+
+
+
+    public void StartCarOnRoute(List<GraphSearchNode<SelectableObject>> route, out CarNavigation carNavigation)
+    {
+        carNavigation = null;
+        //List<Direction> dirs;
+        //GetDirectionsForRoute(route, out dirs);
+        var getCurrentCarNumbersInGame = FindObjectsOfType<CarNavigation>().Count();
+        if (getCurrentCarNumbersInGame < 100)
+        {
+
+            PlaceCarAtPosition(route[0].GraphNode.Value.GetGridPosition(), route, out carNavigation);
+        }
+
+    }
+    public void PlaceCarAtPosition(Vector3Int gridPosition, List<GraphSearchNode<SelectableObject>> route, out CarNavigation carNavigation)
     {
         var car = Instantiate(carPrefab);
-
-
+        var gridManager = route[0].GraphNode.Value.GetGridManager();
         var carGamePosition = gridManager.GetSelectionCenter(new List<Vector3Int> { gridPosition });
         carGamePosition.y = gridManager.GetGamePositionAndRotationForGridPosition(new Vector3Int(0, 1, 0)).Item1.y;
         car.transform.position = carGamePosition;
-        car.GetComponent<CarNavigation>().CurrentGridPosition = gridPosition;
-        car.GetComponent<CarNavigation>().SetDirections(directions);
+        carNavigation = car.GetComponent<CarNavigation>();
+        carNavigation.InitializeRoute(route);
     }
+
+    // public void PlaceCarAtPositionOLD(Vector3Int gridPosition, List<Direction> directions)
+    // {
+    //     var car = Instantiate(carPrefab);
+
+    //     var gridManager = route[0].GraphNode.Value.GetGridManager();
+    //     var carGamePosition = gridManager.GetSelectionCenter(new List<Vector3Int> { gridPosition });
+    //     carGamePosition.y = gridManager.GetGamePositionAndRotationForGridPosition(new Vector3Int(0, 1, 0)).Item1.y;
+    //     car.transform.position = carGamePosition;
+    //     car.GetComponent<CarNavigation>().CurrentGridPosition = gridPosition;
+    //     car.GetComponent<CarNavigation>().SetDirections(directions);
+    // }
 
     public void DeselectObjects()
     {
@@ -178,6 +295,11 @@ public class NavigationManager : MonoBehaviour
     public GraphNode<SelectableObject> GetGraphNodeForSelectableObject(SelectableObject objectToSearch)
     {
         return adjacencyGraph.GetGraphNodeForSelectableObject(objectToSearch);
+    }
+
+    public BuildingAdjacencyGraph GetAdjacencyGraph()
+    {
+        return adjacencyGraph;
     }
 
 }

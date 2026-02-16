@@ -18,6 +18,10 @@ public class DijkstraAlgorithm : ShortestPathStrategy
             nodeList.Remove(node);
             foreach (var connection in node.GraphNode.GetOutGoingConnections()) 
             {
+                if (connection.Weight == GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT)
+                {
+                    continue;
+                }
                 var neighbourSearchNode = graphSearchNodes.Find(n => connection.Destination == n.GraphNode);
                 if (neighbourSearchNode.Visited) {
                     continue;

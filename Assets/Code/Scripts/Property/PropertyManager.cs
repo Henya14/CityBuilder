@@ -1,8 +1,7 @@
+using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
+using System.Linq;
 using UnityEngine;
-using UnityEngine.Pool;
-
 public enum HouseLevel
 {
     None,
@@ -26,27 +25,41 @@ public class PropertyManager : MonoBehaviour
     NavigationManager navigationManager;
 
     public string zoneNameSeacrhWord;
+    private int propertyMapLengthOnLastCorutine = 0;
 
     // Start is called before the first frame update
     void Start()
     {
         buildModeManager = FindObjectOfType<BuildModeManager>();
         navigationManager = FindObjectOfType<NavigationManager>();
+
+
+
         //TimeManager.OnMinuteChanged += Log;
         //TimeManager.OnMinuteChanged += MoveIn;
         //TODO: IncreasePopulation called every minute after ShouldBeIncreased func finished
-        TimeManager.OnHourChanged += IncreasePopulation;
+        TimeManager.On10MinutesChanged += IncreasePopulation;
+
 
     }
-    public void IncreasePopulation()
+
+    Coroutine IncreasePopulationCoroutineInstance = default;
+
+    IEnumerator IncreasePopulationCoroutine()
     {
-        //Iterate buildings
-        foreach (var gridManager in gridManagers)
+        var gridManagersCopy = gridManagers.ToList();
+        propertyMapLengthOnLastCorutine = gridManagersCopy.Count;
+        foreach (var gridManager in gridManagersCopy)
         {
+            yield return null;
+            var buildings = gridManager.GetBuildingsMap().ToDictionary(k => k.Key, v => v.Value);
 
-
-            foreach (var building in gridManager.GetBuildingsMap())
+            foreach (var building in buildings)
             {
+
+
+                yield return null;
+
                 var name = building.Value.buildingName;
                 //only housing zones
                 //serach word in zone building name
@@ -62,6 +75,7 @@ public class PropertyManager : MonoBehaviour
 
                     foreach (var nhb in nhbs)
                     {
+                        yield return null;
                         if (nhb.Value == null) { continue; }
                         if (nhb.Value is Road)
                         {
@@ -76,11 +90,12 @@ public class PropertyManager : MonoBehaviour
 
                             nhbDir = selectionManager.GetGameObject().transform.position;
 
-                            Debug.Log($"nhb dir: {nhbDir.x}, {nhbDir.z}");
+                            // Debug.Log($"nhb dir: {nhbDir.x}, {nhbDir.z}");
                             break;
                         }
                     }
 
+                    yield return null;
                     if (!nextToRoad)
                     {
                         //Check if has down neighbour that is road
@@ -96,7 +111,7 @@ public class PropertyManager : MonoBehaviour
                             nhbDir = selectionManager.GetGameObject().transform.position;
                         }
                     }
-
+                    yield return null;
                     //MoveIn only next to road zone tiles
                     if (nextToRoad)
                     {
@@ -116,7 +131,12 @@ public class PropertyManager : MonoBehaviour
                                 }
 
                             }
-                            else continue;
+                            else
+                            {
+
+                                continue;
+                            }
+                            ;
                         }
                         //If there is NO property
                         else
@@ -127,7 +147,7 @@ public class PropertyManager : MonoBehaviour
                                 case HouseLevel.None:
                                     break;
                                 default:
-
+                                    yield return null;
                                     var propertyObject = Construct(position, hlvl, nhbDir, gridManager);
                                     //Add script based on given property type 
                                     var description = "";
@@ -146,12 +166,20 @@ public class PropertyManager : MonoBehaviour
                                             description = "Shopping building";
                                             break;
                                     }
+                                    yield return null;
                                     property.PropertyGameObject = propertyObject;
                                     var selectionManager = propertyObject.AddComponent<SelectionManager>();
-                                    selectionManager.Init(position, description, SelectableObjectType.ZoneBuilding);
+                                    selectionManager.Init(position, description, SelectableObjectType.ZoneBuilding, gridManager);
                                     property.SelectionManager = selectionManager;
                                     var highlight = propertyObject.AddComponent<Highlight>();
-                                    highlight.SetRenderers(new List<Renderer> { propertyObject.GetComponent<Renderer>() });
+                                    var renderer = propertyObject.GetComponent<Renderer>();
+                                    if (renderer == null)
+                                    {
+
+                                        //get children renderers and set to highlight
+                                        renderer = propertyObject.GetComponentsInChildren<Renderer>()[0];
+                                    }
+                                    highlight.SetRenderers(new List<Renderer> { renderer });
                                     highlight.SetHighlightColor(Color.white);
                                     property.AddPerson();
                                     property.HouseLevel = hlvl;
@@ -167,6 +195,30 @@ public class PropertyManager : MonoBehaviour
                 }
             }
         }
+        IncreasePopulationCoroutineInstance = default;
+        yield return null;
+    }
+
+    public void IncreasePopulation()
+    {
+        if (gridManagers.Count != propertyMapLengthOnLastCorutine)
+        {
+            Debug.Log("Grid manager count changed since last population increase coroutine. Starting new coroutine to update property map.");
+            if (IncreasePopulationCoroutineInstance != default)
+            {
+                StopCoroutine(IncreasePopulationCoroutineInstance);
+                IncreasePopulationCoroutineInstance = default;
+            }
+
+        }
+        else if (IncreasePopulationCoroutineInstance != default)
+        {
+            return;
+
+        }
+
+        IncreasePopulationCoroutineInstance = StartCoroutine(IncreasePopulationCoroutine());
+
     }
 
     private SelectionManager CheckIfHasDownNeighbourThatIsRoad(Vector3Int position, GridManager gridManager)
@@ -312,9 +364,9 @@ public class PropertyManager : MonoBehaviour
     GameObject PlaceBuilding(Vector3Int key, GameObject prefab, Vector3 roadPosition, GridManager gridManager)
     {
         var dc = Instantiate(prefab);
-        
+
         dc.name = $"{propertyType.ToString()} Property  {(float)key.x / 2 - 5}, {(float)key.z / 2 - 5}";
-    
+
         dc.transform.parent = this.transform;
         dc.transform.localScale = new Vector3(3.5f, 3.5f, 3.5f);
         var pos = gridManager.GetGamePositionAndRotationForGridPosition(key).Item1;
@@ -327,7 +379,8 @@ public class PropertyManager : MonoBehaviour
             debugLabel.transform.position += new Vector3(0, 1.5f, 0);
             debugLabel.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
             var debugLabelScript = debugLabel.GetComponent<DebugLabel>();
-            debugLabelScript.Init($"{propertyType} Property\n {(float)key.x / 2 - 5}, {(float)key.z / 2 - 5}");
+            // debugLabelScript.Init($"{propertyType} Property\n {(float)key.x / 2 - 5}, {(float)key.z / 2 - 5}");
+            debugLabelScript.Init($"");
         }
         // // 1,0,0 rotate right 90
         // if (roadDir.x == 1)

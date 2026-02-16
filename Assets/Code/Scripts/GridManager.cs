@@ -206,12 +206,17 @@ public class GridManager : MonoBehaviour
 
     private bool IsSelectionValid(List<Vector3Int> selectedTilePositions)
     {
+        var tileMap = this.tileMap.ToDictionary(entry => entry.Key, entry => entry.Value);
         bool isValid = true;
         if (selectedTilePositions.Count == 0)
         {
             return false;
         }
         var selectionMaxX = selectedTilePositions.Select(p => p.x).Max();
+        if (tileMap.Keys.Count == 0)
+        {
+            return false;
+        }
         var tileMapMaxX = tileMap.Keys.Select(p => p.x).Max();
         var tileMapMaxZ = tileMap.Keys.Select(p => p.z).Max();
         var selectionMaxZ = selectedTilePositions.Select(p => p.z).Max();
@@ -540,7 +545,7 @@ public class GridManager : MonoBehaviour
     {
         var tilePositionIndex = new Vector3Int(gridPosition.x, 0, gridPosition.z);
         //find pivot if exists and use its position and rotation
-        var tileWithPivot = tileMap[tilePositionIndex].gameObject.transform.Find("Pivot");
+        var tileWithPivot = tileMap[tilePositionIndex].gameObject.transform;
         var tilePosition = tileWithPivot != null ? tileWithPivot.position : tileMap[tilePositionIndex].gameObject.transform.position;
         var tileRotation = tileWithPivot != null ? tileWithPivot.rotation : tileMap[tilePositionIndex].gameObject.transform.rotation;
         float x = tilePosition.x;

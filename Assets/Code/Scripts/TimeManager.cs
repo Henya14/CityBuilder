@@ -13,6 +13,8 @@ public class TimeManager : MonoBehaviour
             instance = this;
     }
 
+    public static Action On10MinutesChanged;
+
     public static Action OnMinuteChanged;
     public static Action OnHourChanged;
 
@@ -43,8 +45,11 @@ public class TimeManager : MonoBehaviour
             if (timer <= 0)
             {
                 Minute++;
-                OnMinuteChanged?.Invoke();
-
+                
+                if (Minute % 10 == 0) 
+                {
+                    On10MinutesChanged?.Invoke();
+                }
                 if (Minute >= 59)
                 {
                     Hour++;
@@ -57,6 +62,7 @@ public class TimeManager : MonoBehaviour
                 {
                     Hour = 0;
                 }
+                OnMinuteChanged?.Invoke();
 
                 timer = minuteFromRealTime;
             }
@@ -78,7 +84,7 @@ public class TimeManager : MonoBehaviour
                 break;
             case SpeedTypes.fastest:
                 speed = SpeedTypes.normal;
-                minuteFromRealTime = 0.75f;
+                minuteFromRealTime = 5.75f;
                 break;
             default: speed = SpeedTypes.normal;
                 minuteFromRealTime = 0.75f;

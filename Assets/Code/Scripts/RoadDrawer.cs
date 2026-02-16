@@ -145,6 +145,11 @@ public class RoadDrawer : MonoBehaviour
     {
         roadPointDatasForRoads[roadName] = roadData;
     }
+
+    public List<RoadData> GetAllRoadData()
+    {
+        return roadPointDatasForRoads.Values.ToList();
+    }
     private string currentRoadName = GetRoadNameForIndex(roadIndex);
     public float roadPointClosenessDelta = 5.0f;
     public bool closeToOtherRoad = false;
@@ -183,7 +188,7 @@ public class RoadDrawer : MonoBehaviour
         {
             Debug.Log("Mouse over UI");
         }
-     
+
         if (isDrawingRoad && uiManager != null && !uiManager.IsMouseOverUI())
         {
             LastMousePosition = Input.mousePosition;
@@ -348,12 +353,20 @@ public class RoadDrawer : MonoBehaviour
     }
 
     IEnumerator FireRoadCreatedEvent(string currentRoadName, GameObject roadMesh, List<RoadPointData> splineRoadPoints, List<List<BatchData>> batchesOnRight, List<List<BatchData>> batchesOnLeft)
-    {
+    {   
+        if (rightBatchDrawerCorutine != null) StopCoroutine(rightBatchDrawerCorutine);
+        if (leftBatchDrawerCorutine != null) StopCoroutine(leftBatchDrawerCorutine);
+       
         var emptyTilesOnRight = new List<GameObject>();
-        yield return DrawBathces(batchesOnRight, emptyTilesOnRight, roadMesh, "right");
+        yield return DrawBatches(batchesOnRight, emptyTilesOnRight, roadMesh, "right");
         var emptyTilesOnLeft = new List<GameObject>();
-        yield return DrawBathces(batchesOnLeft, emptyTilesOnLeft, roadMesh, "left");
+        yield return DrawBatches(batchesOnLeft, emptyTilesOnLeft, roadMesh, "left");
 
+
+        var roadData = roadPointDatasForRoads[currentRoadName];
+        roadData.batchesOnRight = batchesOnRight; // These were modified by RemoveCollidingBatchTiles
+        roadData.batchesOnLeft = batchesOnLeft;
+        roadPointDatasForRoads[currentRoadName] = roadData; // Re-assign since it's a struct
 
         RoadCreated?.Invoke(roadPointDatasForRoads[currentRoadName]);
         yield return null;
@@ -373,7 +386,6 @@ public class RoadDrawer : MonoBehaviour
         var mesh = road.AddComponent<RoadMesh>();
 
         mesh.DrawMesh(MeshGenerator.GenerateRoadMesh(splineRoadPoints), roadNaterial);
-
     }
 
     private void RemoveSplinePoints()
@@ -417,6 +429,11 @@ public class RoadDrawer : MonoBehaviour
         if (splineRoadPoints != default)
         {
             DrawRoadWithEmptyTiles(splineRoadPoints, batchesOnRight, batchesOnLeft);
+
+            // for (int i = 0; i < splineRoadPoints.Count; i++)
+            // {
+            //     DrawRoadGuidingPoints(splineRoadPoints[i]);
+            // }
         }
     }
 
@@ -433,8 +450,8 @@ public class RoadDrawer : MonoBehaviour
         {
             StopCoroutine(leftBatchDrawerCorutine);
         }
-        rightBatchDrawerCorutine = StartCoroutine(DrawBathces(batchesOnRight, emptyTileList, roadMeshes[0], "right"));
-        leftBatchDrawerCorutine = StartCoroutine(DrawBathces(batchesOnLeft, emptyTileList, roadMeshes[0], "left"));
+        rightBatchDrawerCorutine = StartCoroutine(DrawBatches(batchesOnRight, emptyTileList, roadMeshes[0], "right"));
+        leftBatchDrawerCorutine = StartCoroutine(DrawBatches(batchesOnLeft, emptyTileList, roadMeshes[0], "left"));
 
     }
 
@@ -528,28 +545,29 @@ public class RoadDrawer : MonoBehaviour
         for (int i = 0; i < splineRoadPoints.Count; i++)
         {
 
-            //DrawRoadGuidingPoints(splineRoadPoints[i]);
+            DrawRoadGuidingPoints(splineRoadPoints[i]);
             //leftSpline.Add(new BezierKnot(roadPointData.leftRoadPoint), TangentMode.AutoSmooth);
             //rightSpline.Add(new BezierKnot(roadPointData.rightRoadPoint), TangentMode.AutoSmooth);
             //middleSpline.Add(new BezierKnot(roadPointData.middleRoadPoint), TangentMode.AutoSmooth);
 
             if (i < splineRoadPoints.Count - 1)
             {
-               
+
                 if (splineRoadPoints[i].roadSectionIndex > maxRoadSectionIndex)
                 {
                     maxRoadSectionIndex = splineRoadPoints[i].roadSectionIndex;
                 }
-                if(splineRoadPoints.Where(srp => srp.roadSectionIndex == 0).Count() > 4 && i < 3 && firstRoadNameAndClosestRoadPointData != default) {
-                    
+                if (splineRoadPoints.Where(srp => srp.roadSectionIndex == 0).Count() > 4 && i < 3 && firstRoadNameAndClosestRoadPointData != default)
+                {
+
                     continue;
                 }
                 roadSectionIndexes.Add(splineRoadPoints[i].roadSectionIndex);
                 emptyTilesOnRight.Add(GetEmptyTilesForRoad(splineRoadPoints[i], splineRoadPoints[i + 1], RoadSide.Right, splineRoadPoints[i].roadSectionIndex));
                 emptyTilesOnLeft.Add(GetEmptyTilesForRoad(splineRoadPoints[i], splineRoadPoints[i + 1], RoadSide.Left, splineRoadPoints[i].roadSectionIndex));
 
-                
-                
+
+
                 //(previousLeftForward, previousLeftRoadDirectionVector, previousLeftRoadMiddlePoint) = AddEmptyTiles(splineRoadPoints[i], splineRoadPoints[i + 1], RoadSide.Left, previousLeftForward, previousLeftRoadDirectionVector, previousLeftRoadMiddlePoint);
             }
         }
@@ -562,7 +580,7 @@ public class RoadDrawer : MonoBehaviour
         var (forwardRightBatches, backwardRightBatches) = BatchEmptyTiles(emptyTilesOnRight, roadSectionIndexes.Count);
         var (forwardLeftBatches, backwardLeftBatches) = BatchEmptyTiles(emptyTilesOnLeft, roadSectionIndexes.Count);
 
-        var batchesOnRight = GetBestBatching(forwardRightBatches, forwardRightBatches);
+        var batchesOnRight = GetBestBatching(forwardRightBatches, backwardRightBatches);
         var batchesOnLeft = GetBestBatching(forwardLeftBatches, backwardLeftBatches);
 
 
@@ -574,7 +592,7 @@ public class RoadDrawer : MonoBehaviour
     {
 
         LayerMask layerMask = LayerMask.GetMask("ShadowRealm");
-        
+
         List<List<BatchData>> cleanedBatchDatas = new List<List<BatchData>>();
         for (int k = batchDatas.Count - 1; k >= 0; k--)
         {
@@ -589,23 +607,23 @@ public class RoadDrawer : MonoBehaviour
                     {
                         var emptyTileData = emptyTileDatas[i];
                         var result = new Collider[10];
-                        int hitCount = Physics.OverlapBoxNonAlloc(emptyTileData.position, new Vector3(1.8f, 30.0f, 1.8f),result, emptyTileData.rotation, layerMask);
+                        int hitCount = Physics.OverlapBoxNonAlloc(emptyTileData.position, new Vector3(1.8f, 30.0f, 1.8f), result, emptyTileData.rotation, layerMask);
                         var shadowCollider = emptyTileData.gameObject.transform.Find("ShadowCopy").GetComponent<Collider>();
-                        foreach(var collider in result)
+                        foreach (var collider in result)
                         {
-                          if (collider == shadowCollider)
-                          {
-                            hitCount--;
-                          }
+                            if (collider == shadowCollider)
+                            {
+                                hitCount--;
+                            }
                         }
 
                         if (hitCount > 0)
                         {
-                            
-                            indiciesToRemove.Add(i); 
+
+                            indiciesToRemove.Add(i);
                         }
                     }
-                    
+
                     foreach (var index in indiciesToRemove)
                     {
                         emptyTileDatas[index].gameObject.SetActive(false);
@@ -616,7 +634,7 @@ public class RoadDrawer : MonoBehaviour
                 batches[j] = new BatchData
                 {
                     batchIndex = batch.batchIndex,
-                    emptyTileDatas = new List<List<EmptyTileData>>( batch.emptyTileDatas.Where(etd => etd.Count > 0).ToList()),
+                    emptyTileDatas = new List<List<EmptyTileData>>(batch.emptyTileDatas.Where(etd => etd.Count > 0).ToList()),
                     tileObjects = new List<GameObject>(batch.tileObjects.Where(to => to != null).ToList())
                 };
             }
@@ -627,7 +645,7 @@ public class RoadDrawer : MonoBehaviour
         var ses = batchDatas.Where(bd => bd.Count(bdi => bdi.emptyTileDatas.Count > 0) > 0).ToList();
         return returnList;
     }
-    
+
     private string StringifyList<T>(List<T> list)
     {
         var stringList = new List<string>();
@@ -687,7 +705,7 @@ public class RoadDrawer : MonoBehaviour
 
         }
 
-        
+
         lastRoadData = new RoadPointData
         {
             leftRoadPoint = leftRoadPoint,
@@ -702,7 +720,7 @@ public class RoadDrawer : MonoBehaviour
         };
     }
 
-    IEnumerator DrawBathces(List<List<BatchData>> listOfBatchDatas, List<GameObject> emptyTileList, GameObject roadMesh, string side)
+    IEnumerator DrawBatches(List<List<BatchData>> listOfBatchDatas, List<GameObject> emptyTileList, GameObject roadMesh, string side)
     {
         var colors = new List<Color> { Color.red, Color.blue, Color.black, Color.white, Color.grey, Color.green, Color.yellow };
         Unity.Mathematics.Random random = new Unity.Mathematics.Random((uint)DateTime.Now.Millisecond + 1);
@@ -712,7 +730,7 @@ public class RoadDrawer : MonoBehaviour
             for (int i = 0; i < batchDatas.Count; i++)
             {
                 var batch = batchDatas[i];
-                
+
                 foreach (var emptyTileDatas in batch.emptyTileDatas)
                 {
                     SetPositionOfEmptyTiles(emptyTileDatas);
@@ -733,10 +751,11 @@ public class RoadDrawer : MonoBehaviour
         yield return null;
         foreach (var batchDatas in listOfBatchDatas)
         {
-             for (int i = 0; i < batchDatas.Count; i++)
+            for (int i = 0; i < batchDatas.Count; i++)
             {
                 var batch = batchDatas[i];
-                Color color = colors.ElementAt(random.NextInt(0, colors.Count));
+                //Color color = colors.ElementAt(random.NextInt(0, colors.Count));
+                Color color = Color.white;
                 foreach (var emptyTileDatas in batch.emptyTileDatas)
                 {
                     batch = AddTilesToGame(emptyTileList, roadMesh, batch, emptyTileDatas, "right", color);
@@ -754,6 +773,7 @@ public class RoadDrawer : MonoBehaviour
 
             var emptyTileInstance = Instantiate(emptyTilePrefab, roadMesh.transform);
             //emptyTileInstance.par
+            
             emptyTileInstance.transform.position = emptyTileData.position;
             emptyTileInstance.transform.rotation = emptyTileData.rotation;
             emptyTileInstance.gameObject.tag = side;
@@ -763,7 +783,7 @@ public class RoadDrawer : MonoBehaviour
             //     shadowCopy.transform.position = new Vector3(emptyTileData.position.x, 115.0f, emptyTileData.position.z);
             // }
             emptyTileInstance.GetComponentInChildren<Highlight>().SetHighlightColor(color);
-            emptyTileInstance.GetComponentInChildren<Highlight>().ToggleHighlight(true);
+            emptyTileInstance.GetComponentInChildren<Highlight>().ToggleHighlight(false);
             if (batch.tileObjects == default)
             {
                 batch.tileObjects = new List<GameObject>();
@@ -778,6 +798,8 @@ public class RoadDrawer : MonoBehaviour
 
     List<List<BatchData>> GetBestBatching(List<List<BatchData>> forwardBatches, List<List<BatchData>> backwardBatches)
     {
+        
+        //return forwardBatches;
         List<List<BatchData>> batchData = new List<List<BatchData>>();
         var batchIndex = 0;
         for (int i = 0; i < forwardBatches.Count; i++)
@@ -847,6 +869,10 @@ public class RoadDrawer : MonoBehaviour
 
     private (List<List<BatchData>>, List<List<BatchData>>) BatchEmptyTiles(List<List<EmptyTileData>> emptyTiles, int numberOfSections)
     {
+        // return empty tiles as single batches
+        // return (new List<List<BatchData>> { new List<BatchData> { new BatchData { emptyTileDatas = emptyTiles, batchIndex = 0, tileObjects = new List<GameObject>() } } },
+        //         new List<List<BatchData>> { new List<BatchData> { new BatchData { emptyTileDatas = emptyTiles, batchIndex = 0, tileObjects = new List<GameObject>() } } });
+
         List<BatchData>[] forwardBatches = new List<BatchData>[numberOfSections];
         forwardBatches[0] = new List<BatchData>() { new BatchData { emptyTileDatas = new List<List<EmptyTileData>> { emptyTiles[0] }, batchIndex = 0, tileObjects = new List<GameObject>() } };
         List<BatchData>[] backwardBatches = new List<BatchData>[numberOfSections];
@@ -992,8 +1018,9 @@ public class RoadDrawer : MonoBehaviour
             {
                 guidingPointSplineValues.Add(0.0f);
                 continue;
-            } 
-            if (i == splinePoints.Count -1 ) {
+            }
+            if (i == splinePoints.Count - 1)
+            {
                 guidingPointSplineValues.Add(1.0f);
                 continue;
             }
