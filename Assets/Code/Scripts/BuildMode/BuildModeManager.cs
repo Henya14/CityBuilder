@@ -28,10 +28,13 @@ public class BuildModeManager : MonoBehaviour
     private List<BuildingData> buildingDatas;
     [SerializeField] Material moralityMaterial;
 
+    TreeManager treeManager;
+
     void Start()
     {
         navigationManager = FindObjectOfType<NavigationManager>();
         gameUIManager = FindObjectOfType<GameUIManager>();
+        treeManager = FindObjectOfType<TreeManager>();
     }
     public void ObjectSelected(Dictionary<Vector3, List<Vector3Int>> placingPositionsWithGridPositions, SelectableObject selectedObject)
     {
@@ -192,7 +195,21 @@ public class BuildModeManager : MonoBehaviour
     {
         var (tilesToRoadPoints, graphNodesToRoadPoints) = CreateRoadNavigationPoints(roadData);
 
+        var roadMiddlePoints = roadData.roadPoints.Select(rp => rp.middleRoadPoint).ToList();
+        var roadWidth = roadData.roadPoints[0].roadWidth;
+        
+        roadMiddlePoints.ForEach(rp =>
+        {
+            treeManager.RemoveTreesInSquare(rp, roadWidth + 5);
+        });
 
+        var emptyTilePositions = roadData.batchesOnLeft.SelectMany(batch => batch).SelectMany(batch => batch.emptyTileDatas).SelectMany(tileList => tileList).Select(tile => tile.position).ToList();
+        emptyTilePositions.AddRange(roadData.batchesOnRight.SelectMany(batch => batch).SelectMany(batch => batch.emptyTileDatas).SelectMany(tileList => tileList).Select(tile => tile.position));
+
+        emptyTilePositions.ForEach(pos =>
+        {
+            treeManager.RemoveTreesInSquare(pos, 10);
+        });
         int gridmgCount = 0;
         gridmgCount = SetUpEmptyTilesForBatches(roadData.batchesOnLeft, tilesToRoadPoints, gridmgCount, roadData.roadMesh);
         SetUpEmptyTilesForBatches(roadData.batchesOnRight, tilesToRoadPoints, gridmgCount, roadData.roadMesh);

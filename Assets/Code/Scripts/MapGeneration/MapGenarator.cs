@@ -9,12 +9,12 @@ public class MapGenarator : MonoBehaviour
    public enum DrawMode { NoiseMap, ColorMap, Mesh };
    public DrawMode drawMode;
    const int mapChunkSize = 241;
-   [Range(0,6)]
+   [Range(0, 6)]
    public int levelOfDetail;
    [SerializeField] int seed;
    [SerializeField] float noiseScale;
    [SerializeField] int iterations;
-   [Range(0,1)]
+   [Range(0, 1)]
    [SerializeField] float amplitudeChangeFactor;
    [SerializeField] float frequencyChangeFactor;
    [SerializeField] Vector2 noiseOffset;
@@ -23,8 +23,13 @@ public class MapGenarator : MonoBehaviour
    public float meshHeightMultiplier;
    public AnimationCurve meshHeightCurve;
 
-   void Start() {
+   public TreeManager treeManager;
+
+   void Start()
+   {
+      treeManager = FindObjectOfType<TreeManager>();
       GenerateMap();
+
    }
    public void GenerateMap()
    {
@@ -39,7 +44,8 @@ public class MapGenarator : MonoBehaviour
          {
             float height = noiseMap[x, y];
 
-            if (height > maxHeight){
+            if (height > maxHeight)
+            {
                maxHeight = height;
             }
             for (int i = 0; i < terrainTypes.Length; i++)
@@ -64,9 +70,14 @@ public class MapGenarator : MonoBehaviour
       else if (drawMode == DrawMode.ColorMap)
       {
          mapDisplay.DrawTexture(TextureGenerator.CreateTextureFromColorMap(colorMap, mapChunkSize, mapChunkSize));
-      }  else if (drawMode == DrawMode.Mesh)
+      }
+      else if (drawMode == DrawMode.Mesh)
       {
-          mapDisplay.DrawMesh(MeshGenerator.GenerateTerrainMesh(noiseMap, meshHeightMultiplier, meshHeightCurve, levelOfDetail), TextureGenerator.CreateTextureFromColorMap(colorMap, mapChunkSize, mapChunkSize));
+         mapDisplay.DrawMesh(MeshGenerator.GenerateTerrainMesh(noiseMap, meshHeightMultiplier, meshHeightCurve, levelOfDetail), TextureGenerator.CreateTextureFromColorMap(colorMap, mapChunkSize, mapChunkSize));
+         if (treeManager != null)
+         {
+            treeManager.GenerateTrees();
+         }
       }
    }
 
