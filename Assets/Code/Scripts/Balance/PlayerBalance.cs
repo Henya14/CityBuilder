@@ -159,10 +159,10 @@ public class PlayerBalance : MonoBehaviour
 
         Balance = (int)currTaxIncome;
 
-        Debug.Log("Taxes: ");
-        Debug.Log($"{residentsTaxes[0]} {residentsTaxes[1]} {residentsTaxes[2]}");
-        Debug.Log($"{shopTaxes[0]} {shopTaxes[1]} {shopTaxes[2]}");
-        Debug.Log($"{factoryTaxes[0]} {factoryTaxes[1]}   {factoryTaxes[2]}");
+        // Debug.Log("Taxes: ");
+        // Debug.Log($"{residentsTaxes[0]} {residentsTaxes[1]} {residentsTaxes[2]}");
+        // Debug.Log($"{shopTaxes[0]} {shopTaxes[1]} {shopTaxes[2]}");
+        // Debug.Log($"{factoryTaxes[0]} {factoryTaxes[1]}   {factoryTaxes[2]}");
     }
 
     private void UpdatePopulation() {

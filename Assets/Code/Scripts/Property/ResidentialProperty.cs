@@ -29,6 +29,8 @@ public class ResidentialProperty : AbstarctProperty
 {
     float chanceOfSpawningCar = 0.8f;
     NavigationManager navigationManager;
+    private NavigationController<SelectableObject> _navigationController;
+    private CarSpawner _carSpawner;
     List<CarNavigation> cars = new List<CarNavigation>();
     List<CarStatus> carsStatuses = new List<CarStatus>();
 
@@ -38,6 +40,8 @@ public class ResidentialProperty : AbstarctProperty
     {
         this.PropertyType = PropertyType.Residental;
         navigationManager = FindObjectOfType<NavigationManager>();
+        _carSpawner = FindObjectOfType<CarSpawner>();
+        _navigationController = navigationManager.GetNavigationController();
         numberOfCars = UnityEngine.Random.Range(1, 3);
         for (int i = 0; i < numberOfCars; i++)
         {
@@ -69,12 +73,13 @@ public class ResidentialProperty : AbstarctProperty
             {
                 var route = new List<GraphSearchNode<SelectableObject>>();
                 var home = navigationManager.GetGraphNodeForSelectableObject(gameObject.GetComponent<SelectionManager>());
-                navigationManager.FindShortestPathBeetweenTwoPoints(start, home, out route);
+                 var shortestPathRequest = new FindRouteRequest<SelectableObject>(start, home);
+                var shortestPathResponse = _navigationController.FindShortestPath(shortestPathRequest);
+                route = shortestPathResponse.IsSuccess ? shortestPathResponse.RouteResult.ShortestPath : null;
                 yield return null;
                 if (route != null)
                 {
-                    CarNavigation carNavigation = null;
-                    navigationManager.StartCarOnRoute(route, out carNavigation);
+                    CarNavigation carNavigation = _carSpawner.SpawnCar(route);
                     if (carNavigation == null)
                     {
                         yield break;
@@ -119,13 +124,13 @@ public class ResidentialProperty : AbstarctProperty
                         continue;
                     }
                     ;
-                    navigationManager.FindShortestPathBeetweenTwoPoints(start, carStatus.workNode, out route);
+                    var shortestPathResponse = _navigationController.FindShortestPath(new FindRouteRequest<SelectableObject>(start, carStatus.workNode));
+                    route = shortestPathResponse.IsSuccess ? shortestPathResponse.RouteResult.ShortestPath : null;
                     yield return null;
                     if (route != null)
                     {
                         CarNavigation carNavigation = null;
-                        
-                        navigationManager.StartCarOnRoute(route, out carNavigation);
+                        carNavigation = _carSpawner.SpawnCar(route);
                         if (carNavigation == null)
                         {
                            yield break;
@@ -177,13 +182,12 @@ public class ResidentialProperty : AbstarctProperty
                         carStatus.ResetBools();
                         continue;
                     }
-                    navigationManager.FindShortestPathBeetweenTwoPoints(start, destinationNode, out route);
+                    var shortestPathResponse = _navigationController.FindShortestPath(new FindRouteRequest<SelectableObject>(start, destinationNode));
+                    route = shortestPathResponse.IsSuccess ? shortestPathResponse.RouteResult.ShortestPath : null;
                     yield return null;
                     if (route != null)
                     {
-                        CarNavigation carNavigation = null;
-                        
-                        navigationManager.StartCarOnRoute(route, out carNavigation);
+                        CarNavigation carNavigation = _carSpawner.SpawnCar(route);
                         if (carNavigation == null)
                         {
                             yield break;
@@ -220,7 +224,8 @@ public class ResidentialProperty : AbstarctProperty
             destinations = destinations.OrderBy(_ => Guid.NewGuid()).ToList();
             foreach (var dest in destinations)
             {
-                navigationManager.FindShortestPathBeetweenTwoPoints(start, dest, out route);
+                var shortestPathRequest = new FindRouteRequest<SelectableObject>(start, dest);
+                route = _navigationController.FindShortestPath(shortestPathRequest).RouteResult.ShortestPath;
                 if (route != null)
                 {
                     break;
@@ -274,27 +279,33 @@ public class ResidentialProperty : AbstarctProperty
     }
     List<GraphNode<SelectableObject>> GetStoreNodes()
     {
-        var stores = navigationManager.WhereBuildings(gn => gn.Value.GetSelectableObjectType() == SelectableObjectType.ZoneBuilding && gn.Value.GetDescription().Contains("Shopping"));
-        return stores;
+        var stores = _navigationController.QueryGraphNodes(gn => gn.Value.GetSelectableObjectType() == SelectableObjectType.ZoneBuilding && gn.Value.GetDescription().Contains("Shopping"));
+        return stores.ToList();
     }
 
     List<GraphNode<SelectableObject>> GetIndustrialNodes()
     {
-        var factories = navigationManager.WhereBuildings(gn => gn.Value.GetSelectableObjectType() == SelectableObjectType.ZoneBuilding && gn.Value.GetDescription().Contains("Industrial"));
-        return factories;
+        var factories = _navigationController.QueryGraphNodes(gn => gn.Value.GetSelectableObjectType() == SelectableObjectType.ZoneBuilding && gn.Value.GetDescription().Contains("Industrial"));
+        return factories.ToList();
     }
 
     List<GraphNode<SelectableObject>> GetBuildingNodes()
     {
-        var buildings = navigationManager.WhereBuildings(gn => gn.Value.GetSelectableObjectType() == SelectableObjectType.Building);
-        return buildings;
+        var buildings = _navigationController.QueryGraphNodes(gn => gn.Value.GetSelectableObjectType() == SelectableObjectType.Building);
+        return buildings.ToList();
     }
 
     private GraphNode<SelectableObject> GetRandomWorkNode()
     {
         var workPlaces = GetIndustrialNodes();
+        var homeNode = navigationManager.GetGraphNodeForSelectableObject(gameObject.GetComponent<SelectionManager>());
+        if (homeNode == null)
+        {
+            Debug.Log($"No home node found for {gameObject.name}");
+            return null;
+        }
         var workPlacesOrderedByDistance = workPlaces
-        .Select(wp => new { Node = wp, Distance = navigationManager.GetDistanceBetweenTwoNodes(navigationManager.GetGraphNodeForSelectableObject(gameObject.GetComponent<SelectionManager>()), wp) })
+        .Select(wp => new { Node = wp, Distance = _navigationController.GetDistance(homeNode, wp) })
         .OrderBy(wp => wp.Distance)
         .ToList();
         if (workPlacesOrderedByDistance.Count == 0) return null;
@@ -305,7 +316,7 @@ public class ResidentialProperty : AbstarctProperty
     {
         var storePlaces = GetStoreNodes();
         var storePlacesOrderedByDistance = storePlaces
-        .Select(sp => new { Node = sp, Distance = navigationManager.GetDistanceBetweenTwoNodes(navigationManager.GetGraphNodeForSelectableObject(gameObject.GetComponent<SelectionManager>()), sp) })
+        .Select(sp => new { Node = sp, Distance = _navigationController.GetDistance(navigationManager.GetGraphNodeForSelectableObject(gameObject.GetComponent<SelectionManager>()), sp) })
         .OrderBy(sp => sp.Distance)
         .ToList();
         if (storePlacesOrderedByDistance.Count == 0) return null;

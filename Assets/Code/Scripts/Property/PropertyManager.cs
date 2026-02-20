@@ -185,8 +185,9 @@ public class PropertyManager : MonoBehaviour
                                     property.HouseLevel = hlvl;
                                     gridManager.AddProperty(position, property);
 
-
-                                    navigationManager.AddBuilding(selectionManager, neighbourDictionary);
+                                    var (worldPosition, rotation) = gridManager.GetGamePositionAndRotationForGridPosition(position);
+                                    var entityPosition = new Position(worldPosition.x, worldPosition.y, worldPosition.z);
+                                    navigationManager.AddBuilding(selectionManager, entityPosition, neighbourDictionary);
                                     //navigationManager.AddBuilding(selectedBuilding.GetSelectionManagerForGridPosition(neighboursForPosition.Key), weights);
                                     break;
                             }

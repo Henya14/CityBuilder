@@ -180,14 +180,9 @@ public class Road : AbstractBuildingType
     }
     
 
-
-
-    private NavigationManager navigationManager;
-
     // Start is called before the first frame update
     void Start()
     {
-        navigationManager = FindObjectOfType<NavigationManager>();
         RefreshDebugLabel();
     }
 

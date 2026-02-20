@@ -94,7 +94,8 @@ public class BuildModeManager : MonoBehaviour
 
         if (selectedBuilding is Building)
         {
-            navigationManager.AddBuilding(selectedBuilding.GetSelectionManagerForGridPosition(selectedBuilding.gridPositions[0]), weights);
+            var entityPosition = new Position(selectedBuilding.transform.position.x, selectedBuilding.transform.position.y, selectedBuilding.transform.position.z);
+            navigationManager.AddBuilding(selectedBuilding.GetSelectionManagerForGridPosition(selectedBuilding.gridPositions[0]), entityPosition, weights);
         }
     }
 
@@ -335,7 +336,9 @@ public class BuildModeManager : MonoBehaviour
                         WeightToNeighbour = GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT
                     });
                 }
-                navigationManager.AddBuilding(selectionManager, weights);
+                var entityPosition = new Position(position.x, position.y, position.z);
+
+                navigationManager.AddBuilding(selectionManager,entityPosition, weights);
                 graphNodesToRoadPoints[roadPoint].Add(new GraphNodeForRoadPoint
                 {
                     graphNode = navigationManager.GetGraphNodeForSelectableObject(selectionManager),
@@ -373,8 +376,8 @@ public class BuildModeManager : MonoBehaviour
                         WeightToNeighbour = 1
                     });
                 }
-
-                navigationManager.AddBuilding(selectionManager, weights);
+                var entityPosition = new Position(position.x, position.y, position.z);
+                navigationManager.AddBuilding(selectionManager, entityPosition, weights);
                 graphNodesToRoadPoints[roadPoint].Add(new GraphNodeForRoadPoint
                 {
                     graphNode = navigationManager.GetGraphNodeForSelectableObject(selectionManager),
@@ -418,8 +421,8 @@ public class BuildModeManager : MonoBehaviour
                         WeightToNeighbour = 1
                     });
                 }
-
-                navigationManager.AddBuilding(selectionManager, weights);
+                var entityPosition = new Position(position.x, position.y, position.z);
+                navigationManager.AddBuilding(selectionManager, entityPosition, weights);
                 graphNodesToRoadPoints[roadPoint].Add(new GraphNodeForRoadPoint
                 {
                     graphNode = navigationManager.GetGraphNodeForSelectableObject(selectionManager),
