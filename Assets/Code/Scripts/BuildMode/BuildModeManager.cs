@@ -28,10 +28,13 @@ public class BuildModeManager : MonoBehaviour
     private List<BuildingData> buildingDatas;
     [SerializeField] Material moralityMaterial;
 
+    TreeManager treeManager;
+
     void Start()
     {
         navigationManager = FindObjectOfType<NavigationManager>();
         gameUIManager = FindObjectOfType<GameUIManager>();
+        treeManager = FindObjectOfType<TreeManager>();
     }
     public void ObjectSelected(Dictionary<Vector3, List<Vector3Int>> placingPositionsWithGridPositions, SelectableObject selectedObject)
     {
@@ -91,7 +94,8 @@ public class BuildModeManager : MonoBehaviour
 
         if (selectedBuilding is Building)
         {
-            navigationManager.AddBuilding(selectedBuilding.GetSelectionManagerForGridPosition(selectedBuilding.gridPositions[0]), weights);
+            var entityPosition = new Position(selectedBuilding.transform.position.x, selectedBuilding.transform.position.y, selectedBuilding.transform.position.z);
+            navigationManager.AddBuilding(selectedBuilding.GetSelectionManagerForGridPosition(selectedBuilding.gridPositions[0]), entityPosition, weights);
         }
     }
 
@@ -192,7 +196,21 @@ public class BuildModeManager : MonoBehaviour
     {
         var (tilesToRoadPoints, graphNodesToRoadPoints) = CreateRoadNavigationPoints(roadData);
 
+        var roadMiddlePoints = roadData.roadPoints.Select(rp => rp.middleRoadPoint).ToList();
+        var roadWidth = roadData.roadPoints[0].roadWidth;
+        
+        roadMiddlePoints.ForEach(rp =>
+        {
+            treeManager.RemoveTreesInSquare(rp, roadWidth + 5);
+        });
 
+        var emptyTilePositions = roadData.batchesOnLeft.SelectMany(batch => batch).SelectMany(batch => batch.emptyTileDatas).SelectMany(tileList => tileList).Select(tile => tile.position).ToList();
+        emptyTilePositions.AddRange(roadData.batchesOnRight.SelectMany(batch => batch).SelectMany(batch => batch.emptyTileDatas).SelectMany(tileList => tileList).Select(tile => tile.position));
+
+        emptyTilePositions.ForEach(pos =>
+        {
+            treeManager.RemoveTreesInSquare(pos, 10);
+        });
         int gridmgCount = 0;
         gridmgCount = SetUpEmptyTilesForBatches(roadData.batchesOnLeft, tilesToRoadPoints, gridmgCount, roadData.roadMesh);
         SetUpEmptyTilesForBatches(roadData.batchesOnRight, tilesToRoadPoints, gridmgCount, roadData.roadMesh);
@@ -318,7 +336,9 @@ public class BuildModeManager : MonoBehaviour
                         WeightToNeighbour = GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT
                     });
                 }
-                navigationManager.AddBuilding(selectionManager, weights);
+                var entityPosition = new Position(position.x, position.y, position.z);
+
+                navigationManager.AddBuilding(selectionManager,entityPosition, weights);
                 graphNodesToRoadPoints[roadPoint].Add(new GraphNodeForRoadPoint
                 {
                     graphNode = navigationManager.GetGraphNodeForSelectableObject(selectionManager),
@@ -356,8 +376,8 @@ public class BuildModeManager : MonoBehaviour
                         WeightToNeighbour = 1
                     });
                 }
-
-                navigationManager.AddBuilding(selectionManager, weights);
+                var entityPosition = new Position(position.x, position.y, position.z);
+                navigationManager.AddBuilding(selectionManager, entityPosition, weights);
                 graphNodesToRoadPoints[roadPoint].Add(new GraphNodeForRoadPoint
                 {
                     graphNode = navigationManager.GetGraphNodeForSelectableObject(selectionManager),
@@ -401,8 +421,8 @@ public class BuildModeManager : MonoBehaviour
                         WeightToNeighbour = 1
                     });
                 }
-
-                navigationManager.AddBuilding(selectionManager, weights);
+                var entityPosition = new Position(position.x, position.y, position.z);
+                navigationManager.AddBuilding(selectionManager, entityPosition, weights);
                 graphNodesToRoadPoints[roadPoint].Add(new GraphNodeForRoadPoint
                 {
                     graphNode = navigationManager.GetGraphNodeForSelectableObject(selectionManager),
