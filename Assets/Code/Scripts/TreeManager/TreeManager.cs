@@ -53,7 +53,11 @@ public class TreeManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        batchesForTreeTypes = new List<List<TreeBatchData>>();
+    }
+
+    public void Init()
+    {
+         batchesForTreeTypes = new List<List<TreeBatchData>>();
         for (int i = 0; i < treePrefabs.Count; i++)
         {
             batchesForTreeTypes.Add(new List<TreeBatchData>());

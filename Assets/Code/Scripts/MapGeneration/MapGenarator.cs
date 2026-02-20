@@ -76,6 +76,7 @@ public class MapGenarator : MonoBehaviour
          mapDisplay.DrawMesh(MeshGenerator.GenerateTerrainMesh(noiseMap, meshHeightMultiplier, meshHeightCurve, levelOfDetail), TextureGenerator.CreateTextureFromColorMap(colorMap, mapChunkSize, mapChunkSize));
          if (treeManager != null)
          {
+            treeManager.Init();
             treeManager.GenerateTrees();
          }
       }
