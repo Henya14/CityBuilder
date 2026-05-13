@@ -19,13 +19,15 @@ public class RecalculateWeightsUseCase<T>
             {
                 if (connection.Weight == GraphConnection<SelectableObject>.NO_CONNECTION_WEIGHT)
                 {
-                    return;
+                    continue;
                 }
-                if (connection.Destination == node)
+                // Update connection weight based on destination road's weight
+                var newWeight = (int)_roadDataProvider.GetRoadWeight(connection.Destination);
+                if (newWeight <= 0)
                 {
-
-                    connection.Weight = (int)_roadDataProvider.GetRoadWeight(node);
+                    newWeight = 1;
                 }
+                connection.Weight = newWeight;
             }
         }
     }

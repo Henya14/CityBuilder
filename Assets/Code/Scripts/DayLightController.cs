@@ -17,7 +17,7 @@ public class DayLightController : MonoBehaviour
     {
         sun = GameObject.Find("Sun");
         sunLight = sun.GetComponent<Light>();
-        //TimeManager.OnMinuteChanged += OnMinuteChanged;
+        TimeManager.On10MinutesChanged += OnMinuteChanged;
     }
 
     // Update is called once per frame
